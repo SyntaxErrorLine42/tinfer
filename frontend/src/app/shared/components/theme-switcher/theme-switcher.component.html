@@ -1,0 +1,7 @@
+<z-button (click)="toggleTheme()" variant="ghost" size="icon" [attr.aria-label]="getCurrentTheme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+  @if (getCurrentTheme() === 'dark') {
+  ☀️
+  } @else {
+  🌙
+  }
+</z-button>
