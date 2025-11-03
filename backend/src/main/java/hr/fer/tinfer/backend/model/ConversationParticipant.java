@@ -10,7 +10,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "conversation_participants", indexes = {
+@Table(name = "conversation_participants", schema = "public", indexes = {
         @Index(name = "conversation_participants_user_id_idx", columnList = "user_id")
 })
 public class ConversationParticipant {
@@ -37,4 +37,5 @@ public class ConversationParticipant {
     @ColumnDefault("false")
     @Column(name = "is_muted")
     private Boolean isMuted;
+
 }

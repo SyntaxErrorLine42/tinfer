@@ -7,13 +7,14 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import hr.fer.tinfer.backend.types.app_mode;
+
 import java.time.Instant;
 import java.util.Map;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "user_activity_log", indexes = {
+@Table(name = "user_activity_log", schema = "public", indexes = {
         @Index(name = "idx_user_activity_user", columnList = "user_id, created_at"),
         @Index(name = "user_activity_log_activity_type_idx", columnList = "activity_type")
 })
@@ -38,7 +39,8 @@ public class UserActivityLog {
     private Instant createdAt;
 
 
-      @Column(name = "mode", columnDefinition = "app_mode")
-      private app_mode mode;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mode")
+    private app_mode mode;
 
 }

@@ -23,10 +23,8 @@ public class ConversationParticipantId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
-            return false;
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         ConversationParticipantId entity = (ConversationParticipantId) o;
         return Objects.equals(this.conversationId, entity.conversationId) &&
                 Objects.equals(this.userId, entity.userId);

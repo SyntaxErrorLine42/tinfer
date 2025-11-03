@@ -8,7 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Getter
 @Setter
 @Entity
-@Table(name = "user_departments")
+@Table(name = "user_departments", schema = "public")
 public class UserDepartment {
     @EmbeddedId
     private UserDepartmentId id;
@@ -26,4 +26,5 @@ public class UserDepartment {
     @ColumnDefault("true")
     @Column(name = "is_primary")
     private Boolean isPrimary;
+
 }

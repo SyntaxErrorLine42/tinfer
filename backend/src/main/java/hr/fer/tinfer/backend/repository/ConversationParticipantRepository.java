@@ -5,4 +5,4 @@ import hr.fer.tinfer.backend.model.ConversationParticipantId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ConversationParticipantRepository extends JpaRepository<ConversationParticipant, ConversationParticipantId> {
-}
+  }

@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "project_required_skills", indexes = {
+@Table(name = "project_required_skills", schema = "public", indexes = {
         @Index(name = "project_required_skills_skill_id_idx", columnList = "skill_id")
 })
 public class ProjectRequiredSkill {
@@ -23,4 +23,5 @@ public class ProjectRequiredSkill {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "skill_id", nullable = false)
     private Skill skill;
+
 }

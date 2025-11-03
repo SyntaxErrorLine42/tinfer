@@ -4,14 +4,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 @Getter
 @Setter
 @Entity
-@Table(name = "departments", uniqueConstraints = {
-        @UniqueConstraint(name = "departments_code_key", columnNames = { "code" })
+@Table(name = "departments", schema = "public", uniqueConstraints = {
+        @UniqueConstraint(name = "departments_code_key", columnNames = {"code"})
 })
 public class Department {
     @Id
@@ -28,9 +25,4 @@ public class Department {
     @Column(name = "description", length = Integer.MAX_VALUE)
     private String description;
 
-    @OneToMany(mappedBy = "department")
-    private Set<Cours> courses = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "department")
-    private Set<UserDepartment> userDepartments = new LinkedHashSet<>();
 }

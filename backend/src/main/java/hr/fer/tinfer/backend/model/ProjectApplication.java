@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import hr.fer.tinfer.backend.types.application_status;
+import hr.fer.tinfer.backend.types.*;
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "project_applications", indexes = {
+@Table(name = "project_applications", schema = "public", indexes = {
         @Index(name = "project_applications_project_id_applicant_id_idx", columnList = "project_id, applicant_id", unique = true),
         @Index(name = "project_applications_project_id_idx", columnList = "project_id"),
         @Index(name = "project_applications_applicant_id_idx", columnList = "applicant_id"),
@@ -45,8 +45,9 @@ public class ProjectApplication {
     @Column(name = "responded_at")
     private Instant respondedAt;
 
-
-     @Column(name = "status", columnDefinition = "application_status")
-     private application_status status;
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'pending'")
+    @Column(name = "status")
+    private application_status status;
 
 }

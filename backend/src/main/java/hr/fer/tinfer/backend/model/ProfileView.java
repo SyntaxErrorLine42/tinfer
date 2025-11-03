@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import hr.fer.tinfer.backend.types.app_mode;
+import hr.fer.tinfer.backend.types.*;
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "profile_views", indexes = {
+@Table(name = "profile_views", schema = "public", indexes = {
         @Index(name = "profile_views_viewer_id_idx", columnList = "viewer_id"),
         @Index(name = "profile_views_viewed_id_mode_idx", columnList = "viewed_id, mode")
 })
@@ -32,8 +32,8 @@ public class ProfileView {
     @Column(name = "viewed_at")
     private Instant viewedAt;
 
-
-     @Column(name = "mode", columnDefinition = "app_mode not null")
-     private app_mode mode;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mode",nullable = false)
+    private app_mode mode;
 
 }

@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "dating_profiles")
+@Table(name = "dating_profiles", schema = "public")
 public class DatingProfile {
     @Id
     @Column(name = "user_id", nullable = false)
@@ -53,4 +53,5 @@ public class DatingProfile {
     @ColumnDefault("now()")
     @Column(name = "updated_at")
     private Instant updatedAt;
+
 }

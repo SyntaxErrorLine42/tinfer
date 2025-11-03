@@ -23,10 +23,8 @@ public class UserDepartmentId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
-            return false;
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         UserDepartmentId entity = (UserDepartmentId) o;
         return Objects.equals(this.departmentId, entity.departmentId) &&
                 Objects.equals(this.userId, entity.userId);

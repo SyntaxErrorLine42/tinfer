@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import hr.fer.tinfer.backend.types.swipe_action;
+import hr.fer.tinfer.backend.types.*;
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "dating_swipes", indexes = {
+@Table(name = "dating_swipes", schema = "public", indexes = {
         @Index(name = "dating_swipes_swiper_id_swiped_id_idx", columnList = "swiper_id, swiped_id", unique = true),
         @Index(name = "dating_swipes_swiper_id_idx", columnList = "swiper_id"),
         @Index(name = "dating_swipes_swiped_id_idx", columnList = "swiped_id")
@@ -33,8 +33,8 @@ public class DatingSwipe {
     @Column(name = "swiped_at")
     private Instant swipedAt;
 
-
-     @Column(name = "action", columnDefinition = "swipe_action not null")
-     private swipe_action action;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "action", nullable = false)
+    private swipe_action action;
 
 }

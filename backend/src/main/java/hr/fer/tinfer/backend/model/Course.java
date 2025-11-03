@@ -3,20 +3,18 @@ package hr.fer.tinfer.backend.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "courses", indexes = {
+@Table(name = "courses", schema = "public", indexes = {
         @Index(name = "courses_code_idx", columnList = "code"),
         @Index(name = "courses_department_id_idx", columnList = "department_id")
 }, uniqueConstraints = {
-        @UniqueConstraint(name = "courses_code_key", columnNames = { "code" })
+        @UniqueConstraint(name = "courses_code_key", columnNames = {"code"})
 })
-public class Cours {
+public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -38,6 +36,4 @@ public class Cours {
     @Column(name = "ects")
     private Integer ects;
 
-    @OneToMany(mappedBy = "course")
-    private Set<UserCours> userCourses = new LinkedHashSet<>();
 }

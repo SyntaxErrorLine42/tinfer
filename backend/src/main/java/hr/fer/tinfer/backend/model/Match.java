@@ -4,16 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-
+import hr.fer.tinfer.backend.types.*;
 import java.time.Instant;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import hr.fer.tinfer.backend.types.match_type;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "matches", indexes = {
+@Table(name = "matches", schema = "public", indexes = {
         @Index(name = "matches_user1_id_user2_id_match_type_idx", columnList = "user1_id, user2_id, match_type", unique = true),
         @Index(name = "matches_user1_id_idx", columnList = "user1_id"),
         @Index(name = "matches_user2_id_idx", columnList = "user2_id"),
@@ -40,15 +37,12 @@ public class Match {
     @ColumnDefault("true")
     @Column(name = "is_active")
     private Boolean isActive;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private ProjectPost project;
-    @OneToMany(mappedBy = "match")
-    private Set<Conversation> conversations = new LinkedHashSet<>();
 
-
-      @Column(name = "match_type", columnDefinition = "match_type not null")
-      private match_type matchType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "match_type",nullable = false)
+    private match_type matchType;
 
 }
