@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "user_interests")
+@Table(name = "user_interests", schema = "public")
 public class UserInterest {
     @EmbeddedId
     private UserInterestId id;
@@ -21,4 +21,5 @@ public class UserInterest {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "interest_id", nullable = false)
     private Interest interest;
+
 }

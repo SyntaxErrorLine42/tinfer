@@ -10,7 +10,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "reports", indexes = {
+@Table(name = "reports", schema = "public", indexes = {
         @Index(name = "reports_reporter_id_idx", columnList = "reporter_id"),
         @Index(name = "reports_reported_id_idx", columnList = "reported_id"),
         @Index(name = "idx_reports_status", columnList = "status")
@@ -38,14 +38,17 @@ public class Report {
     @Column(name = "resolved_at")
     private Instant resolvedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reason", nullable = false)
+    private report_reason reason;
 
-      @Column(name = "reason", columnDefinition = "report_reason not null")
-     private report_reason reason;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mode", nullable = false)
+    private app_mode mode;
 
-      @Column(name = "mode", columnDefinition = "app_mode not null")
-     private app_mode mode;
-
-     @Column(name = "status", columnDefinition = "report_status")
-     private report_status status;
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'pending'")
+    @Column(name = "status")
+    private report_status status;
 
 }

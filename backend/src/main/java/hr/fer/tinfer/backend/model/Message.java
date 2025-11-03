@@ -10,7 +10,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "messages", indexes = {
+@Table(name = "messages", schema = "public", indexes = {
         @Index(name = "idx_messages_conversation", columnList = "conversation_id, sent_at"),
         @Index(name = "messages_sender_id_idx", columnList = "sender_id")
 })
@@ -44,4 +44,5 @@ public class Message {
 
     @Column(name = "attachment_url", length = 500)
     private String attachmentUrl;
+
 }

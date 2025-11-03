@@ -6,14 +6,12 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "interests", uniqueConstraints = {
-        @UniqueConstraint(name = "interests_name_key", columnNames = { "name" })
+@Table(name = "interests", schema = "public", uniqueConstraints = {
+        @UniqueConstraint(name = "interests_name_key", columnNames = {"name"})
 })
 public class Interest {
     @Id
@@ -31,7 +29,4 @@ public class Interest {
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @ManyToMany
-    @JoinTable(name = "user_interests", joinColumns = @JoinColumn(name = "interest_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<Profile> profiles = new LinkedHashSet<>();
 }

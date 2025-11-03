@@ -5,18 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "profiles", indexes = {
+@Table(name = "profiles", schema = "public", indexes = {
         @Index(name = "profiles_email_idx", columnList = "email"),
         @Index(name = "profiles_student_id_idx", columnList = "student_id")
 }, uniqueConstraints = {
-        @UniqueConstraint(name = "profiles_email_key", columnNames = { "email" }),
-        @UniqueConstraint(name = "profiles_student_id_key", columnNames = { "student_id" })
+        @UniqueConstraint(name = "profiles_email_key", columnNames = {"email"}),
+        @UniqueConstraint(name = "profiles_student_id_key", columnNames = {"student_id"})
 })
 public class Profile {
     @Id
@@ -57,11 +56,4 @@ public class Profile {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @ColumnDefault("now()")
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @ColumnDefault("now()")
-    @Column(name = "updated_at")
-    private Instant updatedAt;
 }

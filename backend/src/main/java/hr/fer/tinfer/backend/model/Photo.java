@@ -10,7 +10,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "photos", indexes = {
+@Table(name = "photos", schema = "public", indexes = {
         @Index(name = "photos_user_id_is_primary_idx", columnList = "user_id, is_primary", unique = true),
         @Index(name = "photos_user_id_idx", columnList = "user_id"),
         @Index(name = "photos_mode_idx", columnList = "mode")
@@ -23,7 +23,7 @@ public class Photo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private Profile user;
+    private Profile user_id;
 
     @Column(name = "url", nullable = false, length = 500)
     private String url;
@@ -40,8 +40,8 @@ public class Photo {
     @Column(name = "uploaded_at")
     private Instant uploadedAt;
 
-
-     @Column(name = "mode", columnDefinition = "app_mode")
-     private app_mode mode;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mode", nullable = false)
+    private app_mode mode;
 
 }

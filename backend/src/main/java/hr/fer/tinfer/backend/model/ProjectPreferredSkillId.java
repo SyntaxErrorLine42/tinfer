@@ -22,10 +22,8 @@ public class ProjectPreferredSkillId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
-            return false;
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         ProjectPreferredSkillId entity = (ProjectPreferredSkillId) o;
         return Objects.equals(this.skillId, entity.skillId) &&
                 Objects.equals(this.projectId, entity.projectId);

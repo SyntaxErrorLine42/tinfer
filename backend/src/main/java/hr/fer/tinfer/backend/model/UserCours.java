@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
-@Table(name = "user_courses", indexes = {
+@Table(name = "user_courses", schema = "public", indexes = {
         @Index(name = "user_courses_user_id_course_id_semester_taken_idx", columnList = "user_id, course_id, semester_taken", unique = true),
         @Index(name = "idx_user_courses_current", columnList = "user_id, is_current"),
         @Index(name = "user_courses_user_id_idx", columnList = "user_id")
@@ -27,7 +27,7 @@ public class UserCours {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
-    private Cours course;
+    private Course course;
 
     @Column(name = "semester_taken", length = 20)
     private String semesterTaken;
@@ -38,4 +38,5 @@ public class UserCours {
 
     @Column(name = "grade", precision = 3, scale = 2)
     private BigDecimal grade;
+
 }

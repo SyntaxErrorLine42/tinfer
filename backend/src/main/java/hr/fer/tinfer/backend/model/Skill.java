@@ -10,8 +10,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "skills", uniqueConstraints = {
-        @UniqueConstraint(name = "skills_name_key", columnNames = { "name" })
+@Table(name = "skills", schema = "public", uniqueConstraints = {
+        @UniqueConstraint(name = "skills_name_key", columnNames = {"name"})
 })
 public class Skill {
     @Id
@@ -28,4 +28,5 @@ public class Skill {
     @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
+
 }

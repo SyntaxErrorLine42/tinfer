@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "project_posts", indexes = {
+@Table(name = "project_posts", schema = "public", indexes = {
         @Index(name = "project_posts_posted_by_idx", columnList = "posted_by"),
         @Index(name = "idx_project_posts_active", columnList = "is_active"),
         @Index(name = "project_posts_created_at_idx", columnList = "created_at")
@@ -58,12 +58,12 @@ public class ProjectPost {
     @Column(name = "expires_at")
     private Instant expiresAt;
 
-
-    @Column(name = "project_type", columnDefinition = "project_type not null")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "project_type", nullable = false)
     private project_type projectType;
 
-
-     @Column(name = "commitment_level", columnDefinition = "commitment_level")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "commitment_level")
     private commitment_level commitmentLevel;
 
 }

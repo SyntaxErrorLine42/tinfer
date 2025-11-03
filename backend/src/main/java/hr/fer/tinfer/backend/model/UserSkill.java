@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
-@Table(name = "user_skills", indexes = {
+@Table(name = "user_skills", schema = "public", indexes = {
         @Index(name = "user_skills_user_id_skill_id_idx", columnList = "user_id, skill_id", unique = true),
         @Index(name = "user_skills_user_id_idx", columnList = "user_id"),
         @Index(name = "user_skills_skill_id_idx", columnList = "skill_id")
@@ -33,4 +33,5 @@ public class UserSkill {
 
     @Column(name = "years_of_experience", precision = 3, scale = 1)
     private BigDecimal yearsOfExperience;
+
 }

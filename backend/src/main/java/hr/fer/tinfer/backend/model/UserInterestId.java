@@ -23,10 +23,8 @@ public class UserInterestId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
-            return false;
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         UserInterestId entity = (UserInterestId) o;
         return Objects.equals(this.interestId, entity.interestId) &&
                 Objects.equals(this.userId, entity.userId);

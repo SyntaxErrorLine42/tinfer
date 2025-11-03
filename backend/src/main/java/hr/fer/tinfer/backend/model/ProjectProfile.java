@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "project_profiles", indexes = {
+@Table(name = "project_profiles", schema = "public", indexes = {
         @Index(name = "project_profiles_user_id_idx", columnList = "user_id", unique = true),
         @Index(name = "project_profiles_is_looking_idx", columnList = "is_looking")
 })
@@ -53,4 +53,5 @@ public class ProjectProfile {
     @ColumnDefault("now()")
     @Column(name = "updated_at")
     private Instant updatedAt;
+
 }
