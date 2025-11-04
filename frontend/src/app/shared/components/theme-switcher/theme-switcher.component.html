@@ -1,7 +1,22 @@
-<z-button (click)="toggleTheme()" variant="ghost" size="icon" [attr.aria-label]="getCurrentTheme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+<button
+  (click)="toggleTheme()"
+  class="
+    p-2 rounded-full
+    bg-transparent
+    hover:bg-purple-900
+    shadow-md hover:shadow-lg
+    transition-all duration-300
+    backdrop-blur-sm
+    hover:scale-110
+    flex items-center justify-center
+  "
+  [attr.aria-label]="
+    getCurrentTheme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+  "
+>
   @if (getCurrentTheme() === 'dark') {
-  ☀️
+    <i-lucide [img]="Sun" [size]="24" color="white"></i-lucide>
   } @else {
-  🌙
+    <i-lucide [img]="Moon" [size]="24" color="black"></i-lucide>
   }
-</z-button>
+</button>

@@ -1,35 +1,171 @@
-<div
-  class="min-h-screen bg-gradient-to-br from-slate-50 to-pink-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
-  <theme-switcher />
-  <!-- Hero Section - Full Page -->
-  <section class="relative overflow-hidden w-full">
-    <div class="absolute inset-0 "></div>
-    <div class="relative container mx-auto px-6 py-20 lg:py-32">
-      <div class="text-center max-w-4xl mx-auto">
-        <h1 class="text-5xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6">
-          Find Your Next
-          <span class="block bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
-            Love
-          </span>
-        </h1>
-        <p class="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-          Connect with people who share your interests.
-        </p>
+<theme-switcher class="fixed top-4 right-4 z-50"></theme-switcher>
 
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/auth/signup"
-            class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-lg font-semibold rounded-full hover:from-pink-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-          Get Started
-          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-          </a>
-          <a href="/auth/login"
-            class="inline-flex items-center px-8 py-4 border-2 border-pink-500 text-pink-500 dark:text-pink-400 text-lg font-semibold rounded-full hover:bg-pink-500 hover:text-white transition-all duration-300">
-            Already Signed Up?
-          </a>
-        </div>
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden
+         bg-gradient-to-br from-slate-50 to-pink-50 dark:from-gray-900 dark:to-purple-900">
+  <div class="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1591969851586-adbbd4accf81?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=687')]
+           bg-cover bg-[center_top_30%] dark:opacity-10"></div>
+
+  <div class="container relative z-10 mx-auto px-6 py-24 text-center animate-fade-in">
+    <h1 class="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
+      Find Your Next
+      <span class="block bg-gradient-to-r from-pink-500 via-purple-500 to-purple-600
+                   bg-clip-text text-transparent mt-2">
+        Love Story
+      </span>
+    </h1>
+
+    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10">
+      Meet people who share your interests — discover meaningful connections in seconds.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <button class="bg-gradient-to-r from-pink-500 to-purple-600 text-white dark:text-white
+               text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-2xl hover:scale-105
+               transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0">
+        Get Started
+        <i-lucide [img]="ArrowRight" class="ml-2 h-5 w-5"></i-lucide>
+      </button>
+
+      <button
+        class="border-2 border-pink-500 dark:border-purple-400 text-pink-500 dark:text-purple-400
+               hover:bg-pink-500 dark:hover:bg-purple-400 hover:text-white dark:hover:text-white
+               text-lg px-8 py-4 rounded-full transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0">
+        Already a Member?
+      </button>
+    </div>
+
+    <div class="flex items-center justify-center gap-8 mt-16 text-sm text-gray-600 dark:text-gray-300 flex-wrap">
+      <div class="flex items-center gap-2">
+        <i-lucide [img]="Users" class="h-5 w-5 text-pink-500 dark:text-purple-400"></i-lucide>
+        <span>Find Your Perfect Match</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <i-lucide [img]="Shield" class="h-5 w-5 text-pink-500 dark:text-purple-400"></i-lucide>
+        <span>100% Secure</span>
       </div>
     </div>
-  </section>
-</div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-24 bg-white dark:bg-gray-900">
+  <div class="container mx-auto px-6">
+    <div class="text-center mb-16 animate-fade-in">
+      <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">Why You'll Love Us</h2>
+      <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        Experience dating reimagined with our innovative approach to finding love
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="group p-8 rounded-3xl bg-gradient-to-br from-pink-50 to-white dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-gray-700
+                  hover:shadow-2xl transition-all hover:scale-105 animate-fade-in">
+        <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-500 dark:from-purple-600 dark:to-pink-500
+                    flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <i-lucide [img]="Heart" class="h-8 w-8 text-white"></i-lucide>
+        </div>
+        <h3 class="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">Meaningful Matches</h3>
+        <p class="text-gray-600 dark:text-gray-300">
+          Our smart algorithm helps you find real connections based on your passions and values.
+        </p>
+      </div>
+
+      <div class="group p-8 rounded-3xl bg-gradient-to-br from-purple-50 to-white dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-gray-700
+                  hover:shadow-2xl transition-all hover:scale-105 animate-fade-in" style="animation-delay:200ms">
+        <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 dark:from-pink-500 dark:to-purple-700
+                    flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <i-lucide [img]="Sparkles" class="h-8 w-8 text-white"></i-lucide>
+        </div>
+        <h3 class="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">Beautiful Design</h3>
+        <p class="text-gray-600 dark:text-gray-300">
+          Enjoy a clean, modern experience built with love and smooth animations.
+        </p>
+      </div>
+
+      <div class="group p-8 rounded-3xl bg-gradient-to-br from-fuchsia-50 to-white dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-gray-700
+                  hover:shadow-2xl transition-all hover:scale-105 animate-fade-in" style="animation-delay:400ms">
+        <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 dark:from-purple-700 dark:to-pink-600
+                    flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <i-lucide [img]="MessageCircle" class="h-8 w-8 text-white"></i-lucide>
+        </div>
+        <h3 class="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">Real Conversations</h3>
+        <p class="text-gray-600 dark:text-gray-300">
+          Chat seamlessly and make lasting memories with people who truly get you.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- App Showcase Section -->
+<section class="py-24 bg-gradient-to-br from-white to-pink-50 dark:from-gray-900 dark:to-purple-900">
+  <div class="container mx-auto px-6">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div class="animate-fade-in">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">Swipe Right on Your Future</h2>
+        <p class="text-xl text-gray-600 dark:text-gray-300 mb-8">
+          Our intuitive interface makes finding love feel natural and fun. Browse profiles, send messages, and spark
+          connections with just a tap.
+        </p>
+        <ul class="space-y-4">
+          <li class="flex items-start gap-3">
+            <div
+              class="h-6 w-6 rounded-full bg-pink-100 dark:bg-purple-700 flex items-center justify-center flex-shrink-0 mt-1">
+              <i-lucide [img]="Heart" class="h-4 w-4 text-pink-500 dark:text-purple-400"></i-lucide>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-1 text-gray-900 dark:text-white">Smart Matching</h4>
+              <p class="text-gray-600 dark:text-gray-300">Advanced algorithm suggestions based on interests</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div
+              class="h-6 w-6 rounded-full bg-pink-100 dark:bg-purple-700 flex items-center justify-center flex-shrink-0 mt-1">
+              <i-lucide [img]="Shield" class="h-4 w-4 text-pink-500 dark:text-purple-400"></i-lucide>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-1 text-gray-900 dark:text-white">Verified Profiles</h4>
+              <p class="text-gray-600 dark:text-gray-300">Connect with confidence through our secure system</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="relative animate-fade-in" style="animation-delay:200ms">
+        <img
+          src="https://images.unsplash.com/photo-1644446770253-5c6b45c38ba8?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687"
+          width="800" height="100" alt="Dating app interface"
+          class="w-full max-w-2xl h-100 object-cover rounded-3xl shadow-2xl hover:scale-105 transition-transform duration-500" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-24 bg-white dark:bg-gray-900">
+  <div class="container mx-auto px-6">
+    <div class="max-w-4xl mx-auto text-center animate-fade-in">
+      <div class="relative inline-block mb-8">
+        <img
+          src="https://images.unsplash.com/photo-1673580995247-54ff454059be?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1740"
+          alt="Meaningful conversations"
+          class="rounded-3xl shadow-2xl w-full max-w-2xl mx-auto object-cover hover:scale-105 transition-transform duration-500" />
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
+        Ready to Start Your Journey?
+      </h2>
+      <p class="text-xl text-gray-600 dark:text-gray-300 mb-8">
+        Join millions finding meaningful connections. Your perfect match is waiting.
+      </p>
+      <button
+        class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-lg px-12 py-4 rounded-full shadow-lg
+                     hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center"
+        routerLink="/auth/signup">
+        Create Your Profile
+        <i-lucide [img]="ArrowRight" class="ml-2 h-5 w-5"></i-lucide>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<app-footer></app-footer>
