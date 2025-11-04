@@ -1,5 +1,7 @@
+<!-- Theme switcher -->
 <theme-switcher class="fixed top-4 right-4 z-50"></theme-switcher>
 
+<!-- Hero section -->
 <section class="relative min-h-screen flex items-center justify-center overflow-hidden
          bg-gradient-to-br from-slate-50 to-pink-50 dark:from-gray-900 dark:to-purple-900">
   <div class="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1591969851586-adbbd4accf81?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=687')]
@@ -21,8 +23,7 @@
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <button class="bg-gradient-to-r from-pink-500 to-purple-600 text-white dark:text-white
                text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-2xl hover:scale-105
-               transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0"
-          routerLink="/auth/signup">
+               transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0" routerLink="/auth/signup">
         Get Started
         <i-lucide [img]="ArrowRight" class="ml-2 h-5 w-5"></i-lucide>
       </button>
@@ -31,7 +32,7 @@
         class="border-2 border-pink-500 dark:border-purple-400 text-pink-500 dark:text-purple-400
                hover:bg-pink-500 dark:hover:bg-purple-400 hover:text-white dark:hover:text-white
                text-lg px-8 py-4 rounded-full transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0"
-      routerLink="/auth/login">
+        routerLink="/auth/login">
         Already a Member?
       </button>
     </div>
@@ -158,8 +159,7 @@
       <p class="text-xl text-gray-600 dark:text-gray-300 mb-8">
         Join millions finding meaningful connections. Your perfect match is waiting.
       </p>
-      <button
-        class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-lg px-12 py-4 rounded-full shadow-lg
+      <button class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-lg px-12 py-4 rounded-full shadow-lg
                      hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center"
         routerLink="/auth/signup">
         Create Your Profile
