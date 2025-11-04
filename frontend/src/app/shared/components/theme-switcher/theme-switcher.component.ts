@@ -1,16 +1,19 @@
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { DarkModeService } from '@shared/services/darkmode.service';
-import { ZardButtonComponent } from '@shared/components/button/button.component';
+import { LucideAngularModule, Sun, Moon } from 'lucide-angular';
 
 @Component({
   selector: 'theme-switcher',
   templateUrl: './theme-switcher.component.html',
   standalone: true,
-  imports: [RouterModule, ZardButtonComponent /* other imports */],
+  imports: [LucideAngularModule, RouterModule ],
 })
 export class ThemeSwitcher {
   private readonly darkmodeService = inject(DarkModeService);
+
+  readonly Sun = Sun;
+  readonly Moon = Moon;
 
   toggleTheme(): void {
     this.darkmodeService.toggleTheme();
