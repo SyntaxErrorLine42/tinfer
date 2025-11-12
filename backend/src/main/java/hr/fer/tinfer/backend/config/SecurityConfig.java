@@ -29,17 +29,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Swagger/OpenAPI endpoints - javno dostupni
+
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html")
                         .permitAll()
-
-                        // Health check - javno dostupan
-                        .requestMatchers("/api/health").permitAll()
-
-                        // Svi ostali endpointi zahtijevaju autentifikaciju
                         .anyRequest().authenticated())
                 .addFilterBefore(supabaseJwtFilter, UsernamePasswordAuthenticationFilter.class);
 

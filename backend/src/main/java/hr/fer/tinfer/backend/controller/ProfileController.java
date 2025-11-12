@@ -2,7 +2,7 @@ package hr.fer.tinfer.backend.controller;
 
 import hr.fer.tinfer.backend.dto.CreateProfileRequest;
 import hr.fer.tinfer.backend.dto.ProfileResponse;
-import hr.fer.tinfer.backend.service.UserService;
+import hr.fer.tinfer.backend.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,15 +21,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Tag(name = "Profile", description = "Upravljanje korisničkim profilima")
 @SecurityRequirement(name = "Bearer Authentication")
-public class UserController {
+public class ProfileController {
 
-    private final UserService userService;
+    private final ProfileService profileService;
 
     @GetMapping("/me")
     @Operation(summary = "Dohvati profil trenutno prijavljenog korisnika")
     public ResponseEntity<ProfileResponse> getCurrentUserProfile(Authentication authentication) {
         UUID userId = (UUID) authentication.getPrincipal();
-        return userService.getCurrentUserProfile(userId)
+        return profileService.getCurrentUserProfile(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -37,7 +37,7 @@ public class UserController {
     @GetMapping("/{id}")
     @Operation(summary = "Dohvati profil po ID-u")
     public ResponseEntity<ProfileResponse> getProfileById(@PathVariable UUID id) {
-        return userService.getProfileById(id)
+        return profileService.getProfileById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -45,7 +45,7 @@ public class UserController {
     @GetMapping("/email/{email}")
     @Operation(summary = "Dohvati profil po email-u")
     public ResponseEntity<ProfileResponse> getProfileByEmail(@PathVariable String email) {
-        return userService.getProfileByEmail(email)
+        return profileService.getProfileByEmail(email)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -53,7 +53,7 @@ public class UserController {
     @GetMapping
     @Operation(summary = "Dohvati sve profile")
     public ResponseEntity<List<ProfileResponse>> getAllProfiles() {
-        List<ProfileResponse> profiles = userService.getAllProfiles();
+        List<ProfileResponse> profiles = profileService.getAllProfiles();
         return ResponseEntity.ok(profiles);
     }
 
@@ -66,10 +66,10 @@ public class UserController {
         UUID userId = (UUID) authentication.getPrincipal();
 
         try {
-            ProfileResponse profile = userService.createProfile(request, userId);
+            ProfileResponse profile = profileService.createProfile(request, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(profile);
         } catch (IllegalStateException e) {
-            // Profil već postoji ili email je zauzet
+
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
@@ -84,13 +84,13 @@ public class UserController {
         UUID currentUserId = (UUID) authentication.getPrincipal();
 
         try {
-            ProfileResponse profile = userService.updateProfile(id, request, currentUserId);
+            ProfileResponse profile = profileService.updateProfile(id, request, currentUserId);
             return ResponseEntity.ok(profile);
         } catch (SecurityException e) {
-            // Korisnik pokušava ažurirati tuđi profil
+
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (IllegalArgumentException e) {
-            // Profil ne postoji
+
             return ResponseEntity.notFound().build();
         }
     }
@@ -104,13 +104,13 @@ public class UserController {
         UUID currentUserId = (UUID) authentication.getPrincipal();
 
         try {
-            userService.deleteProfile(id, currentUserId);
+            profileService.deleteProfile(id, currentUserId);
             return ResponseEntity.noContent().build();
         } catch (SecurityException e) {
-            // Korisnik pokušava obrisati tuđi profil
+
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (IllegalArgumentException e) {
-            // Profil ne postoji
+
             return ResponseEntity.notFound().build();
         }
     }

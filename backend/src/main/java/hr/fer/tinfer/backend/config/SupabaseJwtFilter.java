@@ -41,10 +41,10 @@ public class SupabaseJwtFilter extends OncePerRequestFilter {
                         .build()
                         .verify(token);
 
-                String userId = jwt.getSubject(); // UUID od korisnika iz Supabase auth
+                String userId = jwt.getSubject();
                 String email = jwt.getClaim("email").asString();
 
-                // Kreiraj authentication objekt
+
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         UUID.fromString(userId),
                         null,
