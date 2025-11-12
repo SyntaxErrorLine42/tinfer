@@ -1,25 +1,25 @@
 package hr.fer.tinfer.backend.model;
 
+import hr.fer.tinfer.backend.types.ReportReason;
+import hr.fer.tinfer.backend.types.ReportStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import hr.fer.tinfer.backend.types.*;
-import java.time.Instant;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
-@Getter
-@Setter
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "reports", schema = "public", indexes = {
-        @Index(name = "reports_reporter_id_idx", columnList = "reporter_id"),
-        @Index(name = "reports_reported_id_idx", columnList = "reported_id"),
-        @Index(name = "idx_reports_status", columnList = "status")
-})
+@Table(name = "reports")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Report {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_id")
@@ -29,26 +29,21 @@ public class Report {
     @JoinColumn(name = "reported_id")
     private Profile reported;
 
-    @Column(name = "description", length = Integer.MAX_VALUE)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ReportReason reason;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
-    @ColumnDefault("now()")
-    @Column(name = "reported_at")
-    private Instant reportedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ReportStatus status = ReportStatus.PENDING;
+
+    @CreationTimestamp
+    @Column(name = "reported_at", updatable = false)
+    private LocalDateTime reportedAt;
 
     @Column(name = "resolved_at")
-    private Instant resolvedAt;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "reason", nullable = false)
-    private report_reason reason;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "mode", nullable = false)
-    private app_mode mode;
-
-    @Enumerated(EnumType.STRING)
-    @ColumnDefault("'pending'")
-    @Column(name = "status")
-    private report_status status;
-
+    private LocalDateTime resolvedAt;
 }

@@ -1,41 +1,40 @@
 package hr.fer.tinfer.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
-@Getter
-@Setter
 @Entity
-@Table(name = "conversation_participants", schema = "public", indexes = {
-        @Index(name = "conversation_participants_user_id_idx", columnList = "user_id")
-})
+@Table(name = "conversation_participants")
+@IdClass(ConversationParticipantId.class)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConversationParticipant {
-    @EmbeddedId
-    private ConversationParticipantId id;
 
-    @MapsId("conversationId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "conversation_id", nullable = false)
+    @Id
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "conversation_id")
     private Conversation conversation;
 
-    @MapsId("userId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @Id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private Profile user;
 
-    @ColumnDefault("now()")
-    @Column(name = "joined_at")
-    private Instant joinedAt;
+    @CreationTimestamp
+    @Column(name = "joined_at", updatable = false)
+    private LocalDateTime joinedAt;
 
     @Column(name = "last_read_at")
-    private Instant lastReadAt;
+    private LocalDateTime lastReadAt;
 
-    @ColumnDefault("false")
     @Column(name = "is_muted")
-    private Boolean isMuted;
-
+    private Boolean isMuted = false;
 }

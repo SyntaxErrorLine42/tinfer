@@ -1,28 +1,38 @@
 package hr.fer.tinfer.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
-@Table(name = "departments", schema = "public", uniqueConstraints = {
-        @UniqueConstraint(name = "departments_code_key", columnNames = {"code"})
-})
+@Table(name = "departments")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Department {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @NotBlank
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "code", nullable = false, length = 20)
+    @NotBlank
+    @Column(unique = true, nullable = false, length = 20)
     private String code;
 
-    @Column(name = "description", length = Integer.MAX_VALUE)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
+    @JsonIgnore
+    @ManyToMany(mappedBy = "departments")
+    private Set<Profile> users = new HashSet<>();
 }

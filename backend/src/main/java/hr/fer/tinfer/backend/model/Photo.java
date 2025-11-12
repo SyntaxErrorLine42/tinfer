@@ -1,47 +1,44 @@
 package hr.fer.tinfer.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import hr.fer.tinfer.backend.types.app_mode;
-import java.time.Instant;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
-@Getter
-@Setter
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "photos", schema = "public", indexes = {
-        @Index(name = "photos_user_id_is_primary_idx", columnList = "user_id, is_primary", unique = true),
-        @Index(name = "photos_user_id_idx", columnList = "user_id"),
-        @Index(name = "photos_mode_idx", columnList = "mode")
+@Table(name = "photos", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "user_id", "is_primary" })
 })
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Photo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private Profile user_id;
+    @JoinColumn(name = "user_id", nullable = false)
+    private Profile user;
 
-    @Column(name = "url", nullable = false, length = 500)
-    private String url;
+    @NotBlank
+    @Column(nullable = false, length = 500)
+    private String url; // Supabase Storage URL
 
-    @ColumnDefault("0")
     @Column(name = "display_order")
-    private Integer displayOrder;
+    private Integer displayOrder = 0;
 
-    @ColumnDefault("false")
     @Column(name = "is_primary")
-    private Boolean isPrimary;
+    private Boolean isPrimary = false;
 
-    @ColumnDefault("now()")
-    @Column(name = "uploaded_at")
-    private Instant uploadedAt;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "mode", nullable = false)
-    private app_mode mode;
-
+    @CreationTimestamp
+    @Column(name = "uploaded_at", updatable = false)
+    private LocalDateTime uploadedAt;
 }

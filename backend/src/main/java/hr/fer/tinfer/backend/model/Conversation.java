@@ -1,41 +1,47 @@
 package hr.fer.tinfer.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import hr.fer.tinfer.backend.types.*;
-import java.time.Instant;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
-@Getter
-@Setter
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Entity
-@Table(name = "conversations", schema = "public", indexes = {
-        @Index(name = "conversations_match_id_idx", columnList = "match_id"),
-        @Index(name = "conversations_last_message_at_idx", columnList = "last_message_at")
-})
+@Table(name = "conversations")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Conversation {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @OneToOne
     @JoinColumn(name = "match_id")
     private Match match;
 
-    @ColumnDefault("now()")
-    @Column(name = "created_at")
-    private Instant createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "last_message_at")
-    private Instant lastMessageAt;
-    @ColumnDefault("false")
+    private LocalDateTime lastMessageAt;
+
     @Column(name = "is_archived")
-    private Boolean isArchived;
+    private Boolean isArchived = false;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "conversation_type", nullable = false)
-    private match_type conversationType;
+    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> messages = new ArrayList<>();
 
+    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ConversationParticipant> participants = new HashSet<>();
 }

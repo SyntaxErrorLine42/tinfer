@@ -1,57 +1,59 @@
 package hr.fer.tinfer.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
 @Entity
-@Table(name = "dating_profiles", schema = "public")
+@Table(name = "dating_profiles")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DatingProfile {
-    @Id
-    @Column(name = "user_id", nullable = false)
-    private UUID id;
 
+    @Id
+    private UUID userId;
+
+    @JsonIgnore
+    @OneToOne
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private Profile profiles;
+    @JoinColumn(name = "user_id")
+    private Profile user;
 
     @Column(name = "looking_for", length = 50)
-    private String lookingFor;
+    private String lookingFor; // relationship, casual, not_sure
 
-    @Column(name = "gender", length = 50)
+    @Column(length = 50)
     private String gender;
 
-    @ColumnDefault("true")
     @Column(name = "show_gender")
-    private Boolean showGender;
+    private Boolean showGender = true;
 
     @Column(name = "prompt_1_question", length = 200)
     private String prompt1Question;
 
-    @Column(name = "prompt_1_answer", length = Integer.MAX_VALUE)
+    @Column(name = "prompt_1_answer", columnDefinition = "TEXT")
     private String prompt1Answer;
 
     @Column(name = "prompt_2_question", length = 200)
     private String prompt2Question;
 
-    @Column(name = "prompt_2_answer", length = Integer.MAX_VALUE)
+    @Column(name = "prompt_2_answer", columnDefinition = "TEXT")
     private String prompt2Answer;
 
     @Column(name = "prompt_3_question", length = 200)
     private String prompt3Question;
 
-    @Column(name = "prompt_3_answer", length = Integer.MAX_VALUE)
+    @Column(name = "prompt_3_answer", columnDefinition = "TEXT")
     private String prompt3Answer;
 
-    @ColumnDefault("now()")
+    @UpdateTimestamp
     @Column(name = "updated_at")
-    private Instant updatedAt;
-
+    private LocalDateTime updatedAt;
 }
