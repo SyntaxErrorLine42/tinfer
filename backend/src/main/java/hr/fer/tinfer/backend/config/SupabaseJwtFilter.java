@@ -1,30 +1,25 @@
 package hr.fer.tinfer.backend.config;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.UUID;
+
+import hr.fer.tinfer.backend.service.SupabaseJwtService;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SupabaseJwtFilter extends OncePerRequestFilter {
 
-    @Value("${supabase.jwt.secret}")
-    private String jwtSecret;
+    private final SupabaseJwtService supabaseJwtService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -33,29 +28,10 @@ public class SupabaseJwtFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-
-            try {
-                Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
-                DecodedJWT jwt = JWT.require(algorithm)
-                        .build()
-                        .verify(token);
-
-                String userId = jwt.getSubject();
-                String email = jwt.getClaim("email").asString();
-
-
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        UUID.fromString(userId),
-                        null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("Authenticated user: {} ({})", userId, email);
-
-            } catch (Exception e) {
-                log.error("JWT validation failed: {}", e.getMessage());
-            }
+            supabaseJwtService.authenticate(authHeader).ifPresentOrElse(auth -> {
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                log.debug("Authenticated user: {}", auth.getPrincipal());
+            }, () -> log.warn("JWT validation failed for incoming request"));
         }
 
         filterChain.doFilter(request, response);
