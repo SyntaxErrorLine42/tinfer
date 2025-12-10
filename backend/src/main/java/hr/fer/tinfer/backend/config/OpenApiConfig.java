@@ -11,20 +11,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-        @Bean
-        public OpenAPI customOpenAPI() {
-                return new OpenAPI()
-                                .info(new Info()
-                                                .title("Tinfer API")
-                                                .version("1.0.0")
-                                                .description("Backend API za Tinfer - student dating i networking aplikacija"))
-                                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-                                .components(new Components()
-                                                .addSecuritySchemes("Bearer Authentication",
-                                                                new SecurityScheme()
-                                                                                .type(SecurityScheme.Type.HTTP)
-                                                                                .scheme("bearer")
-                                                                                .bearerFormat("JWT")
-                                                                                .description("Unesite JWT token iz Supabase autentifikacije")));
-        }
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Tinfer API")
+                        .version("1.0.0")
+                        .description("Backend API za Tinfer - student dating i networking aplikacija"))
+                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+                .components(new Components()
+                        .addSecuritySchemes("Bearer Authentication",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                                        .description("Unesite JWT token iz Supabase autentifikacije")));
+    }
 }

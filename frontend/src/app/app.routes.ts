@@ -10,5 +10,5 @@ export const routes: Routes = [
   { path: 'login', component: LoginPage },
   { path: 'register', component: RegisterPage },
   { path: 'swipe', component: SwipePage },
-  { path: 'profile', component: ProfilePage },
+  // { path: 'profile', component: ProfilePage },
 ];
