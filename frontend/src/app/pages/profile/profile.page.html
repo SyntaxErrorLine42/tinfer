@@ -1,0 +1,192 @@
+<div class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20 pb-16">
+  <app-navbar />
+
+  <div class="container mx-auto px-4 pt-24 pb-8 max-w-3xl">
+    <app-card class="p-6 md:p-8">
+      @if (isLoading()) {
+        <div class="flex justify-center py-12 text-muted-foreground">
+          Loading profile...
+        </div>
+      } @else if (!profile()) {
+        <div class="flex flex-col items-center justify-center py-12 text-center">
+          <p class="text-lg font-medium mb-2">No profile found</p>
+          <p class="text-muted-foreground mb-4">Create your profile to start connecting with others.</p>
+          <app-button (click)="enterEditMode()">Create Profile</app-button>
+        </div>
+      } @else {
+        <div class="flex flex-col md:flex-row gap-6">
+          <!-- Left: avatar + basic info -->
+          <div class="flex flex-col items-center md:items-start gap-4 md:w-1/3">
+            <app-avatar
+              [alt]="profile()!.displayName || profile()!.firstName + ' ' + profile()!.lastName"
+              [initials]="initials()"
+              [src]="primaryPhotoUrl()"
+              size="xl"
+            />
+
+            <div class="text-center md:text-left">
+              <h2 class="text-2xl font-bold text-foreground">
+                {{ profile()!.displayName || profile()!.firstName + ' ' + profile()!.lastName }}
+              </h2>
+              <p class="text-sm text-muted-foreground">
+                {{ profile()!.email }}
+              </p>
+              <p class="mt-1 text-xs text-muted-foreground">
+                Member since {{ profile()!.createdAt | date:'MMM yyyy' }}
+              </p>
+            </div>
+
+            <div class="flex gap-2 mt-2">
+              <span class="px-3 py-1 rounded-full text-xs font-medium"
+                [ngClass]="profile()!.isVerified ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300'">
+                {{ profile()!.isVerified ? 'Verified' : 'Pending verification' }}
+              </span>
+              <span class="px-3 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300">
+                {{ profile()!.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Right: details & edit form -->
+          <div class="md:w-2/3 space-y-6">
+            <div class="flex items-center justify-between gap-4">
+              <h3 class="text-lg font-semibold">Profile information</h3>
+
+              @if (!isEditing()) {
+                <app-button variant="outline" (click)="enterEditMode()">
+                  Edit profile
+                </app-button>
+              } @else {
+                <div class="flex gap-2">
+                  <app-button variant="outline" (click)="cancelEdit()" [disabled]="isSaving()">
+                    Cancel
+                  </app-button>
+                  <app-button (click)="saveProfile()" [disabled]="isSaving()">
+                    @if (isSaving()) { Saving... } @else { Save changes }
+                  </app-button>
+                </div>
+              }
+            </div>
+
+            <!-- View mode -->
+            @if (!isEditing()) {
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground uppercase">Full name</p>
+                  <p class="mt-1 text-sm text-foreground">
+                    {{ profile()!.firstName }} {{ profile()!.lastName }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground uppercase">Display name</p>
+                  <p class="mt-1 text-sm text-foreground">
+                    {{ profile()!.displayName || 'Not set' }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground uppercase">Year of study</p>
+                  <p class="mt-1 text-sm text-foreground">
+                    {{ profile()!.yearOfStudy || 'Not set' }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground uppercase">Student ID</p>
+                  <p class="mt-1 text-sm text-foreground">
+                    {{ profile()!.studentId || 'Not set' }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <p class="text-xs font-medium text-muted-foreground uppercase">Bio</p>
+                <p class="mt-1 text-sm text-foreground whitespace-pre-line">
+                  {{ profile()!.bio || 'Tell others about yourself...' }}
+                </p>
+              </div>
+
+              <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Interests</p>
+                  <div class="flex flex-wrap gap-2">
+                    @if (profile()!.interests?.length) {
+                      @for (interest of profile()!.interests; track interest) {
+                        <span class="px-3 py-1 rounded-full bg-white/60 dark:bg-slate-800/80 text-xs text-foreground shadow-sm">
+                          {{ interest }}
+                        </span>
+                      }
+                    } @else {
+                      <p class="text-sm text-muted-foreground">No interests added yet.</p>
+                    }
+                  </div>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Departments</p>
+                  <div class="flex flex-wrap gap-2">
+                    @if (profile()!.departments?.length) {
+                      @for (dept of profile()!.departments; track dept) {
+                        <span class="px-3 py-1 rounded-full bg-white/60 dark:bg-slate-800/80 text-xs text-foreground shadow-sm">
+                          {{ dept }}
+                        </span>
+                      }
+                    } @else {
+                      <p class="text-sm text-muted-foreground">No departments assigned.</p>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Edit mode -->
+            @if (isEditing()) {
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <app-input
+                  label="First name"
+                  placeholder="Enter first name"
+                  [value]="firstName()"
+                  (valueChange)="firstName.set($event)"
+                />
+                <app-input
+                  label="Last name"
+                  placeholder="Enter last name"
+                  [value]="lastName()"
+                  (valueChange)="lastName.set($event)"
+                />
+                <app-input
+                  label="Display name"
+                  placeholder="How others will see you"
+                  [value]="displayName()"
+                  (valueChange)="displayName.set($event)"
+                />
+                <app-input
+                  label="Year of study"
+                  type="number"
+                  min="1"
+                  max="5"
+                  placeholder="1 - 5"
+                  [value]="yearOfStudy()"
+                  (valueChange)="yearOfStudy.set($event)"
+                />
+                <app-input
+                  label="Student ID"
+                  placeholder="e.g. 0036501234"
+                  [value]="studentId()"
+                  (valueChange)="studentId.set($event)"
+                />
+              </div>
+
+              <div class="mt-4">
+                <label class="block text-xs font-medium text-muted-foreground uppercase mb-1">Bio</label>
+                <textarea
+                  class="w-full min-h-[120px] rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  placeholder="Tell others about your interests, what you're looking for, etc."
+                  [ngModel]="bio()"
+                  (ngModelChange)="bio.set($event)"
+                ></textarea>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </app-card>
+  </div>
+</div>

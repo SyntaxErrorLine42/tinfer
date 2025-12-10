@@ -45,9 +45,6 @@ public class Profile {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
-    @Column(columnDefinition = "TEXT")
-    private String test;
-
     @Min(1)
     @Max(5)
     @Column(name = "year_of_study")

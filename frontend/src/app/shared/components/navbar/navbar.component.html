@@ -2,22 +2,24 @@
 <nav class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-gray-700">
   <div class="container mx-auto px-6">
     <div class="flex items-center justify-between h-16">
-      <!-- Logo -->
-      <a href="/" class="flex items-center space-x-3">
-        <span class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-500">
-          Tinfer
-        </span>
+      <!-- Logo + nav -->
+      <div class="flex items-center space-x-3">
+        <a routerLink="/" class="flex items-center space-x-3">
+          <span class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-500">
+            Tinfer
+          </span>
+        </a>
         <div class="flex items-center space-x-3 md:space-x-8 ml-6">
-          <a href="/home"
+          <a routerLink="/home"
             class="text-gray-800 dark:text-gray-200 hover:text-pink-500 dark:hover:text-purple-400 font-medium transition-colors duration-200">Home</a>
-          <a href="/matches"
+          <a routerLink="/matches"
             class="text-gray-800 dark:text-gray-200 hover:text-pink-500 dark:hover:text-purple-400 font-medium transition-colors duration-200">Matches</a>
-          <a href="/chat"
+          <a routerLink="/chat"
             class="text-gray-800 dark:text-gray-200 hover:text-pink-500 dark:hover:text-purple-400 font-medium transition-colors duration-200">Messages</a>
-          <a href="/profile"
+          <a routerLink="/profile"
             class="text-gray-800 dark:text-gray-200 hover:text-pink-500 dark:hover:text-purple-400 font-medium transition-colors duration-200">Profile</a>
         </div>
-      </a>
+      </div>
 
       <!-- Right actions -->
       <div class="flex items-center gap-3">
