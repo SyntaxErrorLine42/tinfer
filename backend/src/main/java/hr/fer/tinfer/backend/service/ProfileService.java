@@ -1,7 +1,10 @@
 package hr.fer.tinfer.backend.service;
 
 import hr.fer.tinfer.backend.dto.CreateProfileRequest;
+import hr.fer.tinfer.backend.dto.PhotoResponse;
+import hr.fer.tinfer.backend.dto.ProfileDetailsResponse;
 import hr.fer.tinfer.backend.dto.ProfileResponse;
+import hr.fer.tinfer.backend.model.Photo;
 import hr.fer.tinfer.backend.model.Profile;
 import hr.fer.tinfer.backend.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,6 +27,7 @@ import java.util.stream.Collectors;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
+    private final UserActivityLogService activityLogService;
 
     public Optional<ProfileResponse> getCurrentUserProfile(UUID userId) {
         log.debug("Fetching profile for user ID: {}", userId);
@@ -49,15 +56,28 @@ public class ProfileService {
     }
 
     @Transactional
+    public Optional<ProfileDetailsResponse> getProfileDetails(UUID requesterId, UUID profileId) {
+        log.debug("Fetching detailed profile info for {} by {}", profileId, requesterId);
+
+        return profileRepository.findById(profileId)
+                .map(profile -> {
+                    if (requesterId != null && !requesterId.equals(profileId)) {
+                        Map<String, Object> metadata = new HashMap<>();
+                        metadata.put("profileId", profileId.toString());
+                        activityLogService.recordActivity(requesterId, "PROFILE_VIEW", metadata);
+                    }
+                    return toDetailsResponse(profile);
+                });
+    }
+
+    @Transactional
     public ProfileResponse createProfile(CreateProfileRequest request, UUID userId) {
         log.info("Creating profile for user ID: {}", userId);
-
 
         if (profileRepository.existsById(userId)) {
             log.warn("Profile already exists for user ID: {}", userId);
             throw new IllegalStateException("Profile already exists for this user");
         }
-
 
         if (profileRepository.existsByEmail(request.getEmail())) {
             log.warn("Profile with email {} already exists", request.getEmail());
@@ -79,14 +99,16 @@ public class ProfileService {
         Profile savedProfile = profileRepository.save(profile);
         log.info("Profile created successfully for user ID: {}", userId);
 
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("profileId", savedProfile.getId().toString());
+        activityLogService.recordActivity(userId, "PROFILE_CREATED", metadata);
+
         return toResponse(savedProfile);
     }
-
 
     @Transactional
     public ProfileResponse updateProfile(UUID id, CreateProfileRequest request, UUID currentUserId) {
         log.info("Updating profile ID: {} by user ID: {}", id, currentUserId);
-
 
         if (!currentUserId.equals(id)) {
             log.warn("User {} attempted to update profile {}", currentUserId, id);
@@ -109,9 +131,12 @@ public class ProfileService {
         Profile updatedProfile = profileRepository.save(profile);
         log.info("Profile updated successfully: {}", id);
 
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("profileId", updatedProfile.getId().toString());
+        activityLogService.recordActivity(currentUserId, "PROFILE_UPDATED", metadata);
+
         return toResponse(updatedProfile);
     }
-
 
     @Transactional
     public void deleteProfile(UUID id, UUID currentUserId) {
@@ -132,12 +157,63 @@ public class ProfileService {
         log.info("Profile deleted successfully: {}", id);
     }
 
-
     public boolean profileExists(UUID userId) {
         return profileRepository.existsById(userId);
     }
 
-   
+    private ProfileDetailsResponse toDetailsResponse(Profile profile) {
+        List<String> interests = profile.getInterests()
+                .stream()
+                .map(interest -> interest.getName())
+                .sorted()
+                .collect(Collectors.toList());
+
+        List<String> departments = profile.getDepartments()
+                .stream()
+                .map(department -> department.getName())
+                .sorted()
+                .collect(Collectors.toList());
+
+        return ProfileDetailsResponse.builder()
+                .id(profile.getId())
+                .email(profile.getEmail())
+                .firstName(profile.getFirstName())
+                .lastName(profile.getLastName())
+                .displayName(profile.getDisplayName())
+                .bio(profile.getBio())
+                .yearOfStudy(profile.getYearOfStudy())
+                .studentId(profile.getStudentId())
+                .isVerified(profile.getIsVerified())
+                .isActive(profile.getIsActive())
+                .createdAt(profile.getCreatedAt())
+                .updatedAt(profile.getUpdatedAt())
+                .interests(interests)
+                .departments(departments)
+                .photos(mapPhotos(profile))
+                .build();
+    }
+
+    private List<PhotoResponse> mapPhotos(Profile profile) {
+        return profile.getPhotos()
+                .stream()
+                .sorted(photoComparator())
+                .map(photo -> PhotoResponse.builder()
+                        .id(photo.getId())
+                        .url(photo.getUrl())
+                        .displayOrder(photo.getDisplayOrder())
+                        .isPrimary(photo.getIsPrimary())
+                        .uploadedAt(photo.getUploadedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private Comparator<Photo> photoComparator() {
+        return Comparator
+                .comparing((Photo photo) -> Boolean.TRUE.equals(photo.getIsPrimary())).reversed()
+                .thenComparing(Photo::getDisplayOrder, Comparator.nullsLast(Integer::compareTo))
+                .thenComparing(Photo::getId, Comparator.nullsLast(Long::compareTo));
+    }
+
     private ProfileResponse toResponse(Profile profile) {
         return new ProfileResponse(
                 profile.getId(),
