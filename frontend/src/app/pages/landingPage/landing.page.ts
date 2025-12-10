@@ -3,6 +3,7 @@ import { LucideAngularModule, Heart, ArrowRight, Users, Shield, MessageCircle, S
 import { ThemeSwitcher } from '@shared/components/theme-switcher/theme-switcher.component';
 import { Footer } from '@shared/components/footer/footer.component';
 import { RouterLink } from '@angular/router';
+import { NavbarComponent } from '@shared/components/navbar/navbar.component';
 
 @Component({
   selector: 'landing-page',
@@ -11,7 +12,8 @@ import { RouterLink } from '@angular/router';
     ThemeSwitcher,
     Footer,
     LucideAngularModule,
-    RouterLink
+    RouterLink,
+    NavbarComponent
   ],
   templateUrl: './landing.page.html',
   styleUrls: ['./landing.page.css']
