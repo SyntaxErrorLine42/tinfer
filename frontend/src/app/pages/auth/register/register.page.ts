@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '@shared/services/auth.service';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button-wrapper/button-wrapper.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
@@ -23,7 +24,7 @@ export class RegisterPage {
   isLoading = signal(false);
   agreeToTerms = signal(false);
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   onFullNameChange(value: string) {
     this.fullName.set(value);
@@ -90,13 +91,30 @@ export class RegisterPage {
 
     if (hasError) return;
 
-    // Simulate API call
     this.isLoading.set(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    this.isLoading.set(false);
+    this.emailError.set('');
+    this.passwordError.set('');
 
-    // Navigate to tutorial
-    this.router.navigate(['/tutorial']);
+    try {
+      await this.authService.register({
+        fullName: this.fullName(),
+        email: this.email(),
+        password: this.password(),
+      });
+
+      // Navigate to tutorial after successful registration
+      this.router.navigate(['/']);
+    } catch (error: any) {
+      const message = error?.message ?? 'Registration failed. Please try again.';
+
+      if (message.toLowerCase().includes('email')) {
+        this.emailError.set(message);
+      } else {
+        this.passwordError.set(message);
+      }
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   async socialSignup(provider: string) {

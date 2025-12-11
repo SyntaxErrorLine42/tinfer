@@ -25,6 +25,7 @@
       <div class="flex items-center gap-3">
         <!-- Sign Out button -->
         <button
+          (click)="logout()"
           class="flex items-center shadow-md gap-1 px-4 py-2 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white rounded-lg transition">
           <i-lucide [img]="LogOut" [size]="24"></i-lucide>
         </button>
