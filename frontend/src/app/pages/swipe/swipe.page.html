@@ -1,0 +1,253 @@
+<div class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20">
+  <!-- Header -->
+  <div class="container max-w-md mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+      <button class="p-2 hover:bg-muted rounded-lg transition-colors">
+        <app-icon name="settings" [size]="24" class="text-foreground" />
+      </button>
+      
+      <div class="flex items-center gap-2">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
+          <app-icon name="heart" [size]="20" class="text-white" />
+        </div>
+        <span class="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+          Tinfer
+        </span>
+      </div>
+
+      <button class="p-2 hover:bg-muted rounded-lg transition-colors">
+        <app-icon name="message-circle" [size]="24" class="text-foreground" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Card Stack -->
+  <div class="container max-w-md mx-auto px-4 pb-4">
+    <div class="relative h-[calc(100vh-250px)] min-h-[500px]">
+      @if (currentProfile) {
+        <!-- Profile Card -->
+        <div
+          #swipeCard
+          class="absolute inset-0 cursor-grab active:cursor-grabbing select-none"
+          [ngStyle]="{
+            transform: 'translate(' + dragX() + 'px, ' + dragY() + 'px) rotate(' + rotation() + 'deg)',
+            transition: isDragging() ? 'none' : 'transform 0.3s ease-out'
+          }"
+        >
+          <app-card class="h-full overflow-hidden relative group">
+            <!-- Photo -->
+            <div class="relative h-full">
+              <img
+                [src]="currentProfile.photos[currentProfile.currentPhotoIndex]"
+                [alt]="currentProfile.name"
+                class="w-full h-full object-cover"
+              />
+
+              <!-- Photo Navigation Overlay -->
+              <div class="absolute inset-0 grid grid-cols-3 gap-2 p-2">
+                <div 
+                  (click)="prevPhoto()" 
+                  class="cursor-pointer hover:bg-white/10 rounded transition-colors"
+                ></div>
+                <div 
+                  (click)="nextPhoto()" 
+                  class="cursor-pointer hover:bg-white/10 rounded transition-colors col-span-2"
+                ></div>
+              </div>
+
+              <!-- Photo Indicators -->
+              <div class="absolute top-4 left-4 right-4 flex gap-1">
+                @for (photo of currentProfile.photos; track $index) {
+                  <div class="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
+                    <div
+                      class="h-full bg-white rounded-full transition-all duration-300"
+                      [style.width]="currentProfile.currentPhotoIndex >= $index ? '100%' : '0%'"
+                    ></div>
+                  </div>
+                }
+              </div>
+
+              <!-- Like/Nope Overlay -->
+              @if (dragX() !== 0) {
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  @if (dragX() > 50) {
+                    <div class="text-6xl font-bold text-green-500 border-4 border-green-500 px-6 py-3 rounded-xl rotate-[-20deg] opacity-80">
+                      LIKE
+                    </div>
+                  } @else if (dragX() < -50) {
+                    <div class="text-6xl font-bold text-red-500 border-4 border-red-500 px-6 py-3 rounded-xl rotate-[20deg] opacity-80">
+                      NOPE
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Gradient Overlay -->
+              <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+
+              <!-- Profile Info -->
+              <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                <div class="flex items-end justify-between mb-3">
+                  <div>
+                    <h2 class="text-3xl font-bold mb-1">
+                      {{ currentProfile.name }}, {{ currentProfile.age }}
+                    </h2>
+                    <div class="flex items-center gap-1 text-white/90">
+                      <app-icon name="map-pin" [size]="16" />
+                      <span class="text-sm">{{ currentProfile.distance }} km away</span>
+                    </div>
+                  </div>
+                  <button class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors flex items-center justify-center">
+                    <app-icon name="info" [size]="24" />
+                  </button>
+                </div>
+
+                <p class="text-white/90 text-sm mb-3 line-clamp-2">
+                  {{ currentProfile.bio }}
+                </p>
+
+                <div class="flex flex-wrap gap-2">
+                  @for (interest of currentProfile.interests; track interest) {
+                    <div class="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs font-medium">
+                      {{ interest }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </app-card>
+        </div>
+
+        <!-- Background Cards (for depth effect) -->
+        @if (currentIndex() < profiles().length - 1) {
+          <div class="absolute inset-0 -z-10 scale-95 opacity-50">
+            <app-card class="h-full overflow-hidden">
+              <img
+                [src]="profiles()[currentIndex() + 1].photos[0]"
+                [alt]="profiles()[currentIndex() + 1].name"
+                class="w-full h-full object-cover"
+              />
+            </app-card>
+          </div>
+        }
+
+        @if (currentIndex() < profiles().length - 2) {
+          <div class="absolute inset-0 -z-20 scale-90 opacity-30">
+            <app-card class="h-full overflow-hidden bg-muted">
+            </app-card>
+          </div>
+        }
+      } @else {
+        <!-- No more profiles -->
+        <div class="flex items-center justify-center h-full">
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-muted mb-4">
+              <app-icon name="users" [size]="48" class="text-muted-foreground" />
+            </div>
+            <h3 class="text-2xl font-bold mb-2">No more profiles</h3>
+            <p class="text-muted-foreground mb-6">Check back later for new matches!</p>
+            <app-button (click)="currentIndex.set(0)">
+              Start Over
+            </app-button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Action Buttons -->
+    @if (currentProfile) {
+      <div class="flex items-center justify-center gap-4 mt-6">
+        <!-- Rewind -->
+        <button
+          (click)="rewind()"
+          [disabled]="currentIndex() === 0"
+          class="w-12 h-12 rounded-full bg-yellow-500/20 hover:bg-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+        >
+          <app-icon name="rotate-ccw" [size]="20" class="text-yellow-600 dark:text-yellow-400" />
+        </button>
+
+        <!-- Pass -->
+        <button
+          (click)="animateSwipe('left'); pass()"
+          class="w-16 h-16 rounded-full bg-red-500/20 hover:bg-red-500/30 hover:scale-110 transition-all flex items-center justify-center"
+        >
+          <app-icon name="x" [size]="28" class="text-red-600 dark:text-red-400" />
+        </button>
+
+        <!-- Super Like -->
+        <button
+          (click)="superLike()"
+          class="w-14 h-14 rounded-full bg-blue-500/20 hover:bg-blue-500/30 hover:scale-110 transition-all flex items-center justify-center"
+        >
+          <app-icon name="star" [size]="24" class="text-blue-600 dark:text-blue-400" />
+        </button>
+
+        <!-- Like -->
+        <button
+          (click)="animateSwipe('right'); like()"
+          class="w-16 h-16 rounded-full bg-green-500/20 hover:bg-green-500/30 hover:scale-110 transition-all flex items-center justify-center"
+        >
+          <app-icon name="heart" [size]="28" class="text-green-600 dark:text-green-400" />
+        </button>
+
+        <!-- Boost -->
+        <button
+          class="w-12 h-12 rounded-full bg-purple-500/20 hover:bg-purple-500/30 transition-all flex items-center justify-center"
+        >
+          <app-icon name="zap" [size]="20" class="text-purple-600 dark:text-purple-400" />
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Match Modal -->
+  @if (showMatchModal() && lastMatchedProfile()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+      <div class="w-full max-w-md animate-in zoom-in-95 duration-300">
+        <app-card class="p-8 text-center">
+          <!-- Celebration -->
+          <div class="mb-6">
+            <div class="text-6xl mb-4 animate-bounce">🎉</div>
+            <h2 class="text-3xl font-bold mb-2 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              It's a Match!
+            </h2>
+            <p class="text-muted-foreground">
+              You and {{ lastMatchedProfile()!.name }} liked each other
+            </p>
+          </div>
+
+          <!-- Avatars -->
+          <div class="flex justify-center items-center gap-4 mb-8">
+            <app-avatar
+              [src]="lastMatchedProfile()!.photos[0]"
+              size="xl"
+              class="animate-in slide-in-from-left duration-500"
+            />
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center animate-pulse">
+              <app-icon name="heart" [size]="24" class="text-white" />
+            </div>
+            <app-avatar
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400"
+              size="xl"
+              class="animate-in slide-in-from-right duration-500"
+            />
+          </div>
+
+          <!-- Actions -->
+          <div class="space-y-3">
+            <app-button class="w-full" (click)="sendMessage()">
+              <div class="flex items-center justify-center gap-2">
+                <app-icon name="message-circle" [size]="20" />
+                <span>Send a Message</span>
+              </div>
+            </app-button>
+            <app-button variant="outline" class="w-full" (click)="keepSwiping()">
+              Keep Swiping
+            </app-button>
+          </div>
+        </app-card>
+      </div>
+    </div>
+  }
+</div>
+

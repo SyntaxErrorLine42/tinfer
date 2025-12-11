@@ -1,48 +1,49 @@
 package hr.fer.tinfer.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
-@Getter
-@Setter
 @Entity
-@Table(name = "messages", schema = "public", indexes = {
-        @Index(name = "idx_messages_conversation", columnList = "conversation_id, sent_at"),
-        @Index(name = "messages_sender_id_idx", columnList = "sender_id")
-})
+@Table(name = "messages")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Message {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conversation_id")
+    @JoinColumn(name = "conversation_id", nullable = false)
     private Conversation conversation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id")
+    @JoinColumn(name = "sender_id", nullable = false)
     private Profile sender;
 
-    @Column(name = "content", nullable = false, length = Integer.MAX_VALUE)
+    @NotBlank
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @ColumnDefault("now()")
-    @Column(name = "sent_at")
-    private Instant sentAt;
+    @CreationTimestamp
+    @Column(name = "sent_at", updatable = false)
+    private LocalDateTime sentAt;
 
-    @ColumnDefault("false")
     @Column(name = "is_read")
-    private Boolean isRead;
+    private Boolean isRead = false;
 
     @Column(name = "read_at")
-    private Instant readAt;
+    private LocalDateTime readAt;
 
     @Column(name = "attachment_url", length = 500)
     private String attachmentUrl;
-
 }

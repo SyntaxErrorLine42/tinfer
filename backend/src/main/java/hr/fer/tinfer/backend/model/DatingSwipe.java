@@ -1,40 +1,40 @@
 package hr.fer.tinfer.backend.model;
 
+import hr.fer.tinfer.backend.types.SwipeAction;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import hr.fer.tinfer.backend.types.*;
-import java.time.Instant;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
-@Getter
-@Setter
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "dating_swipes", schema = "public", indexes = {
-        @Index(name = "dating_swipes_swiper_id_swiped_id_idx", columnList = "swiper_id, swiped_id", unique = true),
-        @Index(name = "dating_swipes_swiper_id_idx", columnList = "swiper_id"),
-        @Index(name = "dating_swipes_swiped_id_idx", columnList = "swiped_id")
+@Table(name = "dating_swipes", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "swiper_id", "swiped_id" })
 })
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DatingSwipe {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "swiper_id")
+    @JoinColumn(name = "swiper_id", nullable = false)
     private Profile swiper;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "swiped_id")
+    @JoinColumn(name = "swiped_id", nullable = false)
     private Profile swiped;
 
-    @ColumnDefault("now()")
-    @Column(name = "swiped_at")
-    private Instant swipedAt;
-
     @Enumerated(EnumType.STRING)
-    @Column(name = "action", nullable = false)
-    private swipe_action action;
+    @Column(nullable = false)
+    private SwipeAction action;
 
+    @CreationTimestamp
+    @Column(name = "swiped_at", updatable = false)
+    private LocalDateTime swipedAt;
 }

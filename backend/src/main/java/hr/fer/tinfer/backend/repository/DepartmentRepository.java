@@ -2,6 +2,11 @@ package hr.fer.tinfer.backend.repository;
 
 import hr.fer.tinfer.backend.model.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface DepartmentRepository extends JpaRepository<Department, Integer> {
-  }
+import java.util.Optional;
+
+@Repository
+public interface DepartmentRepository extends JpaRepository<Department, Long> {
+    Optional<Department> findByCode(String code);
+}
