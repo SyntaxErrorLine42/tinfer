@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@shared/services/auth.service';
+import { ProfileInitService } from '@shared/services/profile-init.service';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button-wrapper/button-wrapper.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
@@ -13,13 +14,15 @@ import { IconComponent } from '../../../shared/components/icon-wrapper/icon-wrap
   styleUrl: './login.page.css',
 })
 export class LoginPage {
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private profileInitService = inject(ProfileInitService);
+
   email = signal('');
   password = signal('');
   emailError = signal('');
   passwordError = signal('');
   isLoading = signal(false);
-
-  constructor(private router: Router, private authService: AuthService) {}
 
   onEmailChange(value: string) {
     this.email.set(value);
@@ -63,8 +66,11 @@ export class LoginPage {
         password: this.password(),
       });
 
+      // Ensure profile exists (creates one if needed)
+      await this.profileInitService.ensureProfileExists();
+
       // Navigate to swipe interface after successful login
-      this.router.navigate(['/']);
+      this.router.navigate(['/swipe']);
     } catch (error: any) {
       const message = error?.message ?? 'Login failed. Please check your credentials.';
 

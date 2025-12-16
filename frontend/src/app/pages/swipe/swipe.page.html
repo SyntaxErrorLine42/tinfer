@@ -2,8 +2,8 @@
   <!-- Header -->
   <div class="container max-w-md mx-auto px-4 py-4">
     <div class="flex items-center justify-between">
-      <button class="p-2 hover:bg-muted rounded-lg transition-colors">
-        <app-icon name="settings" [size]="24" class="text-foreground" />
+      <button (click)="goToProfile()" class="p-2 hover:bg-muted rounded-lg transition-colors">
+        <app-icon name="user" [size]="24" class="text-foreground" />
       </button>
       
       <div class="flex items-center gap-2">

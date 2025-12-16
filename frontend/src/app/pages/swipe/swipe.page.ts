@@ -282,5 +282,9 @@ export class SwipePage implements AfterViewInit {
   keepSwiping() {
     this.showMatchModal.set(false);
   }
+
+  goToProfile() {
+    this.router.navigate(['/profile']);
+  }
 }
 
