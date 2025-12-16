@@ -1,6 +1,4 @@
 <app-navbar />
-<!-- Theme switcher -->
-<theme-switcher class="fixed top-4 right-4 z-50"></theme-switcher>
 
 <!-- Hero section -->
 <section class="relative min-h-screen flex items-center justify-center overflow-hidden
@@ -24,7 +22,7 @@
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <button class="bg-linear-to-r from-pink-500 to-purple-600 text-white dark:text-white
                text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-2xl hover:scale-105
-               transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0" routerLink="/auth/signup">
+               transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0 cursor-pointer" routerLink="/register">
         Get Started
         <i-lucide [img]="ArrowRight" class="ml-2 h-5 w-5"></i-lucide>
       </button>
@@ -32,8 +30,8 @@
       <button
         class="border-2 border-pink-500 dark:border-purple-400 text-pink-500 dark:text-purple-400
                hover:bg-pink-500 dark:hover:bg-purple-400 hover:text-white dark:hover:text-white
-               text-lg px-8 py-4 rounded-full transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0"
-        routerLink="/auth/login">
+               text-lg px-8 py-4 rounded-full transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0 cursor-pointer"
+        routerLink="/login">
         Already a Member?
       </button>
     </div>
@@ -161,8 +159,8 @@
         Join millions finding meaningful connections. Your perfect match is waiting.
       </p>
       <button class="bg-linear-to-r from-pink-500 to-purple-600 text-white text-lg px-12 py-4 rounded-full shadow-lg
-                     hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center"
-        routerLink="/auth/signup">
+                     hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center cursor-pointer"
+        routerLink="/register">
         Create Your Profile
         <i-lucide [img]="ArrowRight" class="ml-2 h-5 w-5"></i-lucide>
       </button>

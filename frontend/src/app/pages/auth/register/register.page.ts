@@ -102,8 +102,8 @@ export class RegisterPage {
         password: this.password(),
       });
 
-      // Navigate to tutorial after successful registration
-      this.router.navigate(['/']);
+      // Nakon registracije, korisnik nema profil pa ga redirect na create-profile
+      this.router.navigate(['/create-profile']);
     } catch (error: any) {
       const message = error?.message ?? 'Registration failed. Please try again.';
 

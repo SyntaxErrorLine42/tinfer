@@ -1,10 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@shared/services/auth.service';
+import { ProfileService } from '@shared/services/profile.service';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button-wrapper/button-wrapper.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { IconComponent } from '../../../shared/components/icon-wrapper/icon-wrapper.component';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +21,11 @@ export class LoginPage {
   passwordError = signal('');
   isLoading = signal(false);
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private profileService: ProfileService
+  ) {}
 
   onEmailChange(value: string) {
     this.email.set(value);
@@ -63,8 +69,25 @@ export class LoginPage {
         password: this.password(),
       });
 
-      // Navigate to swipe interface after successful login
-      this.router.navigate(['/']);
+      // Provjeri postoji li profil
+      this.profileService
+        .getMyProfile()
+        .pipe(
+          catchError((error) => {
+            // Ako dobijemo 404 ili bilo koji error, korisnik nema profil
+            console.log('Profile not found, redirecting to create profile');
+            return of(null);
+          })
+        )
+        .subscribe((profile) => {
+          if (profile) {
+            // Profil postoji, idi na home
+            this.router.navigate(['/home']);
+          } else {
+            // Profil ne postoji, idi na kreiranje profila
+            this.router.navigate(['/create-profile']);
+          }
+        });
     } catch (error: any) {
       const message = error?.message ?? 'Login failed. Please check your credentials.';
 
@@ -73,7 +96,6 @@ export class LoginPage {
       } else {
         this.passwordError.set(message);
       }
-    } finally {
       this.isLoading.set(false);
     }
   }

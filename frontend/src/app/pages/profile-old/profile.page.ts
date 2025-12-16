@@ -12,7 +12,7 @@ import { ProfileDetailsResponse, ProfileService, ProfileResponse } from '../../s
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, CardComponent, AvatarComponent, InputComponent, ButtonComponent, IconComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, CardComponent, AvatarComponent, InputComponent, ButtonComponent],
   templateUrl: './profile.page.html',
   styleUrl: './profile.page.css',
 })

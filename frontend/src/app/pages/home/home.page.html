@@ -1,0 +1,239 @@
+<div class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20">
+  <!-- Header -->
+  <div class="border-b border-border/50 bg-background/50 backdrop-blur-xl">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
+            <app-icon name="heart" [size]="20" class="text-white" />
+          </div>
+          <span class="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+            Tinfer
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button class="p-2 hover:bg-muted rounded-lg transition-colors">
+            <app-icon name="settings" [size]="24" class="text-foreground" />
+          </button>
+          <button class="p-2 hover:bg-muted rounded-lg transition-colors">
+            <app-icon name="user" [size]="24" class="text-foreground" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content - Split Layout -->
+  <div class="container mx-auto h-[calc(100vh-73px)]">
+    <div class="grid grid-cols-1 lg:grid-cols-[400px_1fr] h-full">
+      <!-- Left Side - Conversations -->
+      <div class="border-r border-border/50 bg-background/30 backdrop-blur-sm overflow-y-auto">
+        <div class="p-4 border-b border-border/50">
+          <h2 class="text-lg font-semibold">Poruke</h2>
+        </div>
+
+        <div class="divide-y divide-border/30">
+          @if (conversations().length === 0) {
+            <div class="p-8 text-center text-muted-foreground">
+              <app-icon name="message-circle" [size]="48" class="mx-auto mb-4 opacity-50" />
+              <p>Nemaš još nijednu poruku</p>
+              <p class="text-sm mt-2">Swipe desno za match!</p>
+            </div>
+          } @else {
+            @for (conversation of conversations(); track conversation.conversationId) {
+              <button
+                (click)="openConversation(conversation.conversationId)"
+                class="w-full p-4 hover:bg-muted/50 transition-colors text-left flex items-center gap-3"
+              >
+                <!-- Avatar -->
+                <div class="relative flex-shrink-0">
+                  <app-avatar
+                    [src]="conversation.partnerPrimaryPhotoUrl"
+                    [alt]="conversation.partnerDisplayName"
+                    size="xl"
+                    class="ring-2 ring-pink-500/20"
+                  />
+                  @if (conversation.unreadCount > 0) {
+                    <div class="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {{ conversation.unreadCount }}
+                    </div>
+                  }
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-semibold text-foreground truncate">
+                      {{ conversation.partnerDisplayName }}
+                    </h3>
+                    <span class="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                      {{ formatTime(conversation.lastMessageAt) }}
+                    </span>
+                  </div>
+                  <p
+                    class="text-sm truncate"
+                    [class.text-foreground]="conversation.unreadCount > 0"
+                    [class.font-semibold]="conversation.unreadCount > 0"
+                    [class.text-muted-foreground]="conversation.unreadCount === 0"
+                  >
+                    {{ conversation.lastMessageSnippet }}
+                  </p>
+                </div>
+              </button>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Right Side - Swipe Cards -->
+      <div class="flex flex-col items-center justify-center p-4 lg:p-8">
+        @if (currentRecommendation()) {
+          <div class="w-full max-w-md">
+            <!-- Profile Card -->
+            <div
+              class="relative w-full aspect-[3/4] select-none"
+              [style.transform]="'translate(' + dragX() + 'px, ' + dragY() + 'px) rotate(' + rotation() + 'deg)'"
+              [style.transition]="isDragging() ? 'none' : 'transform 0.3s ease-out'"
+              (mousedown)="onMouseDown($event)"
+              (mousemove)="onMouseMove($event)"
+              (mouseup)="onMouseUp($event)"
+              (mouseleave)="onMouseUp($event)"
+            >
+              <app-card class="h-full overflow-hidden relative group cursor-grab active:cursor-grabbing">
+                <!-- Photo -->
+                <div class="relative h-full">
+                  <img
+                    [src]="currentRecommendation()!.photoGallery[currentPhotoIndex()]"
+                    [alt]="currentRecommendation()!.displayName"
+                    class="w-full h-full object-cover"
+                  />
+
+                  <!-- Photo Navigation Overlay -->
+                  <div class="absolute inset-0 grid grid-cols-3 gap-2 p-2 z-10">
+                    <div 
+                      (click)="prevPhoto()" 
+                      class="cursor-pointer hover:bg-white/10 rounded transition-colors"
+                    ></div>
+                    <div 
+                      (click)="nextPhoto()" 
+                      class="cursor-pointer hover:bg-white/10 rounded transition-colors col-span-2"
+                    ></div>
+                  </div>
+
+                  <!-- Photo Indicators -->
+                  <div class="absolute top-4 left-4 right-4 flex gap-1 z-20">
+                    @for (photo of currentRecommendation()!.photoGallery; track $index) {
+                      <div class="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
+                        <div
+                          class="h-full bg-white rounded-full transition-all duration-300"
+                          [style.width]="currentPhotoIndex() >= $index ? '100%' : '0%'"
+                        ></div>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Like/Nope Overlay -->
+                  @if (dragX() !== 0) {
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+                      @if (dragX() > 50) {
+                        <div class="text-6xl font-bold text-green-500 border-4 border-green-500 px-6 py-3 rounded-xl rotate-[-20deg] opacity-80">
+                          LIKE
+                        </div>
+                      } @else if (dragX() < -50) {
+                        <div class="text-6xl font-bold text-red-500 border-4 border-red-500 px-6 py-3 rounded-xl rotate-[20deg] opacity-80">
+                          NOPE
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <!-- Gradient Overlay -->
+                  <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+
+                  <!-- Profile Info -->
+                  <div class="absolute bottom-0 left-0 right-0 p-6 text-white z-20">
+                    <div class="flex items-center gap-2 mb-2">
+                      <h2 class="text-3xl font-bold">
+                        {{ currentRecommendation()!.displayName }}
+                      </h2>
+                      @if (currentRecommendation()!.verified) {
+                        <app-icon name="circle-check" [size]="24" class="text-blue-400" />
+                      }
+                    </div>
+                    
+                    @if (currentRecommendation()!.yearOfStudy) {
+                      <p class="text-white/90 mb-3">{{ currentRecommendation()!.yearOfStudy }}. godina</p>
+                    }
+
+                    @if (currentRecommendation()!.bio) {
+                      <p class="text-white/90 mb-3">{{ currentRecommendation()!.bio }}</p>
+                    }
+
+                    <!-- Compatibility Score -->
+                    @if (currentRecommendation()!.compatibilityScore > 0) {
+                      <div class="flex items-center gap-2 mb-3">
+                        <div class="px-3 py-1 bg-pink-500/80 backdrop-blur-sm rounded-full text-sm font-semibold">
+                          {{ (currentRecommendation()!.compatibilityScore * 100).toFixed(0) }}% kompatibilnost
+                        </div>
+                      </div>
+                    }
+
+                    <!-- Shared Interests -->
+                    @if (currentRecommendation()!.sharedInterests.length > 0) {
+                      <div class="flex flex-wrap gap-2 mb-3">
+                        @for (interest of currentRecommendation()!.sharedInterests.slice(0, 3); track interest) {
+                          <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm">
+                            {{ interest }}
+                          </span>
+                        }
+                      </div>
+                    }
+
+                    <!-- Highlight -->
+                    @if (currentRecommendation()!.highlight) {
+                      <div class="flex items-start gap-2 p-3 bg-white/10 backdrop-blur-sm rounded-lg">
+                        <app-icon name="sparkles" [size]="20" class="flex-shrink-0 text-yellow-400" />
+                        <p class="text-sm">{{ currentRecommendation()!.highlight }}</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </app-card>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-center gap-4 mt-6">
+              <button
+                (click)="onDislike()"
+                class="w-14 h-14 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:scale-110 transition-transform flex items-center justify-center group"
+              >
+                <app-icon name="x" [size]="28" class="text-red-500 group-hover:scale-110 transition-transform" />
+              </button>
+
+              <button
+                (click)="onSuperLike()"
+                class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg hover:scale-110 transition-transform flex items-center justify-center"
+              >
+                <app-icon name="star" [size]="28" class="text-white" />
+              </button>
+
+              <button
+                (click)="onLike()"
+                class="w-14 h-14 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:scale-110 transition-transform flex items-center justify-center group"
+              >
+                <app-icon name="heart" [size]="28" class="text-green-500 group-hover:scale-110 transition-transform" />
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="text-center text-muted-foreground">
+            <app-icon name="users" [size]="64" class="mx-auto mb-4 opacity-50" />
+            <h3 class="text-xl font-semibold mb-2">Nema više preporuka</h3>
+            <p>Provjeri ponovo kasnije!</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

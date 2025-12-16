@@ -1,0 +1,274 @@
+<div class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-gray-800 flex items-center justify-center p-4 py-12">
+  <!-- Background decoration -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 dark:bg-purple-700 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-xl opacity-20 animate-blob"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-300 dark:bg-pink-700 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-300 dark:bg-blue-700 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+  </div>
+
+  <div class="w-full max-w-2xl relative z-10">
+    <app-card class="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border-2 border-white/20 dark:border-gray-700/50 shadow-2xl">
+      <div class="space-y-8 p-4 sm:p-8">
+        <!-- Header -->
+        <div class="text-center space-y-4">
+          <div class="flex justify-center mb-4">
+            <div class="relative">
+              <div class="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full blur-lg opacity-50"></div>
+              <div class="relative p-4 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg transform hover:scale-110 transition-transform duration-300">
+                <app-icon name="user" [size]="48" class="text-white" />
+              </div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <h1 class="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+              Kreiraj svoj profil
+            </h1>
+            <p class="text-base sm:text-lg text-muted-foreground max-w-md mx-auto">
+              Ispuni podatke i započni svoju Tinfer avanturu 💖
+            </p>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        @if (generalError()) {
+          <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg shadow-md animate-shake">
+            <div class="flex items-start gap-3">
+              <app-icon name="triangle-alert" [size]="20" class="text-red-500 mt-0.5" />
+              <div>
+                <p class="font-semibold text-sm">Greška</p>
+                <p class="text-sm">{{ generalError() }}</p>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Form -->
+        <form (submit)="onSubmit(); $event.preventDefault()" class="space-y-6">
+          <!-- Name Section -->
+          <div class="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-gray-800/50 dark:to-purple-900/20 p-6 rounded-2xl border border-pink-100 dark:border-purple-800/30 space-y-4">
+            <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">
+              <app-icon name="user" [size]="20" class="text-pink-600 dark:text-pink-400" />
+              <span>Osnovno o tebi</span>
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- First Name -->
+              <div>
+                <label for="firstName" class="block text-sm font-semibold text-foreground mb-2">
+                  Ime <span class="text-pink-600 dark:text-pink-400">*</span>
+                </label>
+                <app-input
+                  id="firstName"
+                  type="text"
+                  placeholder="Tvoje ime"
+                  [value]="firstName()"
+                  (valueChange)="onFirstNameChange($event)"
+                  [error]="firstNameError()"
+                  [disabled]="isLoading()"
+                />
+              </div>
+
+              <!-- Last Name -->
+              <div>
+                <label for="lastName" class="block text-sm font-semibold text-foreground mb-2">
+                  Prezime <span class="text-pink-600 dark:text-pink-400">*</span>
+                </label>
+                <app-input
+                  id="lastName"
+                  type="text"
+                  placeholder="Tvoje prezime"
+                  [value]="lastName()"
+                  (valueChange)="onLastNameChange($event)"
+                  [error]="lastNameError()"
+                  [disabled]="isLoading()"
+                />
+              </div>
+            </div>
+
+            <!-- Display Name -->
+            <div>
+              <label for="displayName" class="block text-sm font-semibold text-foreground mb-2">
+                Nadimak <span class="text-xs text-muted-foreground">(opcionalno)</span>
+              </label>
+              <app-input
+                id="displayName"
+                type="text"
+                placeholder="Kako te zovu prijatelji?"
+                [value]="displayName()"
+                (valueChange)="onDisplayNameChange($event)"
+                [disabled]="isLoading()"
+              />
+            </div>
+          </div>
+
+          <!-- Photos Section -->
+          <div class="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-gray-800/50 dark:to-purple-900/20 p-6 rounded-2xl border border-pink-100 dark:border-purple-800/30 space-y-4">
+            <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">
+              <app-icon name="heart" [size]="20" class="text-pink-600 dark:text-pink-400" />
+              <span>Tvoje fotografije</span>
+            </h3>
+            
+            <p class="text-sm text-muted-foreground">
+              Dodaj do 6 fotografija. Prva će biti tvoja profilna slika. 📸
+            </p>
+
+            <!-- Photo Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              @for (photo of photos(); track $index) {
+                <div class="relative group aspect-square rounded-xl overflow-hidden bg-muted border-2 border-border hover:border-pink-400 dark:hover:border-purple-400 transition-all">
+                  <img [src]="photo.url" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover" />
+                  
+                  <!-- Primary Badge -->
+                  @if (photo.isPrimary) {
+                    <div class="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-lg flex items-center gap-1">
+                      <app-icon name="star" [size]="12" />
+                      <span>Profilna</span>
+                    </div>
+                  }
+
+                  <!-- Actions Overlay -->
+                  <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    @if (!photo.isPrimary) {
+                      <button
+                        type="button"
+                        (click)="setPrimaryPhoto($index)"
+                        class="p-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-lg transition-colors"
+                        title="Postavi kao profilnu"
+                      >
+                        <app-icon name="star" [size]="16" />
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      (click)="removePhoto($index)"
+                      class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors"
+                      title="Ukloni sliku"
+                    >
+                      <app-icon name="x" [size]="16" />
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- Add Photo Button -->
+              @if (photos().length < 6) {
+                <label class="relative aspect-square rounded-xl border-2 border-dashed border-border hover:border-pink-400 dark:hover:border-purple-400 bg-muted hover:bg-pink-50 dark:hover:bg-purple-900/20 cursor-pointer transition-all flex flex-col items-center justify-center gap-2 group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    class="hidden"
+                    (change)="onPhotoSelect($event)"
+                    [disabled]="isLoading()"
+                  />
+                  <div class="p-3 rounded-full bg-pink-100 dark:bg-purple-900/40 group-hover:bg-pink-200 dark:group-hover:bg-purple-800/60 transition-colors">
+                    <app-icon name="heart" [size]="24" class="text-pink-600 dark:text-pink-400" />
+                  </div>
+                  <span class="text-sm font-medium text-muted-foreground group-hover:text-pink-600 dark:group-hover:text-pink-400">
+                    Dodaj sliku
+                  </span>
+                </label>
+              }
+            </div>
+
+            @if (photos().length === 0) {
+              <div class="text-center py-4 text-sm text-muted-foreground">
+                💡 Savjet: Dodaj barem jednu sliku da povećaš šanse za match!
+              </div>
+            }
+          </div>
+
+          <!-- Bio Section -->
+          <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800/50 dark:to-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800/30 space-y-4">
+            <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">
+              <app-icon name="message-circle" [size]="20" class="text-blue-600 dark:text-blue-400" />
+              <span>Predstavi se</span>
+            </h3>
+            
+            <div>
+              <label for="bio" class="block text-sm font-semibold text-foreground mb-2">
+                O meni <span class="text-xs text-muted-foreground">(opcionalno)</span>
+              </label>
+              <textarea
+                id="bio"
+                rows="4"
+                class="w-full px-4 py-3 border-2 border-input bg-background/50 text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 transition-all resize-none"
+                placeholder="Ispričaj nam nešto o sebi... Što voliš raditi u slobodno vrijeme? 🎮🎵📚"
+                [value]="bio()"
+                (input)="onBioChange($any($event.target).value)"
+                [disabled]="isLoading()"
+              ></textarea>
+              <p class="mt-2 text-xs text-muted-foreground">{{ bio().length }}/500 znakova</p>
+            </div>
+          </div>
+
+          <!-- Academic Info Section -->
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-800/50 dark:to-purple-900/20 p-6 rounded-2xl border border-purple-100 dark:border-purple-800/30 space-y-4">
+            <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">
+              <app-icon name="book-open" [size]="20" class="text-purple-600 dark:text-purple-400" />
+              <span>Akademske informacije</span>
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Year of Study -->
+              <div>
+                <label for="yearOfStudy" class="block text-sm font-semibold text-foreground mb-2">
+                  Godina studija <span class="text-xs text-muted-foreground">(opcionalno)</span>
+                </label>
+                <app-input
+                  id="yearOfStudy"
+                  type="number"
+                  placeholder="1-5"
+                  [value]="yearOfStudy()?.toString() ?? ''"
+                  (valueChange)="onYearOfStudyChange($event)"
+                  [error]="yearOfStudyError()"
+                  [disabled]="isLoading()"
+                />
+              </div>
+
+              <!-- Student ID -->
+              <div>
+                <label for="studentId" class="block text-sm font-semibold text-foreground mb-2">
+                  JMBAG <span class="text-xs text-muted-foreground">(opcionalno)</span>
+                </label>
+                <app-input
+                  id="studentId"
+                  type="text"
+                  placeholder="0123456789"
+                  [value]="studentId()"
+                  (valueChange)="onStudentIdChange($event)"
+                  [disabled]="isLoading()"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-4">
+            <app-button
+              type="submit"
+              variant="default"
+              class="w-full h-14 text-lg font-semibold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 text-white shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300"
+              [disabled]="isLoading()"
+            >
+              @if (isLoading()) {
+                <div class="flex items-center justify-center gap-3">
+                  <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Kreiram profil...</span>
+                </div>
+              } @else {
+                <div class="flex items-center justify-center gap-2">
+                  <span>Započni avanturu</span>
+                  <app-icon name="arrow-right" [size]="20" />
+                </div>
+              }
+            </app-button>
+            
+            <p class="text-center text-xs text-muted-foreground mt-4">
+              Klikom na "Započni avanturu" prihvaćaš naše uvjete korištenja 💕
+            </p>
+          </div>
+        </form>
+      </div>
+    </app-card>
+  </div>
+</div>

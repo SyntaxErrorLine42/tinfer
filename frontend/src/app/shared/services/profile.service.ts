@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface ProfileResponse {
   id: string;
@@ -44,20 +45,37 @@ export interface CreateProfileRequest {
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
   private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl;
 
   getMyProfile(): Observable<ProfileResponse> {
-    return this.http.get<ProfileResponse>('/api/profiles/me');
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/api/profiles/me`);
   }
 
   getProfileDetails(id: string): Observable<ProfileDetailsResponse> {
-    return this.http.get<ProfileDetailsResponse>(`/api/profiles/${id}/details`);
+    return this.http.get<ProfileDetailsResponse>(`${this.apiUrl}/api/profiles/${id}/details`);
+  }
+
+  createProfile(payload: CreateProfileRequest): Observable<ProfileResponse> {
+    return this.http.post<ProfileResponse>(`${this.apiUrl}/api/profiles`, payload);
   }
 
   updateProfile(id: string, payload: CreateProfileRequest): Observable<ProfileResponse> {
-    return this.http.put<ProfileResponse>(`/api/profiles/${id}`, payload);
+    return this.http.put<ProfileResponse>(`${this.apiUrl}/api/profiles/${id}`, payload);
   }
 
   getMyPhotos(): Observable<PhotoResponse[]> {
-    return this.http.get<PhotoResponse[]>('/api/profiles/me/photos');
+    return this.http.get<PhotoResponse[]>(`${this.apiUrl}/api/profiles/me/photos`);
+  }
+
+  addPhoto(payload: { url: string; displayOrder?: number; isPrimary?: boolean }): Observable<PhotoResponse> {
+    return this.http.post<PhotoResponse>(`${this.apiUrl}/api/profiles/me/photos`, payload);
+  }
+
+  updatePhoto(photoId: number, payload: { displayOrder?: number; isPrimary?: boolean }): Observable<PhotoResponse> {
+    return this.http.put<PhotoResponse>(`${this.apiUrl}/api/profiles/me/photos/${photoId}`, payload);
+  }
+
+  deletePhoto(photoId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/api/profiles/me/photos/${photoId}`);
   }
 }
