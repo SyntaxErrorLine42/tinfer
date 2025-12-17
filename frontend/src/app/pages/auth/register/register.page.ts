@@ -119,7 +119,20 @@ export class RegisterPage {
   }
 
   async socialSignup(provider: string) {
-    // treba implementirati social signup
+    this.isLoading.set(true);
+
+    try {
+      // Redirect to provider OAuth page
+      await this.authService.signInWithOAuth(
+        provider.toLowerCase() as 'google' | 'facebook'
+      );
+      // If successful, user will be redirected to OAuth provider
+      // After OAuth, they'll come back to /auth/callback
+    } catch (error: any) {
+      console.error('Social signup exception:', error);
+      this.emailError.set(`Failed to sign up with ${provider}. Please try again.`);
+      this.isLoading.set(false);
+    }
   }
 }
 
