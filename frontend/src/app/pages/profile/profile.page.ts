@@ -7,6 +7,7 @@ import { IconComponent } from '../../shared/components/icon-wrapper/icon-wrapper
 import { BadgeComponent } from '../../shared/components/badge/badge.component';
 import { InputComponent } from '../../shared/components/input/input.component';
 import { ProfileService, ProfileDetailsResponse, UpdateProfileRequest } from '@shared/services/profile.service';
+import { AuthService } from '@shared/services/auth.service';
 
 @Component({
   selector: 'app-profile',
@@ -23,6 +24,7 @@ import { ProfileService, ProfileDetailsResponse, UpdateProfileRequest } from '@s
 })
 export class ProfilePage implements OnInit {
   private profileService = inject(ProfileService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -153,6 +155,11 @@ export class ProfilePage implements OnInit {
 
   hasInterestsInCategory(category: string): boolean {
     return this.getInterestsByCategory(category).length > 0;
+  }
+
+  async logout() {
+    await this.authService.signOut();
+    this.router.navigate(['/login']);
   }
 }
 

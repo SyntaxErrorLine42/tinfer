@@ -64,4 +64,19 @@ export class AuthService {
 
     return data.session ?? null;
   }
+
+  async signInWithOAuth(provider: 'google' | 'facebook', redirectTo?: string) {
+    const { data, error } = await this.supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: redirectTo || `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }

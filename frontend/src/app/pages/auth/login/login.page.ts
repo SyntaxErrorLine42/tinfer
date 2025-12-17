@@ -90,7 +90,20 @@ export class LoginPage {
   }
 
   async socialLogin(provider: string) {
-    // ... treba implementirati social login
+    this.isLoading.set(true);
+
+    try {
+      // Redirect to provider OAuth page
+      await this.authService.signInWithOAuth(
+        provider.toLowerCase() as 'google' | 'facebook'
+      );
+      // If successful, user will be redirected to OAuth provider
+      // After OAuth, they'll come back to /auth/callback
+    } catch (error: any) {
+      console.error('Social login exception:', error);
+      this.emailError.set(`Failed to login with ${provider}. Please try again.`);
+      this.isLoading.set(false);
+    }
   }
 }
 
