@@ -142,16 +142,16 @@
                   Cancel
                 </app-button>
                 
-                <app-button 
-                  class="flex-1 bg-gradient-to-r from-pink-600 to-purple-600" 
+                <button
                   (click)="saveProfile()"
                   type="button"
+                  class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-medium transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div class="flex items-center justify-center gap-2">
-                    <app-icon name="save" [size]="20" />
+                    <app-icon name="save" [size]="20" class="text-white" />
                     <span>Save Changes</span>
                   </div>
-                </app-button>
+                </button>
               </div>
             </form>
           </app-card>
@@ -187,7 +187,7 @@
                 class="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                 title="Promijeni profilnu sliku"
               >
-                <app-icon name="camera" [size]="24" class="text-white" />
+                <app-icon name="image" [size]="24" class="text-white" />
               </button>
             </div>
             <div class="flex-1">
@@ -379,21 +379,12 @@
       }
 
           <!-- Action Buttons -->
-          <div class="flex gap-3">
-            <app-button variant="outline" class="flex-1" (click)="editProfile()">
-              <div class="flex items-center justify-center gap-2">
-                <app-icon name="edit" [size]="20" />
-                <span>Edit Profile</span>
-              </div>
-            </app-button>
-            
-            <app-button variant="outline" class="flex-1">
-              <div class="flex items-center justify-center gap-2">
-                <app-icon name="settings" [size]="20" />
-                <span>Settings</span>
-              </div>
-            </app-button>
-          </div>
+          <app-button variant="outline" class="w-full" (click)="editProfile()">
+            <div class="flex items-center justify-center gap-2">
+              <app-icon name="edit" [size]="20" />
+              <span>Edit Profile</span>
+            </div>
+          </app-button>
         </div>
       }
     </div>

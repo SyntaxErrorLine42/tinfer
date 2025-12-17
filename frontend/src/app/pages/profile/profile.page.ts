@@ -50,8 +50,13 @@ export class ProfilePage implements OnInit {
 
   // Get primary photo
   getPrimaryPhoto(): string | null {
-    const primaryPhoto = this.photos().find(p => p.isPrimary);
-    return primaryPhoto?.base64Data || null;
+    const allPhotos = this.photos();
+    console.log('All photos:', allPhotos);
+    const primaryPhoto = allPhotos.find(p => p.isPrimary);
+    console.log('Primary photo:', primaryPhoto);
+    const result = primaryPhoto?.base64Data || null;
+    console.log('Returning primary photo URL:', result ? 'exists' : 'null');
+    return result;
   }
 
   // Open file picker for changing primary photo
@@ -76,7 +81,7 @@ export class ProfilePage implements OnInit {
 
     try {
       // Validate image
-      const validation = await this.photoService.validateImage(file);
+      const validation = this.photoService.validateImage(file);
       if (!validation.valid) {
         this.photoError.set(validation.error || 'Invalid image');
         this.isUploadingPhoto.set(false);
@@ -87,20 +92,15 @@ export class ProfilePage implements OnInit {
       const base64 = await this.photoService.fileToBase64(file);
 
       // Add photo
-      this.photoService.addPhoto({ base64Data: base64, isPrimary: true }).subscribe({
-        next: (newPhoto) => {
-          console.log('Primary photo uploaded:', newPhoto);
-          this.loadPhotos();
-          this.isUploadingPhoto.set(false);
-        },
-        error: (err) => {
-          console.error('Error uploading primary photo:', err);
-          this.photoError.set(err.error?.message || 'Failed to upload photo');
-          this.isUploadingPhoto.set(false);
-        },
-      });
+      const newPhoto = await this.photoService.addPhoto({ base64Data: base64, isPrimary: true });
+      console.log('Primary photo uploaded:', newPhoto);
+      
+      // Reload photos
+      this.loadPhotos();
+      this.isUploadingPhoto.set(false);
     } catch (err: any) {
-      this.photoError.set(err.message || 'Failed to process image');
+      console.error('Error uploading primary photo:', err);
+      this.photoError.set(err.error?.message || err.message || 'Failed to upload photo');
       this.isUploadingPhoto.set(false);
     }
   }
