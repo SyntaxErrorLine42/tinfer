@@ -66,11 +66,16 @@ export class LoginPage {
         password: this.password(),
       });
 
-      // Ensure profile exists (creates one if needed)
-      await this.profileInitService.ensureProfileExists();
+      // Check if profile exists
+      const profileExists = await this.profileInitService.checkProfileExists();
 
-      // Navigate to swipe interface after successful login
-      this.router.navigate(['/swipe']);
+      if (profileExists) {
+        // Profile exists, go to swipe
+        this.router.navigate(['/swipe']);
+      } else {
+        // Profile doesn't exist, redirect to create profile
+        this.router.navigate(['/create-profile']);
+      }
     } catch (error: any) {
       const message = error?.message ?? 'Login failed. Please check your credentials.';
 

@@ -10,13 +10,13 @@ export class ProfileInitService {
   private authService = inject(AuthService);
 
   /**
-   * Checks if the current user has a profile, and creates one if they don't.
-   * This should be called after successful login/registration.
+   * Checks if the current user has a profile.
+   * Returns true if profile exists, false if it needs to be created.
    */
-  async ensureProfileExists(): Promise<boolean> {
+  async checkProfileExists(): Promise<boolean> {
     try {
       // Try to get the current user's profile
-      const profile = await firstValueFrom(
+      await firstValueFrom(
         this.http.get<ProfileResponse>('/api/profiles/me')
       );
       
@@ -24,54 +24,13 @@ export class ProfileInitService {
       return true;
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 404) {
-        // Profile doesn't exist, create it
-        return await this.createProfileFromAuth();
+        // Profile doesn't exist
+        return false;
       }
       
       // Some other error occurred
       console.error('Error checking profile:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Creates a profile using the authenticated user's Supabase data
-   */
-  private async createProfileFromAuth(): Promise<boolean> {
-    try {
-      const user = await this.authService.getCurrentUser();
-      
-      if (!user) {
-        console.error('No authenticated user found');
-        return false;
-      }
-
-      // Extract name from user metadata or email
-      const fullName = user.user_metadata?.['full_name'] || '';
-      const nameParts = fullName.split(' ');
-      const firstName = nameParts[0] || user.email?.split('@')[0] || 'User';
-      const lastName = nameParts.slice(1).join(' ') || '';
-
-      const profileData: CreateProfileRequest = {
-        email: user.email!,
-        firstName: firstName,
-        lastName: lastName,
-        displayName: firstName,
-        bio: '',
-        yearOfStudy: null,
-        studentId: '',
-      };
-
-      // Create the profile
-      await firstValueFrom(
-        this.http.post<ProfileResponse>('/api/profiles', profileData)
-      );
-
-      console.log('✅ Profile created automatically');
-      return true;
-    } catch (error) {
-      console.error('Failed to create profile:', error);
-      return false;
+      throw error;
     }
   }
 }

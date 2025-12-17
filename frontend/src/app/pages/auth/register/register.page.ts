@@ -1,7 +1,6 @@
 import { Component, signal, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@shared/services/auth.service';
-import { ProfileInitService } from '@shared/services/profile-init.service';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button-wrapper/button-wrapper.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
@@ -16,7 +15,6 @@ import { IconComponent } from '../../../shared/components/icon-wrapper/icon-wrap
 export class RegisterPage {
   private router = inject(Router);
   private authService = inject(AuthService);
-  private profileInitService = inject(ProfileInitService);
 
   fullName = signal('');
   email = signal('');
@@ -105,11 +103,8 @@ export class RegisterPage {
         password: this.password(),
       });
 
-      // Ensure profile exists (creates one automatically)
-      await this.profileInitService.ensureProfileExists();
-
-      // Navigate to swipe interface after successful registration
-      this.router.navigate(['/swipe']);
+      // After registration, redirect to create profile
+      this.router.navigate(['/create-profile']);
     } catch (error: any) {
       const message = error?.message ?? 'Registration failed. Please try again.';
 
