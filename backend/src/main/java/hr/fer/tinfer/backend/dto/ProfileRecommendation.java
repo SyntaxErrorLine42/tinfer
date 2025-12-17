@@ -21,6 +21,7 @@ public class ProfileRecommendation {
     private String displayName;
     private String bio;
     private Integer yearOfStudy;
+    private String gender;
     private Boolean verified;
 
     private Set<String> sharedInterests;

@@ -132,6 +132,48 @@
                 </div>
               </div>
 
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-muted-foreground mb-2">Gender *</label>
+                  <select 
+                    [(ngModel)]="editForm.gender" 
+                    name="gender"
+                    class="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-pink-600"
+                    required
+                  >
+                    <option value="">Odaberi spol</option>
+                    <option value="male">Muško</option>
+                    <option value="female">Žensko</option>
+                    <option value="non_binary">Nebinarno</option>
+                    <option value="other">Ostalo</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-muted-foreground mb-2">Interested In</label>
+                  <select 
+                    [(ngModel)]="editForm.interestedInGender" 
+                    name="interestedInGender"
+                    class="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-pink-600"
+                  >
+                    <option value="">Svi</option>
+                    <option value="male">Muške</option>
+                    <option value="female">Ženske</option>
+                    <option value="non_binary">Nebinarne osobe</option>
+                    <option value="everyone">Svi</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="pt-4">
+                <label class="block text-sm font-medium text-muted-foreground mb-2">Interesi</label>
+                <app-tag-input
+                  [(selectedTags)]="editForm.interests"
+                  [maxTags]="10"
+                  placeholder="Dodaj interese..."
+                />
+              </div>
+
               <div class="flex gap-3 pt-4">
                 <app-button 
                   variant="outline" 
@@ -207,19 +249,110 @@
               <p class="text-foreground">{{ profile()?.email }}</p>
             </div>
             
-            <!--<div>
-              <label class="text-sm font-medium text-muted-foreground">Department</label>
-              @for (dept of profile()?.departments; track dept.code) {
-                <p class="text-foreground">{{ dept.name }} ({{ dept.code }})</p>
-              }
-            </div>-->
+            @if (profile()?.yearOfStudy) {
+              <div>
+                <label class="text-sm font-medium text-muted-foreground">Godina studija</label>
+                <p class="text-foreground">{{ profile()?.yearOfStudy }}.</p>
+              </div>
+            }
           </div>
 
-          <div>
-            <label class="text-sm font-medium text-muted-foreground">Bio</label>
-            <p class="text-foreground mt-1">{{ profile()?.bio }}</p>
+          @if (profile()?.studentId) {
+            <div>
+              <label class="text-sm font-medium text-muted-foreground">Student ID</label>
+              <p class="text-foreground">{{ profile()?.studentId }}</p>
+            </div>
+          }
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @if (profile()?.gender) {
+              <div>
+                <label class="text-sm font-medium text-muted-foreground">Spol</label>
+                <p class="text-foreground">
+                  @if (profile()?.gender === 'male') { Muško }
+                  @else if (profile()?.gender === 'female') { Žensko }
+                  @else if (profile()?.gender === 'non_binary') { Nebinarno }
+                  @else { Ostalo }
+                </p>
+              </div>
+            }
+            
+            @if (profile()?.interestedInGender) {
+              <div>
+                <label class="text-sm font-medium text-muted-foreground">Zainteresiran/a za</label>
+                <p class="text-foreground">
+                  @if (profile()?.interestedInGender === 'male') { Muške }
+                  @else if (profile()?.interestedInGender === 'female') { Ženske }
+                  @else if (profile()?.interestedInGender === 'non_binary') { Nebinarne osobe }
+                  @else if (profile()?.interestedInGender === 'everyone') { Svi }
+                  @else { Svi }
+                </p>
+              </div>
+            }
           </div>
+
+          @if (profile()?.bio) {
+            <div>
+              <label class="text-sm font-medium text-muted-foreground">Bio</label>
+              <p class="text-foreground mt-1">{{ profile()?.bio }}</p>
+            </div>
+          }
         </div>
+      </app-card>
+
+      <!-- Interests Section -->
+      <app-card class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold flex items-center gap-2">
+            <app-icon name="star" [size]="24" class="text-blue-600" />
+            <span>Interesi</span>
+          </h2>
+          @if (!isEditingInterests()) {
+            <button
+              (click)="startEditingInterests()"
+              class="p-2 hover:bg-muted rounded-lg transition-colors"
+              title="Dodaj/uredi interese"
+            >
+              <app-icon name="plus" [size]="20" class="text-pink-600" />
+            </button>
+          }
+        </div>
+        
+        @if (isEditingInterests()) {
+          <div class="space-y-3">
+            <app-tag-input
+              [(selectedTags)]="editForm.interests"
+              [maxTags]="10"
+              placeholder="Dodaj interese..."
+            />
+            <div class="flex gap-2">
+              <button
+                (click)="saveInterests()"
+                class="flex-1 px-3 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg text-sm font-medium"
+              >
+                Spremi
+              </button>
+              <button
+                (click)="cancelEditInterests()"
+                class="flex-1 px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg text-sm font-medium"
+              >
+                Odustani
+              </button>
+            </div>
+          </div>
+        } @else {
+          @if (profile()?.interests && profile()!.interests.length > 0) {
+            <div class="flex flex-wrap gap-2">
+              @for (interest of profile()!.interests; track interest) {
+                <span class="inline-flex items-center px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium border border-purple-200 dark:border-purple-800">
+                  {{ interest }}
+                </span>
+              }
+            </div>
+          } @else {
+            <p class="text-sm text-muted-foreground italic">Nema dodanih interesa. Klikni + za dodavanje.</p>
+          }
+        }
       </app-card>
 
       <!-- Photos Section -->
@@ -348,31 +481,6 @@
                   </div>
                 }
               </div>
-            }
-          </div>
-        </app-card>
-      }
-
-      <!-- Interests Section -->
-      @if (profile()?.interests && profile()!.interests!.length > 0) {
-        <app-card class="p-6">
-          <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-            <app-icon name="star" [size]="24" class="text-blue-600" />
-            <span>Interests</span>
-          </h2>
-          
-          <div class="space-y-3">
-            @for (category of ['Academic', 'Sports', 'Music', 'Arts', 'Lifestyle']; track category) {
-              @if (hasInterestsInCategory(category)) {
-                <div>
-                  <h4 class="text-sm font-semibold text-muted-foreground mb-2">{{ category }}</h4>
-                  <div class="flex flex-wrap gap-2">
-                    @for (interest of getInterestsByCategory(category); track interest.name) {
-                      <app-badge>{{ interest.name }}</app-badge>
-                    }
-                  </div>
-                </div>
-              }
             }
           </div>
         </app-card>

@@ -201,6 +201,80 @@
             </div>
           </div>
 
+          <!-- Gender Section -->
+          <div class="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-gray-800/50 dark:to-pink-900/20 p-6 rounded-2xl border border-pink-100 dark:border-pink-800/30 space-y-4">
+            <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">
+              <app-icon name="users" [size]="20" class="text-pink-600 dark:text-pink-400" />
+              <span>Dating Preferencije</span>
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Gender -->
+              <div>
+                <label for="gender" class="block text-sm font-semibold text-foreground mb-2">
+                  Spol <span class="text-pink-600 dark:text-pink-400">*</span>
+                </label>
+                <select
+                  id="gender"
+                  class="w-full px-4 py-3 border-2 border-input bg-background/50 text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:opacity-50 transition-all"
+                  [value]="gender()"
+                  (change)="onGenderChange($any($event.target).value)"
+                  [disabled]="isLoading()"
+                >
+                  <option value="">Odaberi spol</option>
+                  <option value="male">Muško</option>
+                  <option value="female">Žensko</option>
+                  <option value="non_binary">Nebinarno</option>
+                  <option value="other">Ostalo</option>
+                </select>
+                @if (genderError()) {
+                  <p class="mt-2 text-sm text-red-500 dark:text-red-400">{{ genderError() }}</p>
+                }
+              </div>
+
+              <!-- Interested In Gender -->
+              <div>
+                <label for="interestedInGender" class="block text-sm font-semibold text-foreground mb-2">
+                  Zainteresiran/a za <span class="text-xs text-muted-foreground">(opcionalno)</span>
+                </label>
+                <select
+                  id="interestedInGender"
+                  class="w-full px-4 py-3 border-2 border-input bg-background/50 text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:opacity-50 transition-all"
+                  [value]="interestedInGender()"
+                  (change)="onInterestedInGenderChange($any($event.target).value)"
+                  [disabled]="isLoading()"
+                >
+                  <option value="">Svi</option>
+                  <option value="male">Muške</option>
+                  <option value="female">Ženske</option>
+                  <option value="non_binary">Nebinarne osobe</option>
+                  <option value="everyone">Svi</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interests Section -->
+          <div class="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800/50 dark:to-blue-900/20 p-6 rounded-2xl border border-purple-100 dark:border-purple-800/30 space-y-4">
+            <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">
+              <app-icon name="sparkles" [size]="20" class="text-purple-600 dark:text-purple-400" />
+              <span>Tvoji Interesi</span>
+            </h3>
+            
+            <p class="text-sm text-muted-foreground">
+              Dodaj svoje interese i hobije da te lakše pronađemo s onima koji dijele tvoje strasti! ✨
+            </p>
+
+            <app-tag-input
+              [selectedTags]="interests()"
+              (tagsChange)="onInterestsChange($event)"
+              [disabled]="isLoading()"
+              [maxTags]="10"
+              placeholder="Npr. Gaming, Football, Music..."
+              helperText="Unesite interes i pritisnite Enter ili ga odaberite iz prijedloga"
+            />
+          </div>
+
           <!-- Academic Info Section -->
           <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-800/50 dark:to-purple-900/20 p-6 rounded-2xl border border-purple-100 dark:border-purple-800/30 space-y-4">
             <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">

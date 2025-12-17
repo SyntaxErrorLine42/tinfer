@@ -22,7 +22,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = { "photos", "departments", "interests", "datingProfile" })
+@EqualsAndHashCode(exclude = { "photos", "departments", "interests" })
 public class Profile {
 
     @Id
@@ -55,6 +55,13 @@ public class Profile {
     @Column(name = "student_id", unique = true, length = 50)
     private String studentId;
 
+    @NotBlank
+    @Column(length = 50, nullable = false)
+    private String gender; // male, female, non_binary, other
+
+    @Column(name = "interested_in_gender", length = 50)
+    private String interestedInGender; // male, female, non_binary, everyone
+
     @Column(name = "is_verified")
     private Boolean isVerified = false;
 
@@ -73,14 +80,11 @@ public class Profile {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Photo> photos = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_departments", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "department_id"))
     private Set<Department> departments = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_interests", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "interest_id"))
     private Set<Interest> interests = new HashSet<>();
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private DatingProfile datingProfile;
 }

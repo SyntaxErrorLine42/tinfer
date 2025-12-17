@@ -3,11 +3,13 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '@shared/services/auth.service';
 import { PhotoService } from '@shared/services/photo.service';
+import { InterestService } from '@shared/services/interest.service';
 import { CreateProfileRequest, ProfileResponse } from '@shared/services/profile.service';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button-wrapper/button-wrapper.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { IconComponent } from '../../../shared/components/icon-wrapper/icon-wrapper.component';
+import { TagInputComponent } from '../../../shared/components/tag-input/tag-input.component';
 import { firstValueFrom } from 'rxjs';
 
 interface Photo {
@@ -19,7 +21,7 @@ interface Photo {
 
 @Component({
   selector: 'app-create-profile',
-  imports: [InputComponent, ButtonComponent, CardComponent, IconComponent],
+  imports: [InputComponent, ButtonComponent, CardComponent, IconComponent, TagInputComponent],
   templateUrl: './create-profile.page.html',
   styleUrl: './create-profile.page.css',
 })
@@ -28,6 +30,7 @@ export class CreateProfilePage {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private photoService = inject(PhotoService);
+  private interestService = inject(InterestService);
 
   // Form fields
   firstName = signal('');
@@ -36,12 +39,16 @@ export class CreateProfilePage {
   bio = signal('');
   yearOfStudy = signal<number | null>(null);
   studentId = signal('');
+  gender = signal('');
+  interests = signal<string[]>([]);
+  interestedInGender = signal('');
   photos = signal<Photo[]>([]);
 
   // Errors
   firstNameError = signal('');
   lastNameError = signal('');
   yearOfStudyError = signal('');
+  genderError = signal('');
   generalError = signal('');
   isLoading = signal(false);
 
@@ -82,6 +89,19 @@ export class CreateProfilePage {
     this.studentId.set(value);
   }
 
+  onGenderChange(value: string) {
+    this.gender.set(value);
+    this.genderError.set('');
+  }
+
+  onInterestedInGenderChange(value: string) {
+    this.interestedInGender.set(value);
+  }
+onInterestsChange(tags: string[]) {
+    this.interests.set(tags);
+  }
+
+  
   async onPhotoSelect(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -160,6 +180,11 @@ export class CreateProfilePage {
       hasError = true;
     }
 
+    if (!this.gender()) {
+      this.genderError.set('Spol je obavezan');
+      hasError = true;
+    }
+
     if (hasError) return;
 
     this.isLoading.set(true);
@@ -180,12 +205,26 @@ export class CreateProfilePage {
         bio: this.bio().trim(),
         yearOfStudy: this.yearOfStudy(),
         studentId: this.studentId().trim(),
+        gender: this.gender(),
+        interestedInGender: this.interestedInGender() || undefined,
       };
 
       // Create profile
       const profile = await firstValueFrom(
         this.http.post<ProfileResponse>('/api/profiles', profileData)
       );
+
+      // Set interests if any
+      if (this.interests().length > 0) {
+        try {
+          await firstValueFrom(
+            this.interestService.setInterests(this.interests())
+          );
+        } catch (error) {
+          console.error('Failed to save interests:', error);
+          // Continue even if interests fail
+        }
+      }
 
       // Upload photos if any
       if (this.photos().length > 0) {

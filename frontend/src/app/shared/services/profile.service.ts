@@ -12,6 +12,8 @@ export interface ProfileResponse {
   bio?: string;
   yearOfStudy?: number;
   studentId?: string;
+  gender?: string;
+  interestedInGender?: string;
   isVerified: boolean;
   isActive: boolean;
   createdAt: string;
@@ -49,8 +51,8 @@ export interface Department {
 
 export interface ProfileDetailsResponse extends ProfileResponse {
   updatedAt?: string;
-  interests: Interest[];
-  departments: Department[];
+  interests: string[]; // Changed from Interest[] to string[]
+  departments: string[]; // Changed from Department[] to string[]
   photos: PhotoResponse[];
   datingProfile?: DatingProfile;
 }
@@ -63,6 +65,8 @@ export interface CreateProfileRequest {
   bio?: string;
   yearOfStudy?: number | null;
   studentId?: string;
+  gender: string;
+  interestedInGender?: string;
 }
 
 export interface UpdateProfileRequest {
@@ -73,6 +77,8 @@ export interface UpdateProfileRequest {
   bio?: string;
   yearOfStudy?: number | null;
   studentId?: string;
+  gender: string;
+  interestedInGender?: string;
 }
 
 @Injectable({ providedIn: 'root' })

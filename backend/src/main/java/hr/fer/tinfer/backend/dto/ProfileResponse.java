@@ -17,6 +17,8 @@ public class ProfileResponse {
     private String bio;
     private Integer yearOfStudy;
     private String studentId;
+    private String gender;
+    private String interestedInGender;
     private Boolean isVerified;
     private Boolean isActive;
     private LocalDateTime createdAt;

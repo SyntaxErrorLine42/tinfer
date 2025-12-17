@@ -6,8 +6,10 @@ import { CardComponent } from '../../shared/components/card/card.component';
 import { IconComponent } from '../../shared/components/icon-wrapper/icon-wrapper.component';
 import { BadgeComponent } from '../../shared/components/badge/badge.component';
 import { InputComponent } from '../../shared/components/input/input.component';
+import { TagInputComponent } from '../../shared/components/tag-input/tag-input.component';
 import { ProfileService, ProfileDetailsResponse, UpdateProfileRequest } from '@shared/services/profile.service';
 import { PhotoService, PhotoResponse } from '@shared/services/photo.service';
+import { InterestService } from '@shared/services/interest.service';
 import { AuthService } from '@shared/services/auth.service';
 
 @Component({
@@ -18,6 +20,7 @@ import { AuthService } from '@shared/services/auth.service';
     IconComponent,
     BadgeComponent,
     InputComponent,
+    TagInputComponent,
     FormsModule,
   ],
   templateUrl: './profile.page.html',
@@ -27,6 +30,7 @@ export class ProfilePage implements OnInit {
   private profileService = inject(ProfileService);
   private photoService = inject(PhotoService);
   private authService = inject(AuthService);
+  private interestService = inject(InterestService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -34,6 +38,7 @@ export class ProfilePage implements OnInit {
   photos = signal<PhotoResponse[]>([]);
   isLoading = signal(true);
   isEditing = signal(false);
+  isEditingInterests = signal(false);
   error = signal<string | null>(null);
   photoError = signal<string | null>(null);
   isUploadingPhoto = signal(false);
@@ -46,6 +51,9 @@ export class ProfilePage implements OnInit {
     bio: '',
     yearOfStudy: null as number | null,
     studentId: '',
+    gender: '',
+    interestedInGender: '',
+    interests: [] as string[],
   };
 
   // Get primary photo
@@ -123,6 +131,8 @@ export class ProfilePage implements OnInit {
 
     profileObservable.subscribe({
       next: (profile) => {
+        console.log('Loaded profile:', profile);
+        console.log('Profile interests:', profile.interests);
         this.profile.set(profile);
         this.isLoading.set(false);
         // Initialize edit form with current values
@@ -133,7 +143,11 @@ export class ProfilePage implements OnInit {
           bio: profile.bio || '',
           yearOfStudy: profile.yearOfStudy || null,
           studentId: profile.studentId || '',
+          gender: profile.gender || '',
+          interestedInGender: profile.interestedInGender || '',
+          interests: profile.interests || [],
         };
+        console.log('Edit form interests:', this.editForm.interests);
       },
       error: (err) => {
         console.error('Failed to load profile:', err);
@@ -177,6 +191,9 @@ export class ProfilePage implements OnInit {
         bio: currentProfile.bio || '',
         yearOfStudy: currentProfile.yearOfStudy || null,
         studentId: currentProfile.studentId || '',
+        gender: currentProfile.gender || '',
+        interestedInGender: currentProfile.interestedInGender || '',
+        interests: currentProfile.interests || [],
       };
     }
   }
@@ -197,14 +214,30 @@ export class ProfilePage implements OnInit {
       bio: this.editForm.bio || undefined,
       yearOfStudy: this.editForm.yearOfStudy || null,
       studentId: this.editForm.studentId || undefined,
+      gender: this.editForm.gender,
+      interestedInGender: this.editForm.interestedInGender || undefined,
     };
 
+    // Update profile first
     this.profileService.updateProfile(currentProfile.id, updateData).subscribe({
       next: (updatedProfile) => {
         console.log('Profile updated successfully:', updatedProfile);
-        // Reload the full profile details
-        this.loadProfile();
-        this.isEditing.set(false);
+        
+        // Update interests separately
+        this.interestService.setInterests(this.editForm.interests).subscribe({
+          next: () => {
+            console.log('Interests updated successfully');
+            // Reload the full profile details
+            this.loadProfile();
+            this.isEditing.set(false);
+          },
+          error: (err) => {
+            console.error('Failed to update interests:', err);
+            // Still reload profile even if interests fail
+            this.loadProfile();
+            this.isEditing.set(false);
+          },
+        });
       },
       error: (err) => {
         console.error('Failed to update profile:', err);
@@ -212,6 +245,40 @@ export class ProfilePage implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  saveInterests() {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.interestService.setInterests(this.editForm.interests).subscribe({
+      next: () => {
+        console.log('Interests saved successfully');
+        this.isEditingInterests.set(false);
+        this.loadProfile();
+      },
+      error: (err) => {
+        console.error('Failed to save interests:', err);
+        this.error.set('Failed to save interests. Please try again.');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  startEditingInterests() {
+    const currentProfile = this.profile();
+    if (currentProfile) {
+      this.editForm.interests = [...(currentProfile.interests || [])];
+    }
+    this.isEditingInterests.set(true);
+  }
+
+  cancelEditInterests() {
+    const currentProfile = this.profile();
+    if (currentProfile) {
+      this.editForm.interests = [...(currentProfile.interests || [])];
+    }
+    this.isEditingInterests.set(false);
   }
 
   async addPhoto(event: Event) {
@@ -293,16 +360,6 @@ export class ProfilePage implements OnInit {
       console.error('Failed to set primary photo:', error);
       this.photoError.set('Greška pri postavljanju profilne slike');
     }
-  }
-
-  getInterestsByCategory(category: string) {
-    const currentProfile = this.profile();
-    if (!currentProfile || !currentProfile.interests) return [];
-    return currentProfile.interests.filter((interest) => interest.category === category);
-  }
-
-  hasInterestsInCategory(category: string): boolean {
-    return this.getInterestsByCategory(category).length > 0;
   }
 
   async logout() {

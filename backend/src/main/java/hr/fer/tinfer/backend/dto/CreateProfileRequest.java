@@ -28,4 +28,9 @@ public class CreateProfileRequest {
     private Integer yearOfStudy;
 
     private String studentId;
+
+    @NotBlank(message = "Spol je obavezan")
+    private String gender; // male, female, non_binary, other
+
+    private String interestedInGender; // male, female, non_binary, everyone
 }
