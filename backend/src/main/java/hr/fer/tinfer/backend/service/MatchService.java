@@ -73,7 +73,7 @@ public class MatchService {
                 .partnerVerified(partner.getIsVerified())
                 .sharedInterests(sharedInterests)
                 .partnerDepartments(partnerDepartments)
-                .primaryPhotoUrl(resolvePrimaryPhoto(partner))
+                .primaryPhotoBase64(resolvePrimaryPhoto(partner))
                 .highlight(buildHighlight(sharedInterests, sharedDepartments, partner))
                 .conversationId(conversationId)
                 .conversationLastMessageAt(conversationLastMessageAt)
@@ -104,7 +104,7 @@ public class MatchService {
                         .comparing((Photo photo) -> Boolean.TRUE.equals(photo.getIsPrimary())).reversed()
                         .thenComparing(Photo::getDisplayOrder, Comparator.nullsLast(Integer::compareTo))
                         .thenComparing(Photo::getId, Comparator.nullsLast(Long::compareTo)))
-                .map(Photo::getUrl)
+                .map(Photo::getBase64Data)
                 .findFirst()
                 .orElse(null);
     }

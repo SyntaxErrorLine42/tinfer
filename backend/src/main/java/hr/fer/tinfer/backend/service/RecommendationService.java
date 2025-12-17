@@ -100,8 +100,8 @@ public class RecommendationService {
                 .sharedInterests(sharedInterests)
                 .candidateInterests(candidateInterests)
                 .departments(extractDepartmentCodes(candidate.getDepartments()))
-                .primaryPhotoUrl(resolvePrimaryPhoto(candidate))
-                .photoGallery(extractPhotoGallery(candidate))
+                .primaryPhotoBase64(resolvePrimaryPhoto(candidate))
+                .photoGalleryBase64(extractPhotoGallery(candidate))
                 .compatibilityScore(compatibilityScore)
                 .highlight(highlight)
                 .build();
@@ -190,7 +190,7 @@ public class RecommendationService {
                         .comparing((Photo photo) -> Boolean.TRUE.equals(photo.getIsPrimary())).reversed()
                         .thenComparing(Photo::getDisplayOrder, Comparator.nullsLast(Integer::compareTo))
                         .thenComparing(Photo::getId, Comparator.nullsLast(Long::compareTo)))
-                .map(Photo::getUrl)
+                .map(Photo::getBase64Data)
                 .findFirst()
                 .orElse(null);
     }
@@ -201,7 +201,7 @@ public class RecommendationService {
                 .sorted(Comparator
                         .comparing(Photo::getDisplayOrder, Comparator.nullsLast(Integer::compareTo))
                         .thenComparing(Photo::getId, Comparator.nullsLast(Long::compareTo)))
-                .map(Photo::getUrl)
+                .map(Photo::getBase64Data)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

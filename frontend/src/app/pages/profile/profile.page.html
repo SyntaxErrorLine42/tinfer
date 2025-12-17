@@ -159,49 +159,6 @@
       } @else {
         <!-- View Mode -->
         <div class="space-y-6">
-      <!-- Photos Section -->
-      @if (profile()?.photos && profile()!.photos!.length > 0) {
-        <app-card class="p-6">
-          <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-            <app-icon name="image" [size]="24" class="text-pink-600" />
-            <span>Photos</span>
-          </h2>
-          
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            @for (photo of profile()?.photos; track photo.url) {
-              <div class="relative group aspect-square rounded-lg overflow-hidden cursor-pointer" (click)="editPhoto($index)">
-                <img 
-                  [src]="photo.url" 
-                  alt="Profile photo"
-                  class="w-full h-full object-cover"
-                />
-                @if (photo.isPrimary) {
-                  <div class="absolute top-2 left-2">
-                    <app-badge variant="secondary" class="bg-pink-600 text-white">
-                      Primary
-                    </app-badge>
-                  </div>
-                }
-                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <app-icon name="edit" [size]="32" class="text-white" />
-                </div>
-              </div>
-            }
-            
-            <!-- Add Photo Button -->
-            <button 
-              (click)="addPhoto()"
-              class="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-pink-600 transition-colors flex items-center justify-center group"
-            >
-              <div class="text-center">
-                <app-icon name="plus" [size]="32" class="text-muted-foreground group-hover:text-pink-600 mx-auto mb-2" />
-                <span class="text-sm text-muted-foreground group-hover:text-pink-600">Add Photo</span>
-              </div>
-            </button>
-          </div>
-        </app-card>
-      }
-
       <!-- Basic Info Section -->
       <app-card class="p-6">
         <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
@@ -211,8 +168,27 @@
         
         <div class="space-y-4">
           <div class="flex items-center gap-3">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
-              {{ profile()?.firstName?.charAt(0) }}{{ profile()?.lastName?.charAt(0) }}
+            <!-- Profile Photo with Edit -->
+            <div class="relative group">
+              @if (getPrimaryPhoto()) {
+                <img 
+                  [src]="getPrimaryPhoto()" 
+                  alt="Profile photo"
+                  class="w-20 h-20 rounded-full object-cover border-4 border-pink-200 dark:border-purple-800 shadow-lg"
+                />
+              } @else {
+                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-pink-200 dark:border-purple-800 shadow-lg">
+                  {{ profile()?.firstName?.charAt(0) }}{{ profile()?.lastName?.charAt(0) }}
+                </div>
+              }
+              <!-- Edit Button Overlay -->
+              <button
+                (click)="changePrimaryPhoto()"
+                class="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                title="Promijeni profilnu sliku"
+              >
+                <app-icon name="camera" [size]="24" class="text-white" />
+              </button>
             </div>
             <div class="flex-1">
               <div class="flex items-center gap-2">
@@ -244,6 +220,99 @@
             <p class="text-foreground mt-1">{{ profile()?.bio }}</p>
           </div>
         </div>
+      </app-card>
+
+      <!-- Photos Section -->
+      <app-card class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold flex items-center gap-2">
+            <app-icon name="image" [size]="24" class="text-pink-600" />
+            <span>Fotografije</span>
+            <span class="text-sm text-muted-foreground font-normal">({{ photos().length }}/6)</span>
+          </h2>
+        </div>
+
+        <!-- Photo Error -->
+        @if (photoError()) {
+          <div class="mb-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-700 dark:text-red-300 px-4 py-3 rounded">
+            <div class="flex items-center gap-2">
+              <app-icon name="triangle-alert" [size]="20" class="text-red-500" />
+              <p class="text-sm">{{ photoError() }}</p>
+            </div>
+          </div>
+        }
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          @for (photo of photos(); track photo.id) {
+            <div class="relative group aspect-square rounded-lg overflow-hidden bg-muted border-2 border-border hover:border-pink-400 dark:hover:border-purple-400 transition-all">
+              <img 
+                [src]="photo.base64Data" 
+                alt="Photo {{ $index + 1 }}"
+                class="w-full h-full object-cover"
+              />
+              
+              <!-- Primary Badge -->
+              @if (photo.isPrimary) {
+                <div class="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-lg flex items-center gap-1">
+                  <app-icon name="star" [size]="12" />
+                  <span>Profilna</span>
+                </div>
+              }
+              
+              <!-- Actions Overlay -->
+              <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                @if (!photo.isPrimary) {
+                  <button
+                    type="button"
+                    (click)="setPrimaryPhoto(photo.id)"
+                    class="p-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-lg transition-colors"
+                    title="Postavi kao profilnu"
+                  >
+                    <app-icon name="star" [size]="16" />
+                  </button>
+                }
+                <button
+                  type="button"
+                  (click)="deletePhoto(photo.id)"
+                  class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors"
+                  title="Obriši sliku"
+                >
+                  <app-icon name="x" [size]="16" />
+                </button>
+              </div>
+            </div>
+          }
+          
+          <!-- Add Photo Button -->
+          @if (photos().length < 6) {
+            <label class="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-pink-600 transition-colors flex items-center justify-center cursor-pointer group">
+              <input 
+                type="file" 
+                accept="image/*" 
+                (change)="addPhoto($event)"
+                class="hidden"
+                [disabled]="isUploadingPhoto()"
+              />
+              <div class="text-center">
+                @if (isUploadingPhoto()) {
+                  <app-icon name="loader-circle" [size]="32" class="text-pink-600 animate-spin mx-auto mb-2" />
+                  <span class="text-sm text-pink-600">Dodavanje...</span>
+                } @else {
+                  <app-icon name="plus" [size]="32" class="text-muted-foreground group-hover:text-pink-600 mx-auto mb-2" />
+                  <span class="text-sm text-muted-foreground group-hover:text-pink-600">Dodaj sliku</span>
+                }
+              </div>
+            </label>
+          }
+        </div>
+        
+        @if (photos().length === 0) {
+          <div class="text-center py-8">
+            <app-icon name="image" [size]="48" class="text-muted-foreground mx-auto mb-2" />
+            <p class="text-muted-foreground">Još nemaš dodanih slika</p>
+            <p class="text-sm text-muted-foreground mt-1">Dodaj prvu sliku klikom na gumb iznad</p>
+          </div>
+        }
       </app-card>
 
       <!-- Dating Profile Section -->

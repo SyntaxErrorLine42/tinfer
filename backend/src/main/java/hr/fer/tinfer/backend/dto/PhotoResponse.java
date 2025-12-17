@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PhotoResponse {
     private Long id;
-    private String url;
+    private String base64Data; // Base64 encoded image
     private Integer displayOrder;
     private Boolean isPrimary;
     private LocalDateTime uploadedAt;

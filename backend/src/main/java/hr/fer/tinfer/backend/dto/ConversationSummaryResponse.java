@@ -12,7 +12,7 @@ public class ConversationSummaryResponse {
     Long conversationId;
     UUID partnerId;
     String partnerDisplayName;
-    String partnerPrimaryPhotoUrl;
+    String partnerPrimaryPhotoBase64; // Base64 encoded image
     String lastMessageSnippet;
     LocalDateTime lastMessageAt;
     long unreadCount;

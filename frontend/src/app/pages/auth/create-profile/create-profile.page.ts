@@ -2,6 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '@shared/services/auth.service';
+import { PhotoService } from '@shared/services/photo.service';
 import { CreateProfileRequest, ProfileResponse } from '@shared/services/profile.service';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button-wrapper/button-wrapper.component';
@@ -10,9 +11,10 @@ import { IconComponent } from '../../../shared/components/icon-wrapper/icon-wrap
 import { firstValueFrom } from 'rxjs';
 
 interface Photo {
-  url: string;
+  base64Data: string; // Base64 encoded image
   isPrimary: boolean;
-  file?: File;
+  preview: string; // Object URL for preview
+  file: File;
 }
 
 @Component({
@@ -25,6 +27,7 @@ export class CreateProfilePage {
   private router = inject(Router);
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private photoService = inject(PhotoService);
 
   // Form fields
   firstName = signal('');
@@ -85,29 +88,40 @@ export class CreateProfilePage {
     
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      this.generalError.set('Molimo odaberi sliku');
+    // Validate image
+    const validation = this.photoService.validateImage(file);
+    if (!validation.valid) {
+      this.generalError.set(validation.error || 'Nevažeća slika');
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      this.generalError.set('Slika je prevelika (max 5MB)');
+    // Check max 6 photos
+    if (this.photos().length >= 6) {
+      this.generalError.set('Možeš dodati maksimalno 6 slika');
       return;
     }
 
-    // Create preview URL
-    const url = URL.createObjectURL(file);
-    const newPhotos = [...this.photos()];
-    
-    newPhotos.push({
-      url,
-      isPrimary: newPhotos.length === 0, // First photo is primary
-      file,
-    });
+    try {
+      // Convert to Base64
+      const base64Data = await this.photoService.fileToBase64(file);
+      
+      // Create preview URL
+      const preview = URL.createObjectURL(file);
+      const newPhotos = [...this.photos()];
+      
+      newPhotos.push({
+        base64Data,
+        preview,
+        isPrimary: newPhotos.length === 0, // First photo is primary
+        file,
+      });
 
-    this.photos.set(newPhotos);
+      this.photos.set(newPhotos);
+      this.generalError.set('');
+    } catch (error) {
+      this.generalError.set('Greška pri učitavanju slike');
+    }
+
     input.value = ''; // Reset input
   }
 
@@ -173,11 +187,9 @@ export class CreateProfilePage {
         this.http.post<ProfileResponse>('/api/profiles', profileData)
       );
 
-      // TODO: Upload photos if any
-      // This would require photo upload endpoint from backend
+      // Upload photos if any
       if (this.photos().length > 0) {
-        console.log('Photo upload not yet implemented');
-        // await this.uploadPhotos(profile.id);
+        await this.uploadPhotos();
       }
 
       // Navigate to swipe page
@@ -190,18 +202,25 @@ export class CreateProfilePage {
     }
   }
 
-  // TODO: Implement photo upload
-  // private async uploadPhotos(profileId: string) {
-  //   const formData = new FormData();
-  //   this.photos().forEach((photo, index) => {
-  //     if (photo.file) {
-  //       formData.append('files', photo.file);
-  //       formData.append('isPrimary', photo.isPrimary ? 'true' : 'false');
-  //       formData.append('displayOrder', index.toString());
-  //     }
-  //   });
-  //   await firstValueFrom(
-  //     this.http.post(`/api/profiles/${profileId}/photos`, formData)
-  //   );
-  // }
+  /**
+   * Upload photos to backend
+   */
+  private async uploadPhotos() {
+    const photos = this.photos();
+    
+    for (let i = 0; i < photos.length; i++) {
+      const photo = photos[i];
+      
+      try {
+        await this.photoService.addPhoto({
+          base64Data: photo.base64Data,
+          displayOrder: i,
+          isPrimary: photo.isPrimary,
+        });
+      } catch (error) {
+        console.error('Failed to upload photo:', error);
+        // Continue with other photos even if one fails
+      }
+    }
+  }
 }

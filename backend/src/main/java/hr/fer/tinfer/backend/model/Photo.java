@@ -6,17 +6,17 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "photos", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "user_id", "is_primary" })
-})
+@Table(name = "photos")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "user")
 public class Photo {
 
     @Id
@@ -29,8 +29,9 @@ public class Photo {
     private Profile user;
 
     @NotBlank
-    @Column(nullable = false, length = 500)
-    private String url; // Supabase Storage URL
+    @Lob
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String base64Data; // Base64 encoded image (e.g., "data:image/jpeg;base64,/9j/4AAQ...")
 
     @Column(name = "display_order")
     private Integer displayOrder = 0;

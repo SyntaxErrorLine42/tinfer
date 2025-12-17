@@ -27,8 +27,8 @@ public class ProfileRecommendation {
     private Set<String> candidateInterests;
     private Set<String> departments;
 
-    private String primaryPhotoUrl;
-    private List<String> photoGallery;
+    private String primaryPhotoBase64; // Base64 encoded image
+    private List<String> photoGalleryBase64; // List of Base64 encoded images
 
     private double compatibilityScore;
     private String highlight;

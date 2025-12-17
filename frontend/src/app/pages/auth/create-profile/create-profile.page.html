@@ -116,7 +116,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
               @for (photo of photos(); track $index) {
                 <div class="relative group aspect-square rounded-xl overflow-hidden bg-muted border-2 border-border hover:border-pink-400 dark:hover:border-purple-400 transition-all">
-                  <img [src]="photo.url" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover" />
+                  <img [src]="photo.preview" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover" />
                   
                   <!-- Primary Badge -->
                   @if (photo.isPrimary) {
