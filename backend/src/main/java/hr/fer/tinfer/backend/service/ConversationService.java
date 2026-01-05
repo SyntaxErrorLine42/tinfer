@@ -56,7 +56,7 @@ public class ConversationService {
                 .conversationId(conversation.getId())
                 .partnerId(partner != null ? partner.getId() : null)
                 .partnerDisplayName(partnerName)
-                .partnerPrimaryPhotoUrl(partnerPhoto)
+                .partnerPrimaryPhotoBase64(partnerPhoto)
                 .lastMessageSnippet(lastMessageSnippet)
                 .lastMessageAt(conversation.getLastMessageAt())
                 .unreadCount(unread)
@@ -83,7 +83,7 @@ public class ConversationService {
                         .thenComparing(Photo::getDisplayOrder, Comparator.nullsLast(Integer::compareTo))
                         .thenComparing(Photo::getId, Comparator.nullsLast(Long::compareTo)))
                 .findFirst();
-        return primary.map(Photo::getUrl).orElse(null);
+        return primary.map(Photo::getBase64Data).orElse(null);
     }
 
     private String truncate(String value, int maxLength) {

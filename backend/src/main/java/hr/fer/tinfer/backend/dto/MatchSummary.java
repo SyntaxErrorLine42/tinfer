@@ -26,7 +26,7 @@ public class MatchSummary {
 
     private Set<String> sharedInterests;
     private Set<String> partnerDepartments;
-    private String primaryPhotoUrl;
+    private String primaryPhotoBase64; // Base64 encoded image
     private String highlight;
 
     private Long conversationId;

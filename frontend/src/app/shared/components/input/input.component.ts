@@ -1,10 +1,17 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, forwardRef } from '@angular/core';
 import { cn } from '../../utils/cn';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'app-input',
   imports: [FormsModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputComponent),
+      multi: true
+    }
+  ],
   template: `
     <div class="w-full">
       @if (label()) {
@@ -17,8 +24,9 @@ import { FormsModule } from '@angular/forms';
         [type]="type()"
         [placeholder]="placeholder()"
         [disabled]="disabled()"
-        [(ngModel)]="modelValue"
-        (ngModelChange)="onValueChange($event)"
+        [value]="internalValue"
+        (input)="onInput($event)"
+        (blur)="onTouched()"
         [class]="inputClasses()"
       />
       @if (error()) {
@@ -27,7 +35,8 @@ import { FormsModule } from '@angular/forms';
     </div>
   `,
 })
-export class InputComponent {
+export class InputComponent implements ControlValueAccessor {
+  // Input signals for traditional binding
   id = input<string>('input-' + Math.random().toString(36).substr(2, 9));
   type = input<string>('text');
   placeholder = input<string>('');
@@ -35,16 +44,50 @@ export class InputComponent {
   error = input<string>('');
   disabled = input<boolean>(false);
   value = input<string>('');
+  
+  // Output for traditional binding
   valueChange = output<string>();
 
-  modelValue = '';
+  // Internal value for both ControlValueAccessor and traditional binding
+  internalValue: any = '';
+  
+  // ControlValueAccessor callbacks
+  onChange: any = () => {};
+  onTouched: any = () => {};
 
   ngOnInit() {
-    this.modelValue = this.value();
+    // Initialize from value input if provided
+    if (this.value()) {
+      this.internalValue = this.value();
+    }
   }
 
-  onValueChange(value: string) {
-    this.valueChange.emit(value);
+  onInput(event: Event) {
+    const inputValue = (event.target as HTMLInputElement).value;
+    this.internalValue = this.type() === 'number' ? (inputValue ? Number(inputValue) : null) : inputValue;
+    
+    // Notify ControlValueAccessor (for ngModel)
+    this.onChange(this.internalValue);
+    
+    // Notify traditional output binding
+    this.valueChange.emit(this.internalValue);
+  }
+
+  // ControlValueAccessor implementation
+  writeValue(value: any): void {
+    this.internalValue = value ?? '';
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    // Handle disabled state if needed
   }
 
   inputClasses() {

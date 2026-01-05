@@ -13,6 +13,7 @@ public class BackendApplication {
 		Dotenv dotenv = Dotenv.configure().load();
 		System.setProperty("SUPABASE_URL", dotenv.get("SUPABASE_URL"));
 		System.setProperty("SUPABASE_JWT_SECRET", dotenv.get("SUPABASE_JWT_SECRET"));
+		System.setProperty("SUPABASE_ANON_KEY", dotenv.get("SUPABASE_ANON_KEY"));
 		System.setProperty("DATABASE_URL", dotenv.get("DATABASE_URL"));
 		System.setProperty("DATABASE_USERNAME", dotenv.get("DATABASE_USERNAME"));
 		System.setProperty("DATABASE_PASSWORD", dotenv.get("DATABASE_PASSWORD"));

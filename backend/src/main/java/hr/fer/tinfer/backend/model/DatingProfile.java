@@ -29,8 +29,11 @@ public class DatingProfile {
     @Column(name = "looking_for", length = 50)
     private String lookingFor; // relationship, casual, not_sure
 
-    @Column(length = 50)
-    private String gender;
+    @Column(length = 50, nullable = false)
+    private String gender; // male, female, non_binary, other
+
+    @Column(name = "interested_in_gender", length = 50)
+    private String interestedInGender; // male, female, non_binary, everyone
 
     @Column(name = "show_gender")
     private Boolean showGender = true;

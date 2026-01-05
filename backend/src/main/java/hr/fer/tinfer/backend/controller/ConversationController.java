@@ -1,5 +1,6 @@
 package hr.fer.tinfer.backend.controller;
 
+import hr.fer.tinfer.backend.dto.ChatMessageRequest;
 import hr.fer.tinfer.backend.dto.ConversationSummaryResponse;
 import hr.fer.tinfer.backend.dto.MarkMessagesReadRequest;
 import hr.fer.tinfer.backend.dto.MessageResponse;
@@ -66,5 +67,15 @@ public class ConversationController {
         UUID userId = (UUID) authentication.getPrincipal();
         chatHistoryService.markAsRead(conversationId, userId, request);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{conversationId}/messages")
+    @Operation(summary = "Pošalji poruku u razgovor")
+    public ResponseEntity<MessageResponse> sendMessage(@PathVariable Long conversationId,
+            @Valid @RequestBody ChatMessageRequest request,
+            Authentication authentication) {
+        UUID userId = (UUID) authentication.getPrincipal();
+        MessageResponse message = chatHistoryService.sendMessage(conversationId, userId, request);
+        return ResponseEntity.ok(message);
     }
 }
