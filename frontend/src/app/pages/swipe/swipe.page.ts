@@ -1,4 +1,4 @@
-import { Component, signal, ViewChild, ElementRef, AfterViewInit, OnInit, inject } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnInit, OnDestroy, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonComponent } from '../../shared/components/button-wrapper/button-wrapper.component';
 import { CardComponent } from '../../shared/components/card/card.component';
@@ -26,7 +26,7 @@ interface SwipeProfile extends ProfileRecommendation {
   templateUrl: './swipe.page.html',
   styleUrl: './swipe.page.css',
 })
-export class SwipePage implements OnInit, AfterViewInit {
+export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
   @ViewChild('swipeCard') swipeCard?: ElementRef<HTMLDivElement>;
 
   private swipeService = inject(SwipeService);
@@ -54,6 +54,9 @@ export class SwipePage implements OnInit, AfterViewInit {
   private startX = 0;
   private startY = 0;
   private isProcessingSwipe = false;
+  private gestureListenersSetup = false;
+  private boundMouseMove: ((e: MouseEvent) => void) | null = null;
+  private boundMouseUp: (() => void) | null = null;
 
   ngOnInit() {
     this.loadRecommendations();
@@ -62,6 +65,23 @@ export class SwipePage implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.setupGestureListeners();
+  }
+
+  ngAfterViewChecked() {
+    // Re-setup gesture listeners if card exists but listeners not set up yet
+    if (!this.gestureListenersSetup && this.swipeCard) {
+      this.setupGestureListeners();
+    }
+  }
+
+  ngOnDestroy() {
+    // Clean up document event listeners
+    if (this.boundMouseMove) {
+      document.removeEventListener('mousemove', this.boundMouseMove);
+    }
+    if (this.boundMouseUp) {
+      document.removeEventListener('mouseup', this.boundMouseUp);
+    }
   }
 
   get currentProfile(): SwipeProfile | null {
@@ -121,10 +141,26 @@ export class SwipePage implements OnInit, AfterViewInit {
   }
 
   setupGestureListeners() {
-    if (!this.swipeCard) return;
+    if (!this.swipeCard || this.gestureListenersSetup) return;
 
     const card = this.swipeCard.nativeElement;
     let isTouching = false;
+
+    // Create bound functions for cleanup
+    this.boundMouseMove = (e: MouseEvent) => {
+      if (!isTouching) return;
+      const deltaX = e.clientX - this.startX;
+      const deltaY = e.clientY - this.startY;
+      this.dragX.set(deltaX);
+      this.dragY.set(deltaY);
+      this.rotation.set(deltaX / 20);
+    };
+
+    this.boundMouseUp = () => {
+      if (!isTouching) return;
+      isTouching = false;
+      this.handleDragEnd();
+    };
 
     // Mouse events
     card.addEventListener('mousedown', (e: MouseEvent) => {
@@ -134,20 +170,8 @@ export class SwipePage implements OnInit, AfterViewInit {
       this.isDragging.set(true);
     });
 
-    document.addEventListener('mousemove', (e: MouseEvent) => {
-      if (!isTouching) return;
-      const deltaX = e.clientX - this.startX;
-      const deltaY = e.clientY - this.startY;
-      this.dragX.set(deltaX);
-      this.dragY.set(deltaY);
-      this.rotation.set(deltaX / 20);
-    });
-
-    document.addEventListener('mouseup', () => {
-      if (!isTouching) return;
-      isTouching = false;
-      this.handleDragEnd();
-    });
+    document.addEventListener('mousemove', this.boundMouseMove);
+    document.addEventListener('mouseup', this.boundMouseUp);
 
     // Touch events
     card.addEventListener('touchstart', (e: TouchEvent) => {
@@ -167,6 +191,8 @@ export class SwipePage implements OnInit, AfterViewInit {
     card.addEventListener('touchend', () => {
       this.handleDragEnd();
     });
+
+    this.gestureListenersSetup = true;
   }
 
   handleDragEnd() {

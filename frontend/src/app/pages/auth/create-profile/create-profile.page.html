@@ -222,8 +222,8 @@
                   [disabled]="isLoading()"
                 >
                   <option value="">Odaberi spol</option>
-                  <option value="male">Muško</option>
-                  <option value="female">Žensko</option>
+                  <option value="male">Muškarac</option>
+                  <option value="female">Žena</option>
                   <option value="non_binary">Nebinarno</option>
                   <option value="other">Ostalo</option>
                 </select>
@@ -244,9 +244,9 @@
                   (change)="onInterestedInGenderChange($any($event.target).value)"
                   [disabled]="isLoading()"
                 >
-                  <option value="">Svi</option>
-                  <option value="male">Muške</option>
-                  <option value="female">Ženske</option>
+                  <option value="">Odaberi</option>
+                  <option value="male">Muškarci</option>
+                  <option value="female">Žene</option>
                   <option value="non_binary">Nebinarne osobe</option>
                   <option value="everyone">Svi</option>
                 </select>
