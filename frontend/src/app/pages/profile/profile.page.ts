@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../shared/components/button-wrapper/button-wrapper.component';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { IconComponent } from '../../shared/components/icon-wrapper/icon-wrapper.component';
-import { BadgeComponent } from '../../shared/components/badge/badge.component';
 import { InputComponent } from '../../shared/components/input/input.component';
 import { TagInputComponent } from '../../shared/components/tag-input/tag-input.component';
 import { ProfileService, ProfileDetailsResponse, UpdateProfileRequest } from '@shared/services/profile.service';
@@ -18,7 +17,6 @@ import { AuthService } from '@shared/services/auth.service';
     ButtonComponent,
     CardComponent,
     IconComponent,
-    BadgeComponent,
     InputComponent,
     TagInputComponent,
     FormsModule,

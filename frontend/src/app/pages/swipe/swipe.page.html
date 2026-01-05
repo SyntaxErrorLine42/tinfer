@@ -15,7 +15,7 @@
         </span>
       </div>
 
-      <button class="p-2 hover:bg-muted rounded-lg transition-colors">
+      <button (click)="goToConversations()" class="p-2 hover:bg-muted rounded-lg transition-colors">
         <app-icon name="message-circle" [size]="24" class="text-foreground" />
       </button>
     </div>
@@ -24,7 +24,35 @@
   <!-- Card Stack -->
   <div class="container max-w-md mx-auto px-4 pb-4">
     <div class="relative h-[calc(100vh-250px)] min-h-[500px]">
-      @if (currentProfile) {
+      <!-- Loading State -->
+      @if (isLoading()) {
+        <div class="flex items-center justify-center h-full">
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4 animate-pulse">
+              <app-icon name="heart" [size]="32" class="text-muted-foreground" />
+            </div>
+            <p class="text-muted-foreground">Učitavanje profila...</p>
+          </div>
+        </div>
+      }
+
+      <!-- Error State -->
+      @else if (error()) {
+        <div class="flex items-center justify-center h-full">
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
+              <app-icon name="triangle-alert" [size]="48" class="text-red-500" />
+            </div>
+            <h3 class="text-xl font-bold mb-2">Ups!</h3>
+            <p class="text-muted-foreground mb-6">{{ error() }}</p>
+            <app-button (click)="loadRecommendations()">
+              Pokušaj ponovno
+            </app-button>
+          </div>
+        </div>
+      }
+
+      @else if (currentProfile) {
         <!-- Profile Card -->
         <div
           #swipeCard
@@ -37,11 +65,18 @@
           <app-card class="h-full overflow-hidden relative group">
             <!-- Photo -->
             <div class="relative h-full">
-              <img
-                [src]="currentProfile.photos[currentProfile.currentPhotoIndex]"
-                [alt]="currentProfile.name"
-                class="w-full h-full object-cover"
-              />
+              @if (getCurrentPhoto(currentProfile)) {
+                <img
+                  [src]="getCurrentPhoto(currentProfile)"
+                  [alt]="currentProfile.displayName || currentProfile.firstName"
+                  class="w-full h-full object-cover"
+                />
+              } @else {
+                <!-- Placeholder when no photo -->
+                <div class="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 flex items-center justify-center">
+                  <app-icon name="user" [size]="120" class="text-muted-foreground/30" />
+                </div>
+              }
 
               <!-- Photo Navigation Overlay -->
               <div class="absolute inset-0 grid grid-cols-3 gap-2 p-2">
@@ -56,16 +91,18 @@
               </div>
 
               <!-- Photo Indicators -->
-              <div class="absolute top-4 left-4 right-4 flex gap-1">
-                @for (photo of currentProfile.photos; track $index) {
-                  <div class="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
-                    <div
-                      class="h-full bg-white rounded-full transition-all duration-300"
-                      [style.width]="currentProfile.currentPhotoIndex >= $index ? '100%' : '0%'"
-                    ></div>
-                  </div>
-                }
-              </div>
+              @if (getPhotos(currentProfile).length > 1) {
+                <div class="absolute top-4 left-4 right-4 flex gap-1">
+                  @for (photo of getPhotos(currentProfile); track $index) {
+                    <div class="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-white rounded-full transition-all duration-300"
+                        [style.width]="currentProfile.currentPhotoIndex >= $index ? '100%' : '0%'"
+                      ></div>
+                    </div>
+                  }
+                </div>
+              }
 
               <!-- Like/Nope Overlay -->
               @if (dragX() !== 0) {
@@ -90,29 +127,63 @@
                 <div class="flex items-end justify-between mb-3">
                   <div>
                     <h2 class="text-3xl font-bold mb-1">
-                      {{ currentProfile.name }}, {{ currentProfile.age }}
+                      {{ currentProfile.displayName || currentProfile.firstName }}
+                      @if (currentProfile.yearOfStudy) {
+                        <span class="text-2xl font-normal opacity-90">, {{ currentProfile.yearOfStudy }}. godina</span>
+                      }
                     </h2>
-                    <div class="flex items-center gap-1 text-white/90">
-                      <app-icon name="map-pin" [size]="16" />
-                      <span class="text-sm">{{ currentProfile.distance }} km away</span>
-                    </div>
+                    @if (currentProfile.highlight) {
+                      <div class="flex items-center gap-1 text-white/90">
+                        <app-icon name="sparkles" [size]="16" />
+                        <span class="text-sm">{{ currentProfile.highlight }}</span>
+                      </div>
+                    }
+                    @if (currentProfile.verified) {
+                      <div class="flex items-center gap-1 text-blue-300 mt-1">
+                        <app-icon name="circle-check" [size]="16" />
+                        <span class="text-sm">Verificiran</span>
+                      </div>
+                    }
                   </div>
                   <button class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors flex items-center justify-center">
                     <app-icon name="info" [size]="24" />
                   </button>
                 </div>
 
-                <p class="text-white/90 text-sm mb-3 line-clamp-2">
-                  {{ currentProfile.bio }}
-                </p>
+                @if (currentProfile.bio) {
+                  <p class="text-white/90 text-sm mb-3 line-clamp-2">
+                    {{ currentProfile.bio }}
+                  </p>
+                }
 
+                <!-- Shared interests first, then other interests -->
                 <div class="flex flex-wrap gap-2">
-                  @for (interest of currentProfile.interests; track interest) {
-                    <div class="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs font-medium">
-                      {{ interest }}
+                  @for (interest of currentProfile.sharedInterests; track interest) {
+                    <div class="px-3 py-1 rounded-full bg-green-500/40 backdrop-blur-sm text-xs font-medium border border-green-400/50">
+                      ✓ {{ interest }}
                     </div>
                   }
+                  @for (interest of currentProfile.candidateInterests; track interest) {
+                    @if (!currentProfile.sharedInterests.includes(interest)) {
+                      <div class="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs font-medium">
+                        {{ interest }}
+                      </div>
+                    }
+                  }
                 </div>
+
+                <!-- Compatibility Score -->
+                @if (currentProfile.compatibilityScore > 0) {
+                  <div class="mt-3 flex items-center gap-2">
+                    <div class="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                      <div 
+                        class="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-500"
+                        [style.width]="(currentProfile.compatibilityScore * 100) + '%'"
+                      ></div>
+                    </div>
+                    <span class="text-xs text-white/70">{{ (currentProfile.compatibilityScore * 100) | number:'1.0-0' }}% match</span>
+                  </div>
+                }
               </div>
             </div>
           </app-card>
@@ -122,11 +193,15 @@
         @if (currentIndex() < profiles().length - 1) {
           <div class="absolute inset-0 -z-10 scale-95 opacity-50">
             <app-card class="h-full overflow-hidden">
-              <img
-                [src]="profiles()[currentIndex() + 1].photos[0]"
-                [alt]="profiles()[currentIndex() + 1].name"
-                class="w-full h-full object-cover"
-              />
+              @if (profiles()[currentIndex() + 1].primaryPhotoBase64) {
+                <img
+                  [src]="profiles()[currentIndex() + 1].primaryPhotoBase64"
+                  [alt]="profiles()[currentIndex() + 1].firstName"
+                  class="w-full h-full object-cover"
+                />
+              } @else {
+                <div class="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20"></div>
+              }
             </app-card>
           </div>
         }
@@ -137,17 +212,17 @@
             </app-card>
           </div>
         }
-      } @else {
+      } @else if (!isLoading() && !error()) {
         <!-- No more profiles -->
         <div class="flex items-center justify-center h-full">
           <div class="text-center">
             <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-muted mb-4">
               <app-icon name="users" [size]="48" class="text-muted-foreground" />
             </div>
-            <h3 class="text-2xl font-bold mb-2">No more profiles</h3>
-            <p class="text-muted-foreground mb-6">Check back later for new matches!</p>
-            <app-button (click)="currentIndex.set(0)">
-              Start Over
+            <h3 class="text-2xl font-bold mb-2">Nema više profila</h3>
+            <p class="text-muted-foreground mb-6">Provjerite kasnije za nove preporuke!</p>
+            <app-button (click)="loadRecommendations()">
+              Osvježi
             </app-button>
           </div>
         </div>
@@ -212,14 +287,14 @@
               It's a Match!
             </h2>
             <p class="text-muted-foreground">
-              You and {{ lastMatchedProfile()!.name }} liked each other
+              Ti i {{ lastMatchedProfile()!.displayName || lastMatchedProfile()!.firstName }} se sviđate!
             </p>
           </div>
 
           <!-- Avatars -->
           <div class="flex justify-center items-center gap-4 mb-8">
             <app-avatar
-              [src]="lastMatchedProfile()!.photos[0]"
+              [src]="lastMatchedProfile()!.primaryPhotoBase64 || ''"
               size="xl"
               class="animate-in slide-in-from-left duration-500"
             />
@@ -227,7 +302,7 @@
               <app-icon name="heart" [size]="24" class="text-white" />
             </div>
             <app-avatar
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400"
+              [src]="currentUserPhoto() || ''"
               size="xl"
               class="animate-in slide-in-from-right duration-500"
             />
@@ -238,11 +313,11 @@
             <app-button class="w-full" (click)="sendMessage()">
               <div class="flex items-center justify-center gap-2">
                 <app-icon name="message-circle" [size]="20" />
-                <span>Send a Message</span>
+                <span>Pošalji poruku</span>
               </div>
             </app-button>
             <app-button variant="outline" class="w-full" (click)="keepSwiping()">
-              Keep Swiping
+              Nastavi swipati
             </app-button>
           </div>
         </app-card>

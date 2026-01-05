@@ -1,19 +1,15 @@
-import { Component, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef, AfterViewInit, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonComponent } from '../../shared/components/button-wrapper/button-wrapper.component';
 import { CardComponent } from '../../shared/components/card/card.component';
 import { IconComponent } from '../../shared/components/icon-wrapper/icon-wrapper.component';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
-import { NgStyle } from '@angular/common';
+import { NgStyle, DecimalPipe } from '@angular/common';
+import { SwipeService, ProfileRecommendation, SwipeResponse } from '@shared/services/swipe.service';
+import { ProfileService } from '@shared/services/profile.service';
 
-interface Profile {
-  id: number;
-  name: string;
-  age: number;
-  bio: string;
-  photos: string[];
-  interests: string[];
-  distance: number;
+// Extended profile for UI state (adds currentPhotoIndex for photo navigation)
+interface SwipeProfile extends ProfileRecommendation {
   currentPhotoIndex: number;
 }
 
@@ -25,105 +21,103 @@ interface Profile {
     IconComponent,
     AvatarComponent,
     NgStyle,
+    DecimalPipe,
   ],
   templateUrl: './swipe.page.html',
   styleUrl: './swipe.page.css',
 })
-export class SwipePage implements AfterViewInit {
+export class SwipePage implements OnInit, AfterViewInit {
   @ViewChild('swipeCard') swipeCard?: ElementRef<HTMLDivElement>;
 
-  profiles = signal<Profile[]>([
-    {
-      id: 1,
-      name: 'Emma',
-      age: 24,
-      bio: '🎨 Artist | 📸 Photography enthusiast | ☕ Coffee lover | Always up for adventures',
-      photos: [
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800',
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800',
-        'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800',
-      ],
-      interests: ['Art', 'Photography', 'Travel', 'Coffee'],
-      distance: 3,
-      currentPhotoIndex: 0,
-    },
-    {
-      id: 2,
-      name: 'Alex',
-      age: 27,
-      bio: '🏋️ Fitness coach | 🌮 Foodie | 🎮 Gamer | Living life to the fullest',
-      photos: [
-        'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=800',
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
-        'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800',
-      ],
-      interests: ['Fitness', 'Food', 'Gaming', 'Music'],
-      distance: 5,
-      currentPhotoIndex: 0,
-    },
-    {
-      id: 3,
-      name: 'Sophie',
-      age: 23,
-      bio: '📚 Book lover | 🎵 Music festival junkie | 🌍 World traveler | Always curious',
-      photos: [
-        'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=800',
-        'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800',
-        'https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?w=800',
-      ],
-      interests: ['Books', 'Music', 'Travel', 'Hiking'],
-      distance: 2,
-      currentPhotoIndex: 0,
-    },
-    {
-      id: 4,
-      name: 'Jordan',
-      age: 26,
-      bio: '🎬 Film buff | 🍕 Pizza connoisseur | 🏄 Surfer | Let\'s grab a slice!',
-      photos: [
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800',
-        'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=800',
-        'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800',
-      ],
-      interests: ['Movies', 'Surfing', 'Food', 'Beach'],
-      distance: 7,
-      currentPhotoIndex: 0,
-    },
-    {
-      id: 5,
-      name: 'Maya',
-      age: 25,
-      bio: '🧘 Yoga instructor | 🌱 Plant mom | ✈️ Travel addict | Namaste',
-      photos: [
-        'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800',
-        'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800',
-        'https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=800',
-      ],
-      interests: ['Yoga', 'Plants', 'Travel', 'Wellness'],
-      distance: 4,
-      currentPhotoIndex: 0,
-    },
-  ]);
+  private swipeService = inject(SwipeService);
+  private profileService = inject(ProfileService);
+  private router = inject(Router);
 
+  // State
+  profiles = signal<SwipeProfile[]>([]);
   currentIndex = signal(0);
+  isLoading = signal(true);
+  error = signal<string | null>(null);
+  currentUserPhoto = signal<string | null>(null);
+
+  // Drag state
   isDragging = signal(false);
   dragX = signal(0);
   dragY = signal(0);
   rotation = signal(0);
+  
+  // Match modal state
   showMatchModal = signal(false);
-  lastMatchedProfile = signal<Profile | null>(null);
+  lastMatchedProfile = signal<SwipeProfile | null>(null);
+  lastMatchConversationId = signal<number | null>(null);
 
   private startX = 0;
   private startY = 0;
+  private isProcessingSwipe = false;
 
-  constructor(private router: Router) {}
+  ngOnInit() {
+    this.loadRecommendations();
+    this.loadCurrentUserPhoto();
+  }
 
   ngAfterViewInit() {
     this.setupGestureListeners();
   }
 
-  get currentProfile(): Profile | null {
+  get currentProfile(): SwipeProfile | null {
     return this.profiles()[this.currentIndex()] || null;
+  }
+
+  /**
+   * Load profile recommendations from backend
+   */
+  loadRecommendations() {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.swipeService.getRecommendations(25).subscribe({
+      next: (recommendations) => {
+        // Convert to SwipeProfile by adding currentPhotoIndex
+        const swipeProfiles: SwipeProfile[] = recommendations.map(rec => ({
+          ...rec,
+          currentPhotoIndex: 0
+        }));
+        this.profiles.set(swipeProfiles);
+        this.currentIndex.set(0);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load recommendations:', err);
+        this.error.set('Nije moguće učitati profile. Pokušajte ponovno.');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Load current user's photo for match modal
+   */
+  loadCurrentUserPhoto() {
+    this.profileService.getMyProfile().subscribe({
+      next: () => {
+        // Try to get photos
+        this.profileService.getMyPhotos().subscribe({
+          next: (photos) => {
+            const primaryPhoto = photos.find(p => p.isPrimary) || photos[0];
+            if (primaryPhoto) {
+              // PhotoResponse has base64Data field based on photo.service.ts
+              this.currentUserPhoto.set((primaryPhoto as any).base64Data || primaryPhoto.url);
+            }
+          },
+          error: () => {
+            // Ignore photo loading errors
+          }
+        });
+      },
+      error: () => {
+        // Ignore profile loading errors
+      }
+    });
   }
 
   setupGestureListeners() {
@@ -214,39 +208,77 @@ export class SwipePage implements AfterViewInit {
     if (this.currentIndex() < this.profiles().length - 1) {
       this.currentIndex.update((i) => i + 1);
     } else {
-      // All profiles viewed
-      this.currentIndex.set(0);
+      // All profiles viewed - try to load more
+      this.loadRecommendations();
+    }
+  }
+
+  /**
+   * Handle swipe response from backend
+   */
+  private handleSwipeResponse(response: SwipeResponse, profile: SwipeProfile) {
+    if (response.matchCreated) {
+      this.lastMatchedProfile.set(profile);
+      this.lastMatchConversationId.set(response.conversationId);
+      setTimeout(() => this.showMatchModal.set(true), 400);
     }
   }
 
   like() {
     const profile = this.currentProfile;
-    if (profile) {
-      console.log('Liked:', profile.name);
-      // Simulate match (50% chance)
-      if (Math.random() > 0.5) {
-        this.lastMatchedProfile.set(profile);
-        setTimeout(() => this.showMatchModal.set(true), 400);
+    if (!profile || this.isProcessingSwipe) return;
+
+    this.isProcessingSwipe = true;
+    console.log('Liking:', profile.displayName || profile.firstName);
+
+    this.swipeService.like(profile.profileId).subscribe({
+      next: (response) => {
+        this.handleSwipeResponse(response, profile);
+        this.isProcessingSwipe = false;
+      },
+      error: (err) => {
+        console.error('Swipe failed:', err);
+        this.isProcessingSwipe = false;
       }
-    }
+    });
   }
 
   pass() {
     const profile = this.currentProfile;
-    if (profile) {
-      console.log('Passed:', profile.name);
-    }
+    if (!profile || this.isProcessingSwipe) return;
+
+    this.isProcessingSwipe = true;
+    console.log('Passing:', profile.displayName || profile.firstName);
+
+    this.swipeService.pass(profile.profileId).subscribe({
+      next: () => {
+        this.isProcessingSwipe = false;
+      },
+      error: (err) => {
+        console.error('Swipe failed:', err);
+        this.isProcessingSwipe = false;
+      }
+    });
   }
 
   superLike() {
     const profile = this.currentProfile;
-    if (profile) {
-      console.log('Super liked:', profile.name);
-      this.lastMatchedProfile.set(profile);
-      setTimeout(() => this.showMatchModal.set(true), 400);
-      this.animateSwipe('right');
-      this.nextProfile();
-    }
+    if (!profile || this.isProcessingSwipe) return;
+
+    this.isProcessingSwipe = true;
+    console.log('Super liking:', profile.displayName || profile.firstName);
+
+    this.swipeService.superLike(profile.profileId).subscribe({
+      next: (response) => {
+        this.handleSwipeResponse(response, profile);
+        this.animateSwipe('right');
+        this.isProcessingSwipe = false;
+      },
+      error: (err) => {
+        console.error('Swipe failed:', err);
+        this.isProcessingSwipe = false;
+      }
+    });
   }
 
   rewind() {
@@ -257,7 +289,7 @@ export class SwipePage implements AfterViewInit {
 
   nextPhoto() {
     const profile = this.currentProfile;
-    if (profile && profile.currentPhotoIndex < profile.photos.length - 1) {
+    if (profile && profile.photoGalleryBase64 && profile.currentPhotoIndex < profile.photoGalleryBase64.length - 1) {
       profile.currentPhotoIndex++;
     }
   }
@@ -269,14 +301,40 @@ export class SwipePage implements AfterViewInit {
     }
   }
 
+  /**
+   * Get current photo URL for display
+   */
+  getCurrentPhoto(profile: SwipeProfile): string | null {
+    if (profile.photoGalleryBase64 && profile.photoGalleryBase64.length > 0) {
+      return profile.photoGalleryBase64[profile.currentPhotoIndex] || profile.primaryPhotoBase64;
+    }
+    return profile.primaryPhotoBase64;
+  }
+
+  /**
+   * Get all photos for a profile
+   */
+  getPhotos(profile: SwipeProfile): string[] {
+    if (profile.photoGalleryBase64 && profile.photoGalleryBase64.length > 0) {
+      return profile.photoGalleryBase64;
+    }
+    if (profile.primaryPhotoBase64) {
+      return [profile.primaryPhotoBase64];
+    }
+    return [];
+  }
+
   closeMatchModal() {
     this.showMatchModal.set(false);
   }
 
   sendMessage() {
     this.showMatchModal.set(false);
-    // Navigate to messages
-    console.log('Send message');
+    const conversationId = this.lastMatchConversationId();
+    if (conversationId) {
+      // Navigate to conversation (will implement conversations page later)
+      this.router.navigate(['/conversations'], { queryParams: { id: conversationId } });
+    }
   }
 
   keepSwiping() {
@@ -285,6 +343,10 @@ export class SwipePage implements AfterViewInit {
 
   goToProfile() {
     this.router.navigate(['/profile']);
+  }
+
+  goToConversations() {
+    this.router.navigate(['/conversations']);
   }
 }
 

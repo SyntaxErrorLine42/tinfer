@@ -6,6 +6,7 @@ import { CreateProfilePage } from './pages/auth/create-profile/create-profile.pa
 import { CallbackPage } from './pages/auth/callback/callback.page';
 import { SwipePage } from './pages/swipe/swipe.page';
 import { ProfilePage } from './pages/profile/profile.page';
+import { ConversationsPage } from './pages/conversations/conversations.page';
 import { authGuard } from '@shared/guards/auth.guard';
 
 export const routes: Routes = [
@@ -17,4 +18,5 @@ export const routes: Routes = [
   { path: 'swipe', component: SwipePage, canMatch: [authGuard] }, // Only authenticated users
   { path: 'profile', component: ProfilePage, canMatch: [authGuard] }, // Only authenticated users
   { path: 'profile/:id', component: ProfilePage, canMatch: [authGuard] },  // View other user's profile
+  { path: 'conversations', component: ConversationsPage, canMatch: [authGuard] }, // Chat/conversations
 ];
