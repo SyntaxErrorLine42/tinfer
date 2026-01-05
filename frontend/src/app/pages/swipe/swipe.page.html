@@ -15,8 +15,13 @@
         </span>
       </div>
 
-      <button (click)="goToConversations()" class="p-2 hover:bg-muted rounded-lg transition-colors">
+      <button (click)="goToConversations()" class="p-2 hover:bg-muted rounded-lg transition-colors relative">
         <app-icon name="message-circle" [size]="24" class="text-foreground" />
+        @if (totalUnreadCount() > 0) {
+          <div class="absolute -top-1 -right-1 min-w-5 h-5 bg-pink-600 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+            {{ totalUnreadCount() > 99 ? '99+' : totalUnreadCount() }}
+          </div>
+        }
       </button>
     </div>
   </div>

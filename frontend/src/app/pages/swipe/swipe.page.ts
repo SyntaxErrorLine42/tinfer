@@ -7,6 +7,7 @@ import { AvatarComponent } from '../../shared/components/avatar/avatar.component
 import { NgStyle, DecimalPipe } from '@angular/common';
 import { SwipeService, ProfileRecommendation, SwipeResponse } from '@shared/services/swipe.service';
 import { ProfileService } from '@shared/services/profile.service';
+import { ConversationService } from '@shared/services/conversation.service';
 
 // Extended profile for UI state (adds currentPhotoIndex for photo navigation)
 interface SwipeProfile extends ProfileRecommendation {
@@ -31,10 +32,12 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
 
   private swipeService = inject(SwipeService);
   private profileService = inject(ProfileService);
+  private conversationService = inject(ConversationService);
   private router = inject(Router);
 
   // State
   profiles = signal<SwipeProfile[]>([]);
+  totalUnreadCount = signal(0);
   currentIndex = signal(0);
   isLoading = signal(true);
   error = signal<string | null>(null);
@@ -61,6 +64,7 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
   ngOnInit() {
     this.loadRecommendations();
     this.loadCurrentUserPhoto();
+    this.loadUnreadCount();
   }
 
   ngAfterViewInit() {
@@ -86,6 +90,21 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
 
   get currentProfile(): SwipeProfile | null {
     return this.profiles()[this.currentIndex()] || null;
+  }
+
+  /**
+   * Load total unread message count from all conversations
+   */
+  loadUnreadCount() {
+    this.conversationService.getConversations().subscribe({
+      next: (conversations) => {
+        const total = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+        this.totalUnreadCount.set(total);
+      },
+      error: (err) => {
+        console.error('Failed to load unread count:', err);
+      }
+    });
   }
 
   /**

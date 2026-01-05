@@ -62,7 +62,7 @@ public class ChatHistoryService {
     @Transactional
     public MessageResponse sendMessage(Long conversationId, UUID userId, ChatMessageRequest request) {
         Conversation conversation = conversationPermissionService.requireParticipant(conversationId, userId);
-        
+
         Profile sender = profileRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("Profile not found for user: " + userId));
 
