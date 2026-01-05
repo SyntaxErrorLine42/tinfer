@@ -7,111 +7,131 @@
       </button>
       
       <h1 class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-        Messages
+        Poruke
       </h1>
 
-      <button class="p-2 hover:bg-muted rounded-lg transition-colors">
-        <app-icon name="filter" [size]="24" class="text-foreground" />
+      <button (click)="loadConversations()" class="p-2 hover:bg-muted rounded-lg transition-colors">
+        <app-icon name="refresh-cw" [size]="24" class="text-foreground" />
       </button>
     </div>
   </div>
 
-  <!-- Conversations List -->
-  <div class="container max-w-4xl mx-auto px-4 pb-8">
-    @if (conversations().length === 0) {
-      <!-- Empty State -->
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="container max-w-4xl mx-auto px-4 pb-8">
       <div class="flex items-center justify-center py-16">
         <div class="text-center">
-          <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-muted mb-4">
-            <app-icon name="message-circle" [size]="48" class="text-muted-foreground" />
+          <app-icon name="loader-2" [size]="48" class="text-pink-600 animate-spin mx-auto mb-4" />
+          <p class="text-muted-foreground">Učitavanje razgovora...</p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (error()) {
+    <div class="container max-w-4xl mx-auto px-4 pb-8">
+      <div class="flex items-center justify-center py-16">
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
+            <app-icon name="triangle-alert" [size]="48" class="text-red-600" />
           </div>
-          <h3 class="text-2xl font-bold mb-2">No conversations yet</h3>
-          <p class="text-muted-foreground mb-6">Start matching with people to begin conversations!</p>
-          <app-button (click)="goBack()">
-            Start Swiping
+          <h3 class="text-xl font-bold mb-2">Greška</h3>
+          <p class="text-muted-foreground mb-6">{{ error() }}</p>
+          <app-button (click)="loadConversations()">
+            Pokušaj ponovno
           </app-button>
         </div>
       </div>
-    } @else {
-      <!-- Conversations -->
-      <div class="space-y-2">
-        @for (conversation of conversations(); track conversation.id) {
-          <app-card 
-            class="p-4 cursor-pointer hover:shadow-lg transition-all"
-            (click)="openConversation(conversation.id)"
-          >
-            <div class="flex gap-4">
-              <!-- Avatar -->
-              <div class="relative flex-shrink-0">
-                <app-avatar 
-                  [src]="conversation.otherUser.avatar" 
-                  size="lg"
-                />
-                @if (conversation.unreadCount > 0) {
-                  <div class="absolute -top-1 -right-1 w-6 h-6 bg-pink-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                    {{ conversation.unreadCount }}
-                  </div>
-                }
-              </div>
+    </div>
+  }
 
-              <!-- Content -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between mb-1">
-                  <h3 class="font-bold text-lg">{{ conversation.otherUser.name }}</h3>
-                  <span class="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                    {{ getTimeAgo(conversation.lastMessage.sentAt) }}
-                  </span>
-                </div>
-
-                <div class="flex items-center gap-2 mb-2">
-                  @if (conversation.lastMessage.isSentByMe) {
-                    <app-icon name="check" [size]="16" class="text-muted-foreground flex-shrink-0" />
-                  }
-                  <p 
-                    class="text-sm truncate"
-                    [class.text-foreground]="!conversation.lastMessage.isRead && !conversation.lastMessage.isSentByMe"
-                    [class.font-semibold]="!conversation.lastMessage.isRead && !conversation.lastMessage.isSentByMe"
-                    [class.text-muted-foreground]="conversation.lastMessage.isRead || conversation.lastMessage.isSentByMe"
-                  >
-                    {{ conversation.lastMessage.content }}
-                  </p>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex gap-2">
-                  <button
-                    (click)="blockUser(conversation.id, $event)"
-                    class="text-xs text-muted-foreground hover:text-red-600 transition-colors flex items-center gap-1"
-                  >
-                    <app-icon name="ban" [size]="14" />
-                    <span>Block</span>
-                  </button>
-                  
-                  <button
-                    (click)="deleteConversation(conversation.id, $event)"
-                    class="text-xs text-muted-foreground hover:text-red-600 transition-colors flex items-center gap-1"
-                  >
-                    <app-icon name="trash-2" [size]="14" />
-                    <span>Delete</span>
-                  </button>
-                </div>
-              </div>
+  <!-- Conversations List -->
+  @else {
+    <div class="container max-w-4xl mx-auto px-4 pb-8">
+      @if (conversations().length === 0) {
+        <!-- Empty State -->
+        <div class="flex items-center justify-center py-16">
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-muted mb-4">
+              <app-icon name="message-circle" [size]="48" class="text-muted-foreground" />
             </div>
-          </app-card>
-        }
-      </div>
-    }
-  </div>
+            <h3 class="text-2xl font-bold mb-2">Nema razgovora</h3>
+            <p class="text-muted-foreground mb-6">Počni swipeati da pronađeš nekoga za razgovor!</p>
+            <app-button (click)="goBack()">
+              Počni swipeati
+            </app-button>
+          </div>
+        </div>
+      } @else {
+        <!-- Conversations -->
+        <div class="space-y-2">
+          @for (conversation of conversations(); track conversation.conversationId) {
+            <app-card 
+              class="p-4 cursor-pointer hover:shadow-lg transition-all"
+              (click)="openConversation(conversation.conversationId)"
+            >
+              <div class="flex gap-4">
+                <!-- Avatar -->
+                <div class="relative flex-shrink-0">
+                  <app-avatar 
+                    [src]="getAvatarSrc(conversation.partnerPrimaryPhotoBase64)" 
+                    size="lg"
+                  />
+                  @if (conversation.unreadCount > 0) {
+                    <div class="absolute -top-1 -right-1 w-6 h-6 bg-pink-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {{ conversation.unreadCount }}
+                    </div>
+                  }
+                </div>
 
-  <!-- New Match Notification -->
-  <div class="fixed bottom-6 right-6 z-50">
-    <app-button class="shadow-lg">
-      <div class="flex items-center gap-2">
-        <app-icon name="heart" [size]="20" />
-        <span>New Matches</span>
-        <app-badge variant="secondary" class="bg-pink-600 text-white">3</app-badge>
-      </div>
-    </app-button>
-  </div>
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between mb-1">
+                    <h3 class="font-bold text-lg">{{ conversation.partnerDisplayName }}</h3>
+                    @if (conversation.lastMessageAt) {
+                      <span class="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                        {{ getTimeAgo(conversation.lastMessageAt) }}
+                      </span>
+                    }
+                  </div>
+
+                  <div class="flex items-center gap-2 mb-2">
+                    <p 
+                      class="text-sm truncate"
+                      [class.text-foreground]="conversation.unreadCount > 0"
+                      [class.font-semibold]="conversation.unreadCount > 0"
+                      [class.text-muted-foreground]="conversation.unreadCount === 0"
+                    >
+                      {{ conversation.lastMessageSnippet || 'Započni razgovor!' }}
+                    </p>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="flex gap-2">
+                    <button
+                      (click)="blockUser(conversation.conversationId, $event)"
+                      class="text-xs text-muted-foreground hover:text-red-600 transition-colors flex items-center gap-1"
+                    >
+                      <app-icon name="ban" [size]="14" />
+                      <span>Blokiraj</span>
+                    </button>
+                    
+                    <button
+                      (click)="deleteConversation(conversation.conversationId, $event)"
+                      class="text-xs text-muted-foreground hover:text-red-600 transition-colors flex items-center gap-1"
+                    >
+                      <app-icon name="trash-2" [size]="14" />
+                      <span>Obriši</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </app-card>
+          }
+        </div>
+      }
+    </div>
+  }
 </div>
 
