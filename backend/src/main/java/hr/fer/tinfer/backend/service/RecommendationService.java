@@ -65,6 +65,7 @@ public class RecommendationService {
                 .filter(this::isActive)
                 .filter(candidate -> !alreadySwiped.contains(candidate.getId()))
                 .filter(candidate -> !matchedUsers.contains(candidate.getId()))
+                .filter(candidate -> matchesGenderPreference(currentUser, candidate))
                 .map(candidate -> buildRecommendation(currentUser, candidate))
                 .sorted(Comparator.comparingDouble(ProfileRecommendation::getCompatibilityScore).reversed())
                 .limit(effectiveLimit)
@@ -96,12 +97,13 @@ public class RecommendationService {
                 .displayName(Optional.ofNullable(candidate.getDisplayName()).orElse(candidate.getFirstName()))
                 .bio(candidate.getBio())
                 .yearOfStudy(candidate.getYearOfStudy())
+                .gender(candidate.getGender())
                 .verified(candidate.getIsVerified())
                 .sharedInterests(sharedInterests)
                 .candidateInterests(candidateInterests)
                 .departments(extractDepartmentCodes(candidate.getDepartments()))
-                .primaryPhotoUrl(resolvePrimaryPhoto(candidate))
-                .photoGallery(extractPhotoGallery(candidate))
+                .primaryPhotoBase64(resolvePrimaryPhoto(candidate))
+                .photoGalleryBase64(extractPhotoGallery(candidate))
                 .compatibilityScore(compatibilityScore)
                 .highlight(highlight)
                 .build();
@@ -109,6 +111,27 @@ public class RecommendationService {
 
     private boolean isActive(Profile profile) {
         return profile.getIsActive() == null || Boolean.TRUE.equals(profile.getIsActive());
+    }
+
+    /**
+     * Check if candidate matches user's gender preference
+     */
+    private boolean matchesGenderPreference(Profile currentUser, Profile candidate) {
+        String userPreference = currentUser.getInterestedInGender();
+        String candidateGender = candidate.getGender();
+
+        // If no preference set or preference is "everyone", show all
+        if (userPreference == null || userPreference.isEmpty() || "everyone".equals(userPreference)) {
+            return true;
+        }
+
+        // If candidate has no gender set, don't filter them out
+        if (candidateGender == null || candidateGender.isEmpty()) {
+            return true;
+        }
+
+        // Match specific preference
+        return userPreference.equals(candidateGender);
     }
 
     private Set<String> extractInterestNames(Set<Interest> interests) {
@@ -190,7 +213,7 @@ public class RecommendationService {
                         .comparing((Photo photo) -> Boolean.TRUE.equals(photo.getIsPrimary())).reversed()
                         .thenComparing(Photo::getDisplayOrder, Comparator.nullsLast(Integer::compareTo))
                         .thenComparing(Photo::getId, Comparator.nullsLast(Long::compareTo)))
-                .map(Photo::getUrl)
+                .map(Photo::getBase64Data)
                 .findFirst()
                 .orElse(null);
     }
@@ -201,7 +224,7 @@ public class RecommendationService {
                 .sorted(Comparator
                         .comparing(Photo::getDisplayOrder, Comparator.nullsLast(Integer::compareTo))
                         .thenComparing(Photo::getId, Comparator.nullsLast(Long::compareTo)))
-                .map(Photo::getUrl)
+                .map(Photo::getBase64Data)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

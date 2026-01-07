@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
+import { apiBaseUrlInterceptor } from '@shared/services/api-base-url.interceptor';
 import { authInterceptor } from '@shared/services/auth-interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -10,7 +11,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    // Interceptor injects the JWT header on each request
-    provideHttpClient(withInterceptors([authInterceptor])), 
+    // Interceptors: first add base URL, then add JWT token
+    provideHttpClient(withInterceptors([apiBaseUrlInterceptor, authInterceptor])), 
   ],
 };

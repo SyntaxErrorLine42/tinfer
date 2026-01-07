@@ -24,17 +24,17 @@ import java.util.UUID;
 @RequestMapping("/api/recommendations")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Recommendations", description = "Preporuke profila na temelju interesa i aktivnosti")
+@Tag(name = "Recommendations", description = "Profile recommendations based on interests and activities")
 @SecurityRequirement(name = "Bearer Authentication")
 public class RecommendationController {
 
     private final RecommendationService recommendationService;
 
     @GetMapping
-    @Operation(summary = "Dohvati listu preporučenih profila")
+    @Operation(summary = "Get a list of recommended profiles")
     public ResponseEntity<List<ProfileRecommendation>> getRecommendations(
             Authentication authentication,
-            @Parameter(description = "Broj profila koji se dohvaća", example = "20") @RequestParam(defaultValue = "25") @Min(1) @Max(100) int limit) {
+            @Parameter(description = "Number of profiles to fetch", example = "20") @RequestParam(defaultValue = "25") @Min(1) @Max(100) int limit) {
 
         UUID userId = (UUID) authentication.getPrincipal();
         List<ProfileRecommendation> recommendations = recommendationService.getRecommendations(userId, limit);

@@ -93,6 +93,8 @@ public class ProfileService {
         profile.setBio(request.getBio());
         profile.setYearOfStudy(request.getYearOfStudy());
         profile.setStudentId(request.getStudentId());
+        profile.setGender(request.getGender());
+        profile.setInterestedInGender(request.getInterestedInGender());
         profile.setIsVerified(false);
         profile.setIsActive(true);
 
@@ -127,6 +129,8 @@ public class ProfileService {
         profile.setBio(request.getBio());
         profile.setYearOfStudy(request.getYearOfStudy());
         profile.setStudentId(request.getStudentId());
+        profile.setGender(request.getGender());
+        profile.setInterestedInGender(request.getInterestedInGender());
 
         Profile updatedProfile = profileRepository.save(profile);
         log.info("Profile updated successfully: {}", id);
@@ -142,7 +146,7 @@ public class ProfileService {
     public void deleteProfile(UUID id, UUID currentUserId) {
         log.info("Deleting profile ID: {} by user ID: {}", id, currentUserId);
 
-        // Provjeri da korisnik briše svoj profil
+        // Check if the user is deleting their own profile
         if (!currentUserId.equals(id)) {
             log.warn("User {} attempted to delete profile {}", currentUserId, id);
             throw new SecurityException("You can only delete your own profile");
@@ -162,11 +166,16 @@ public class ProfileService {
     }
 
     private ProfileDetailsResponse toDetailsResponse(Profile profile) {
+        log.debug("Converting profile {} to details response", profile.getId());
+        log.debug("Profile interests: {}", profile.getInterests());
+
         List<String> interests = profile.getInterests()
                 .stream()
                 .map(interest -> interest.getName())
                 .sorted()
                 .collect(Collectors.toList());
+
+        log.debug("Mapped interests: {}", interests);
 
         List<String> departments = profile.getDepartments()
                 .stream()
@@ -183,6 +192,8 @@ public class ProfileService {
                 .bio(profile.getBio())
                 .yearOfStudy(profile.getYearOfStudy())
                 .studentId(profile.getStudentId())
+                .gender(profile.getGender())
+                .interestedInGender(profile.getInterestedInGender())
                 .isVerified(profile.getIsVerified())
                 .isActive(profile.getIsActive())
                 .createdAt(profile.getCreatedAt())
@@ -199,7 +210,7 @@ public class ProfileService {
                 .sorted(photoComparator())
                 .map(photo -> PhotoResponse.builder()
                         .id(photo.getId())
-                        .url(photo.getUrl())
+                        .base64Data(photo.getBase64Data())
                         .displayOrder(photo.getDisplayOrder())
                         .isPrimary(photo.getIsPrimary())
                         .uploadedAt(photo.getUploadedAt())
@@ -224,6 +235,8 @@ public class ProfileService {
                 profile.getBio(),
                 profile.getYearOfStudy(),
                 profile.getStudentId(),
+                profile.getGender(),
+                profile.getInterestedInGender(),
                 profile.getIsVerified(),
                 profile.getIsActive(),
                 profile.getCreatedAt());

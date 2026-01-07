@@ -1,5 +1,6 @@
 package hr.fer.tinfer.backend.controller;
 
+import hr.fer.tinfer.backend.dto.ChatMessageRequest;
 import hr.fer.tinfer.backend.dto.ConversationSummaryResponse;
 import hr.fer.tinfer.backend.dto.MarkMessagesReadRequest;
 import hr.fer.tinfer.backend.dto.MessageResponse;
@@ -30,7 +31,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/conversations")
 @RequiredArgsConstructor
-@Tag(name = "Conversations", description = "Pregled razgovora i povijesti poruka")
+@Tag(name = "Conversations", description = "List of conversations and message history")
 @SecurityRequirement(name = "Bearer Authentication")
 public class ConversationController {
 
@@ -38,7 +39,7 @@ public class ConversationController {
     private final ChatHistoryService chatHistoryService;
 
     @GetMapping
-    @Operation(summary = "Dohvati sve razgovore trenutnog korisnika")
+    @Operation(summary = "Get all conversations of the current user")
     public ResponseEntity<List<ConversationSummaryResponse>> getMyConversations(Authentication authentication) {
         UUID userId = (UUID) authentication.getPrincipal();
         List<ConversationSummaryResponse> response = conversationService.getConversationsForUser(userId);
@@ -46,7 +47,7 @@ public class ConversationController {
     }
 
     @GetMapping("/{conversationId}/messages")
-    @Operation(summary = "Dohvati poruke u razgovoru s paginacijom")
+    @Operation(summary = "Get messages in a conversation with pagination")
     public ResponseEntity<Page<MessageResponse>> getMessages(@PathVariable Long conversationId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -59,12 +60,22 @@ public class ConversationController {
     }
 
     @PostMapping("/{conversationId}/read")
-    @Operation(summary = "Označi poruke kao pročitane")
+    @Operation(summary = "Mark messages as read")
     public ResponseEntity<Void> markAsRead(@PathVariable Long conversationId,
             @Valid @RequestBody MarkMessagesReadRequest request,
             Authentication authentication) {
         UUID userId = (UUID) authentication.getPrincipal();
         chatHistoryService.markAsRead(conversationId, userId, request);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{conversationId}/messages")
+    @Operation(summary = "Send a message to a conversation")
+    public ResponseEntity<MessageResponse> sendMessage(@PathVariable Long conversationId,
+            @Valid @RequestBody ChatMessageRequest request,
+            Authentication authentication) {
+        UUID userId = (UUID) authentication.getPrincipal();
+        MessageResponse message = chatHistoryService.sendMessage(conversationId, userId, request);
+        return ResponseEntity.ok(message);
     }
 }

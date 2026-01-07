@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@shared/services/auth.service';
+import { ProfileInitService } from '@shared/services/profile-init.service';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button-wrapper/button-wrapper.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
@@ -13,13 +14,15 @@ import { IconComponent } from '../../../shared/components/icon-wrapper/icon-wrap
   styleUrl: './login.page.css',
 })
 export class LoginPage {
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private profileInitService = inject(ProfileInitService);
+
   email = signal('');
   password = signal('');
   emailError = signal('');
   passwordError = signal('');
   isLoading = signal(false);
-
-  constructor(private router: Router, private authService: AuthService) {}
 
   onEmailChange(value: string) {
     this.email.set(value);
@@ -63,8 +66,16 @@ export class LoginPage {
         password: this.password(),
       });
 
-      // Navigate to swipe interface after successful login
-      this.router.navigate(['/']);
+      // Check if profile exists
+      const profileExists = await this.profileInitService.checkProfileExists();
+
+      if (profileExists) {
+        // Profile exists, go to swipe
+        this.router.navigate(['/swipe']);
+      } else {
+        // Profile doesn't exist, redirect to create profile
+        this.router.navigate(['/create-profile']);
+      }
     } catch (error: any) {
       const message = error?.message ?? 'Login failed. Please check your credentials.';
 
@@ -79,7 +90,20 @@ export class LoginPage {
   }
 
   async socialLogin(provider: string) {
-    // ... treba implementirati social login
+    this.isLoading.set(true);
+
+    try {
+      // Redirect to provider OAuth page
+      await this.authService.signInWithOAuth(
+        provider.toLowerCase() as 'google' | 'facebook'
+      );
+      // If successful, user will be redirected to OAuth provider
+      // After OAuth, they'll come back to /auth/callback
+    } catch (error: any) {
+      console.error('Social login exception:', error);
+      this.emailError.set(`Failed to login with ${provider}. Please try again.`);
+      this.isLoading.set(false);
+    }
   }
 }
 

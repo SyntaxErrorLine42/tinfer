@@ -47,7 +47,7 @@ public class PhotoService {
 
         Photo photo = new Photo();
         photo.setUser(profile);
-        photo.setUrl(request.getUrl());
+        photo.setBase64Data(request.getBase64Data());
         photo.setDisplayOrder(request.getDisplayOrder());
         photo.setIsPrimary(Boolean.TRUE.equals(request.getIsPrimary()));
 
@@ -56,7 +56,6 @@ public class PhotoService {
 
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("photoId", saved.getId());
-        metadata.put("url", saved.getUrl());
         activityLogService.recordActivity(userId, "PHOTO_ADDED", metadata);
 
         return toResponse(saved);
@@ -66,8 +65,8 @@ public class PhotoService {
     public PhotoResponse updatePhoto(UUID userId, Long photoId, PhotoUpdateRequest request) {
         Photo photo = fetchPhoto(photoId, userId);
 
-        if (request.getUrl() != null) {
-            photo.setUrl(request.getUrl());
+        if (request.getBase64Data() != null) {
+            photo.setBase64Data(request.getBase64Data());
         }
         if (request.getDisplayOrder() != null) {
             photo.setDisplayOrder(request.getDisplayOrder());
@@ -128,7 +127,7 @@ public class PhotoService {
     private PhotoResponse toResponse(Photo photo) {
         return PhotoResponse.builder()
                 .id(photo.getId())
-                .url(photo.getUrl())
+                .base64Data(photo.getBase64Data())
                 .displayOrder(photo.getDisplayOrder())
                 .isPrimary(photo.getIsPrimary())
                 .uploadedAt(photo.getUploadedAt())

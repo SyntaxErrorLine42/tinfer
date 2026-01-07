@@ -21,14 +21,15 @@ public class ProfileRecommendation {
     private String displayName;
     private String bio;
     private Integer yearOfStudy;
+    private String gender;
     private Boolean verified;
 
     private Set<String> sharedInterests;
     private Set<String> candidateInterests;
     private Set<String> departments;
 
-    private String primaryPhotoUrl;
-    private List<String> photoGallery;
+    private String primaryPhotoBase64; // Base64 encoded image
+    private List<String> photoGalleryBase64; // List of Base64 encoded images
 
     private double compatibilityScore;
     private String highlight;

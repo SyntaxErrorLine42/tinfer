@@ -9,9 +9,9 @@ import java.util.UUID;
 @Data
 public class SwipeRequest {
 
-    @NotNull(message = "ID korisnika je obavezan")
+    @NotNull(message = "User ID is required")
     private UUID swipedUserId;
 
-    @NotNull(message = "Akcija je obavezna")
+    @NotNull(message = "Action is required")
     private SwipeAction action;
 }

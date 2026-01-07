@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@shared/services/auth.service';
 import { InputComponent } from '../../../shared/components/input/input.component';
@@ -13,6 +13,9 @@ import { IconComponent } from '../../../shared/components/icon-wrapper/icon-wrap
   styleUrl: './register.page.css',
 })
 export class RegisterPage {
+  private router = inject(Router);
+  private authService = inject(AuthService);
+
   fullName = signal('');
   email = signal('');
   password = signal('');
@@ -23,8 +26,6 @@ export class RegisterPage {
   confirmPasswordError = signal('');
   isLoading = signal(false);
   agreeToTerms = signal(false);
-
-  constructor(private router: Router, private authService: AuthService) {}
 
   onFullNameChange(value: string) {
     this.fullName.set(value);
@@ -102,8 +103,8 @@ export class RegisterPage {
         password: this.password(),
       });
 
-      // Navigate to tutorial after successful registration
-      this.router.navigate(['/']);
+      // After registration, redirect to create profile
+      this.router.navigate(['/create-profile']);
     } catch (error: any) {
       const message = error?.message ?? 'Registration failed. Please try again.';
 
@@ -118,7 +119,20 @@ export class RegisterPage {
   }
 
   async socialSignup(provider: string) {
-    // treba implementirati social signup
+    this.isLoading.set(true);
+
+    try {
+      // Redirect to provider OAuth page
+      await this.authService.signInWithOAuth(
+        provider.toLowerCase() as 'google' | 'facebook'
+      );
+      // If successful, user will be redirected to OAuth provider
+      // After OAuth, they'll come back to /auth/callback
+    } catch (error: any) {
+      console.error('Social signup exception:', error);
+      this.emailError.set(`Failed to sign up with ${provider}. Please try again.`);
+      this.isLoading.set(false);
+    }
   }
 }
 

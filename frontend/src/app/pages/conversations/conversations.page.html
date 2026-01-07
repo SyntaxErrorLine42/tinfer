@@ -1,0 +1,126 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20">
+  <!-- Header -->
+  <div class="container max-w-4xl mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+      <button (click)="goBack()" class="p-2 hover:bg-muted rounded-lg transition-colors">
+        <app-icon name="arrow-left" [size]="24" class="text-foreground" />
+      </button>
+
+      <h1 class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+        Messages
+      </h1>
+
+      <button (click)="loadConversations()" class="p-2 hover:bg-muted rounded-lg transition-colors">
+        <app-icon name="refresh-cw" [size]="24" class="text-foreground" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+  <div class="container max-w-4xl mx-auto px-4 pb-8">
+    <div class="flex items-center justify-center py-16">
+      <div class="text-center">
+        <app-icon name="loader-2" [size]="48" class="text-pink-600 animate-spin mx-auto mb-4" />
+        <p class="text-muted-foreground">Loading conversations...</p>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Error State -->
+  @else if (error()) {
+  <div class="container max-w-4xl mx-auto px-4 pb-8">
+    <div class="flex items-center justify-center py-16">
+      <div class="text-center">
+        <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
+          <app-icon name="triangle-alert" [size]="48" class="text-red-600" />
+        </div>
+        <h3 class="text-xl font-bold mb-2">Error</h3>
+        <p class="text-muted-foreground mb-6">{{ error() }}</p>
+        <app-button (click)="loadConversations()">
+          Try again
+        </app-button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Conversations List -->
+  @else {
+  <div class="container max-w-4xl mx-auto px-4 pb-8">
+    @if (conversations().length === 0) {
+    <!-- Empty State -->
+    <div class="flex items-center justify-center py-16">
+      <div class="text-center">
+        <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-muted mb-4">
+          <app-icon name="message-circle" [size]="48" class="text-muted-foreground" />
+        </div>
+        <h3 class="text-2xl font-bold mb-2">No conversations</h3>
+        <p class="text-muted-foreground mb-6">Start swiping to find someone to talk to!</p>
+        <app-button (click)="goBack()">
+          Start swiping
+        </app-button>
+      </div>
+    </div>
+    } @else {
+    <!-- Conversations -->
+    <div class="space-y-2">
+      @for (conversation of conversations(); track conversation.conversationId) {
+      <app-card class="p-4 cursor-pointer hover:shadow-lg transition-all"
+        (click)="openConversation(conversation.conversationId)">
+        <div class="flex gap-4">
+          <!-- Avatar -->
+          <div class="relative flex-shrink-0">
+            <app-avatar [src]="getAvatarSrc(conversation.partnerPrimaryPhotoBase64)" size="lg" />
+            @if (conversation.unreadCount > 0) {
+            <div
+              class="absolute -top-1 -right-1 w-6 h-6 bg-pink-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+              {{ conversation.unreadCount }}
+            </div>
+            }
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between mb-1">
+              <h3 class="font-bold text-lg">{{ conversation.partnerDisplayName }}</h3>
+              @if (conversation.lastMessageAt) {
+              <span class="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                {{ getTimeAgo(conversation.lastMessageAt) }}
+              </span>
+              }
+            </div>
+
+            <div class="flex items-center gap-2 mb-2">
+              <p class="text-sm truncate" [class.text-foreground]="conversation.unreadCount > 0"
+                [class.font-semibold]="conversation.unreadCount > 0"
+                [class.text-muted-foreground]="conversation.unreadCount === 0">
+                {{ conversation.lastMessageSnippet || 'Start a conversation!' }}
+              </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2">
+              <button (click)="blockUser(conversation.conversationId, $event)"
+                class="text-xs text-muted-foreground hover:text-red-600 transition-colors flex items-center gap-1">
+                <app-icon name="ban" [size]="14" />
+                <span>Block</span>
+              </button>
+
+              <button (click)="deleteConversation(conversation.conversationId, $event)"
+                class="text-xs text-muted-foreground hover:text-red-600 transition-colors flex items-center gap-1">
+                <app-icon name="trash-2" [size]="14" />
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </app-card>
+      }
+    </div>
+    }
+  </div>
+  }
+</div>
