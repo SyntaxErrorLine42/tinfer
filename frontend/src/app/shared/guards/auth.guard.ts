@@ -2,12 +2,12 @@ import { CanMatchFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '@shared/services/auth.service';
 
-// Provjera jesi li stvarno prijavljen preko Supabase sessiona
+// Check if the user is actually logged in via Supabase session
 export const authGuard: CanMatchFn = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Ako netko proba ući na dio aplikacije samo za prijavljene, redirect na login
+  // If someone tries to access a protected route without being logged in, redirect to login
   const user = await authService.getCurrentUser();
 
   if (!user) {

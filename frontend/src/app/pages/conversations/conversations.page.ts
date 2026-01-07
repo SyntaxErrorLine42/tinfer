@@ -49,7 +49,7 @@ export class ConversationsPage implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load conversations:', err);
-        this.error.set('Nije moguće učitati razgovore. Pokušajte ponovno.');
+        this.error.set('Could not load conversations. Please try again.');
         this.isLoading.set(false);
       }
     });
@@ -65,24 +65,24 @@ export class ConversationsPage implements OnInit {
 
   getTimeAgo(dateString: string | null): string {
     if (!dateString) return '';
-    
+
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
     if (diffInSeconds < 60) {
-      return 'Upravo sada';
+      return 'Just now';
     } else if (diffInSeconds < 3600) {
       const minutes = Math.floor(diffInSeconds / 60);
-      return `Prije ${minutes} min`;
+      return `${minutes}m ago`;
     } else if (diffInSeconds < 86400) {
       const hours = Math.floor(diffInSeconds / 3600);
-      return `Prije ${hours}h`;
+      return `${hours}h ago`;
     } else if (diffInSeconds < 604800) {
       const days = Math.floor(diffInSeconds / 86400);
-      return `Prije ${days}d`;
+      return `${days}d ago`;
     } else {
-      return date.toLocaleDateString('hr-HR');
+      return date.toLocaleDateString('en-US');
     }
   }
 
@@ -102,7 +102,7 @@ export class ConversationsPage implements OnInit {
     const conversation = this.conversations().find((c) => c.conversationId === conversationId);
     if (conversation) {
       console.log('Block user:', conversation.partnerDisplayName);
-      // TODO: Implementirati blokiranje korisnika na backendu
+      // TODO: Implement blocking user on backend
       const conversations = this.conversations().filter((c) => c.conversationId !== conversationId);
       this.conversations.set(conversations);
     }
@@ -110,7 +110,7 @@ export class ConversationsPage implements OnInit {
 
   deleteConversation(conversationId: number, event: Event) {
     event.stopPropagation();
-    // TODO: Implementirati brisanje razgovora na backendu
+    // TODO: Implement deleting conversation on backend
     const conversations = this.conversations().filter((c) => c.conversationId !== conversationId);
     this.conversations.set(conversations);
     console.log('Delete conversation', conversationId);

@@ -73,7 +73,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
       @if (maxTags() && selectedTags().length >= maxTags()) {
         <p class="text-xs text-amber-600 dark:text-amber-400">
-          Maksimalno {{ maxTags() }} interesa
+          Maximum {{ maxTags() }} interests
         </p>
       }
     </div>
@@ -89,12 +89,12 @@ export class TagInputComponent {
   private interestService = inject(InterestService);
 
   // Inputs
-  placeholder = input('Dodaj interes...');
+  placeholder = input('Add interest...');
   disabled = input(false);
   maxTags = input(10);
-  helperText = input('Unesite interese i pritisnite Enter ili odaberite iz prijedloga');
+  helperText = input('Enter interests and press Enter or select from suggestions');
   selectedTags = input<string[]>([]);
-  
+
   // Outputs
   selectedTagsChange = output<string[]>();
   tagsChange = output<string[]>();
@@ -103,7 +103,7 @@ export class TagInputComponent {
   searchQuery = '';
   suggestions = signal<Interest[]>([]);
   showSuggestions = signal(false);
-  
+
   private searchSubject = new Subject<string>();
 
   constructor() {
@@ -117,7 +117,7 @@ export class TagInputComponent {
           next: (results) => {
             // Filter out already selected tags
             this.suggestions.set(
-              results.filter(interest => 
+              results.filter(interest =>
                 !this.selectedTags().includes(interest.name)
               )
             );
@@ -151,7 +151,7 @@ export class TagInputComponent {
   onEnter(event: Event) {
     event.preventDefault();
     const trimmed = this.searchQuery.trim();
-    
+
     if (trimmed && this.canAddTag()) {
       this.addTag(trimmed);
       this.searchQuery = '';
@@ -199,7 +199,7 @@ export class TagInputComponent {
   }
 
   canAddTag(): boolean {
-    return !this.disabled() && 
-           (!this.maxTags() || this.selectedTags().length < this.maxTags());
+    return !this.disabled() &&
+      (!this.maxTags() || this.selectedTags().length < this.maxTags());
   }
 }

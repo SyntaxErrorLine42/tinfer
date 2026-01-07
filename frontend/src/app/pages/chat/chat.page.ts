@@ -41,7 +41,7 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
 
   // For auto-scrolling
   private shouldScrollToBottom = false;
-  
+
   // For polling new messages
   private pollingInterval: ReturnType<typeof setInterval> | null = null;
   private readonly POLL_INTERVAL = 3000; // 3 seconds
@@ -54,7 +54,7 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
       this.loadConversationData();
       this.startPolling();
     } else {
-      this.error.set('Razgovor nije pronađen');
+      this.error.set('Conversation not found');
       this.isLoading.set(false);
     }
 
@@ -109,13 +109,13 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
         this.messages.set(page.content);
         this.isLoading.set(false);
         this.shouldScrollToBottom = true;
-        
+
         // Mark messages as read
         this.markMessagesAsRead();
       },
       error: (err) => {
         console.error('Failed to load messages:', err);
-        this.error.set('Nije moguće učitati poruke. Pokušajte ponovno.');
+        this.error.set('Could not load messages. Please try again.');
         this.isLoading.set(false);
       }
     });
@@ -125,7 +125,7 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
     const convId = this.conversationId();
     const msgs = this.messages();
     const currentUser = this.currentUserId();
-    
+
     if (!convId || msgs.length === 0 || !currentUser) return;
 
     // Find the last message not sent by current user
@@ -133,7 +133,7 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
     if (unreadMessages.length === 0) return;
 
     const lastMessage = unreadMessages[unreadMessages.length - 1];
-    
+
     this.conversationService.markAsRead(convId, lastMessage.id).subscribe({
       error: (err) => console.error('Failed to mark messages as read:', err)
     });
@@ -160,7 +160,7 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
       next: (page) => {
         const currentMessages = this.messages();
         const newMessages = page.content;
-        
+
         // Check if there are new messages
         if (newMessages.length > currentMessages.length) {
           this.messages.set(newMessages);
@@ -177,7 +177,7 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
   sendMessage() {
     const convId = this.conversationId();
     const content = this.newMessage.trim();
-    
+
     if (!convId || !content || this.isSending()) return;
 
     this.isSending.set(true);
@@ -189,7 +189,7 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
         this.newMessage = '';
         this.isSending.set(false);
         this.shouldScrollToBottom = true;
-        
+
         // Focus back on input
         this.messageInput?.nativeElement.focus();
       },
@@ -197,7 +197,7 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
         console.error('Failed to send message:', err);
         this.isSending.set(false);
         // Show brief error - could improve with toast notification
-        alert('Nije moguće poslati poruku. Pokušajte ponovno.');
+        alert('Could not send message. Please try again.');
       }
     });
   }
@@ -236,7 +236,7 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
 
   formatTime(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   }
 
   formatDate(dateString: string): string {
@@ -246,21 +246,21 @@ export class ChatPage implements OnInit, OnDestroy, AfterViewChecked {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return 'Danas';
+      return 'Today';
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Jučer';
+      return 'Yesterday';
     } else {
-      return date.toLocaleDateString('hr-HR', { day: 'numeric', month: 'long' });
+      return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long' });
     }
   }
 
   shouldShowDateSeparator(index: number): boolean {
     if (index === 0) return true;
-    
+
     const msgs = this.messages();
     const currentDate = new Date(msgs[index].sentAt).toDateString();
     const previousDate = new Date(msgs[index - 1].sentAt).toDateString();
-    
+
     return currentDate !== previousDate;
   }
 }

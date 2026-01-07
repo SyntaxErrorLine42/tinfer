@@ -1,4 +1,5 @@
-<div class="h-screen flex flex-col bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20">
+<div
+  class="h-screen flex flex-col bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20">
   <!-- Header -->
   <div class="flex-shrink-0 bg-background/80 backdrop-blur-sm border-b border-border">
     <div class="container max-w-4xl mx-auto px-4 py-3">
@@ -6,22 +7,19 @@
         <button (click)="goBack()" class="p-2 hover:bg-muted rounded-lg transition-colors">
           <app-icon name="arrow-left" [size]="24" class="text-foreground" />
         </button>
-        
+
         @if (partner()) {
-          <div class="flex items-center gap-3 flex-1 min-w-0">
-            <app-avatar 
-              [src]="getAvatarSrc(partner()!.partnerPrimaryPhotoBase64)" 
-              size="md"
-            />
-            <div class="min-w-0">
-              <h1 class="font-bold text-lg truncate">{{ partner()!.partnerDisplayName }}</h1>
-              <p class="text-sm text-muted-foreground">Online</p>
-            </div>
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          <app-avatar [src]="getAvatarSrc(partner()!.partnerPrimaryPhotoBase64)" size="md" />
+          <div class="min-w-0">
+            <h1 class="font-bold text-lg truncate">{{ partner()!.partnerDisplayName }}</h1>
+            <p class="text-sm text-muted-foreground">Online</p>
           </div>
+        </div>
         } @else {
-          <div class="flex-1">
-            <h1 class="font-bold text-lg">Razgovor</h1>
-          </div>
+        <div class="flex-1">
+          <h1 class="font-bold text-lg">Conversation</h1>
+        </div>
         }
 
         <button class="p-2 hover:bg-muted rounded-lg transition-colors">
@@ -32,98 +30,76 @@
   </div>
 
   <!-- Messages Area -->
-  <div 
-    #messagesContainer
-    class="flex-1 overflow-y-auto"
-  >
+  <div #messagesContainer class="flex-1 overflow-y-auto">
     <div class="container max-w-4xl mx-auto px-4 py-4">
       @if (isLoading()) {
-        <!-- Loading State -->
-        <div class="flex items-center justify-center py-16">
-          <div class="text-center">
-            <app-icon name="loader-2" [size]="48" class="text-pink-600 animate-spin mx-auto mb-4" />
-            <p class="text-muted-foreground">Učitavanje poruka...</p>
-          </div>
+      <!-- Loading State -->
+      <div class="flex items-center justify-center py-16">
+        <div class="text-center">
+          <app-icon name="loader-2" [size]="48" class="text-pink-600 animate-spin mx-auto mb-4" />
+          <p class="text-muted-foreground">Loading messages...</p>
         </div>
+      </div>
       } @else if (error()) {
-        <!-- Error State -->
-        <div class="flex items-center justify-center py-16">
-          <div class="text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
-              <app-icon name="triangle-alert" [size]="32" class="text-red-600" />
-            </div>
-            <p class="text-muted-foreground mb-4">{{ error() }}</p>
-            <app-button (click)="loadConversationData()">
-              Pokušaj ponovno
-            </app-button>
+      <!-- Error State -->
+      <div class="flex items-center justify-center py-16">
+        <div class="text-center">
+          <div
+            class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
+            <app-icon name="triangle-alert" [size]="32" class="text-red-600" />
           </div>
+          <p class="text-muted-foreground mb-4">{{ error() }}</p>
+          <app-button (click)="loadConversationData()">
+            Try again
+          </app-button>
         </div>
+      </div>
       } @else if (messages().length === 0) {
-        <!-- Empty State -->
-        <div class="flex items-center justify-center py-16">
-          <div class="text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-              <app-icon name="message-circle" [size]="32" class="text-muted-foreground" />
-            </div>
-            <h3 class="text-lg font-bold mb-2">Započni razgovor!</h3>
-            <p class="text-muted-foreground">Pošalji prvu poruku i upoznaj nekoga novog 💬</p>
+      <!-- Empty State -->
+      <div class="flex items-center justify-center py-16">
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+            <app-icon name="message-circle" [size]="32" class="text-muted-foreground" />
+          </div>
+          <h3 class="text-lg font-bold mb-2">Start a conversation!</h3>
+          <p class="text-muted-foreground">Send the first message and meet someone new 💬</p>
+        </div>
+      </div>
+      } @else {
+      <!-- Messages List -->
+      <div class="space-y-4">
+        @for (message of messages(); track message.id; let i = $index) {
+        <!-- Date Separator -->
+        @if (shouldShowDateSeparator(i)) {
+        <div class="flex items-center justify-center my-6">
+          <div class="bg-muted px-4 py-1 rounded-full">
+            <span class="text-xs text-muted-foreground font-medium">
+              {{ formatDate(message.sentAt) }}
+            </span>
           </div>
         </div>
-      } @else {
-        <!-- Messages List -->
-        <div class="space-y-4">
-          @for (message of messages(); track message.id; let i = $index) {
-            <!-- Date Separator -->
-            @if (shouldShowDateSeparator(i)) {
-              <div class="flex items-center justify-center my-6">
-                <div class="bg-muted px-4 py-1 rounded-full">
-                  <span class="text-xs text-muted-foreground font-medium">
-                    {{ formatDate(message.sentAt) }}
-                  </span>
-                </div>
-              </div>
-            }
+        }
 
-            <!-- Message Bubble -->
-            <div 
-              class="flex"
-              [class.justify-end]="isMyMessage(message)"
-              [class.justify-start]="!isMyMessage(message)"
-            >
-              <div 
-                class="max-w-[75%] rounded-2xl px-4 py-2 shadow-sm"
-                [class.bg-gradient-to-r]="isMyMessage(message)"
-                [class.from-pink-500]="isMyMessage(message)"
-                [class.to-purple-500]="isMyMessage(message)"
-                [class.text-white]="isMyMessage(message)"
-                [class.bg-card]="!isMyMessage(message)"
-                [class.border]="!isMyMessage(message)"
-                [class.border-border]="!isMyMessage(message)"
-              >
-                <p class="break-words whitespace-pre-wrap">{{ message.content }}</p>
-                <div 
-                  class="flex items-center gap-1 mt-1"
-                  [class.justify-end]="isMyMessage(message)"
-                >
-                  <span 
-                    class="text-xs"
-                    [class.text-white/70]="isMyMessage(message)"
-                    [class.text-muted-foreground]="!isMyMessage(message)"
-                  >
-                    {{ formatTime(message.sentAt) }}
-                  </span>
-                  @if (isMyMessage(message)) {
-                    <app-icon 
-                      [name]="message.read ? 'check-check' : 'check'" 
-                      [size]="14" 
-                      class="text-white/70"
-                    />
-                  }
-                </div>
-              </div>
+        <!-- Message Bubble -->
+        <div class="flex" [class.justify-end]="isMyMessage(message)" [class.justify-start]="!isMyMessage(message)">
+          <div class="max-w-[75%] rounded-2xl px-4 py-2 shadow-sm" [class.bg-gradient-to-r]="isMyMessage(message)"
+            [class.from-pink-500]="isMyMessage(message)" [class.to-purple-500]="isMyMessage(message)"
+            [class.text-white]="isMyMessage(message)" [class.bg-card]="!isMyMessage(message)"
+            [class.border]="!isMyMessage(message)" [class.border-border]="!isMyMessage(message)">
+            <p class="break-words whitespace-pre-wrap">{{ message.content }}</p>
+            <div class="flex items-center gap-1 mt-1" [class.justify-end]="isMyMessage(message)">
+              <span class="text-xs" [class.text-white/70]="isMyMessage(message)"
+                [class.text-muted-foreground]="!isMyMessage(message)">
+                {{ formatTime(message.sentAt) }}
+              </span>
+              @if (isMyMessage(message)) {
+              <app-icon [name]="message.read ? 'check-check' : 'check'" [size]="14" class="text-white/70" />
+              }
             </div>
-          }
+          </div>
         </div>
+        }
+      </div>
       }
     </div>
   </div>
@@ -137,26 +113,18 @@
         </button>
 
         <div class="flex-1 relative">
-          <input
-            #messageInput
-            type="text"
-            [(ngModel)]="newMessage"
-            (keypress)="onKeyPress($event)"
-            placeholder="Napiši poruku..."
+          <input #messageInput type="text" [(ngModel)]="newMessage" (keypress)="onKeyPress($event)"
+            placeholder="Write a message..."
             class="w-full px-4 py-3 bg-muted rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 text-foreground placeholder:text-muted-foreground"
-            [disabled]="isSending()"
-          />
+            [disabled]="isSending()" />
         </div>
 
-        <button 
-          (click)="sendMessage()"
-          [disabled]="!newMessage.trim() || isSending()"
-          class="p-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <button (click)="sendMessage()" [disabled]="!newMessage.trim() || isSending()"
+          class="p-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
           @if (isSending()) {
-            <app-icon name="loader-2" [size]="24" class="animate-spin" />
+          <app-icon name="loader-2" [size]="24" class="animate-spin" />
           } @else {
-            <app-icon name="send" [size]="24" />
+          <app-icon name="send" [size]="24" />
           }
         </button>
       </div>

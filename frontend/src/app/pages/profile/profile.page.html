@@ -1,30 +1,32 @@
-<div class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20">
+<div
+  class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20">
   <!-- Header -->
   <div class="container max-w-4xl mx-auto px-4 py-4">
     <div class="flex items-center justify-between">
       <button (click)="goBack()" class="p-2 hover:bg-muted rounded-lg transition-colors">
         <app-icon name="arrow-left" [size]="24" class="text-foreground" />
       </button>
-      
+
       <h1 class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
         @if (isEditing()) {
-          Edit Profile
+        Edit Profile
         } @else {
-          My Profile
+        My Profile
         }
       </h1>
 
       <div class="flex items-center gap-2">
         @if (!isEditing()) {
-          <button (click)="editProfile()" class="p-2 hover:bg-muted rounded-lg transition-colors">
-            <app-icon name="edit" [size]="24" class="text-foreground" />
-          </button>
-          <button (click)="logout()" class="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
-            <app-icon name="log-out" [size]="20" />
-            <span class="hidden md:inline">Logout</span>
-          </button>
+        <button (click)="editProfile()" class="p-2 hover:bg-muted rounded-lg transition-colors">
+          <app-icon name="edit" [size]="24" class="text-foreground" />
+        </button>
+        <button (click)="logout()"
+          class="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+          <app-icon name="log-out" [size]="20" />
+          <span class="hidden md:inline">Logout</span>
+        </button>
         } @else {
-          <div class="w-10 h-10"></div>
+        <div class="w-10 h-10"></div>
         }
       </div>
     </div>
@@ -32,203 +34,155 @@
 
   <!-- Loading State -->
   @if (isLoading()) {
-    <div class="container max-w-4xl mx-auto px-4 pb-8 flex justify-center items-center min-h-[400px]">
-      <div class="text-center">
-        <app-icon name="loader-circle" [size]="48" class="text-pink-600 animate-spin mx-auto mb-4" />
-        <p class="text-muted-foreground">Loading profile...</p>
-      </div>
+  <div class="container max-w-4xl mx-auto px-4 pb-8 flex justify-center items-center min-h-[400px]">
+    <div class="text-center">
+      <app-icon name="loader-circle" [size]="48" class="text-pink-600 animate-spin mx-auto mb-4" />
+      <p class="text-muted-foreground">Loading profile...</p>
     </div>
+  </div>
   }
 
   <!-- Error State -->
   @if (error() && !isLoading()) {
-    <div class="container max-w-4xl mx-auto px-4 pb-8">
-      <app-card class="p-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
-        <div class="flex items-center gap-3">
-          <app-icon name="triangle-alert" [size]="24" class="text-red-600" />
-          <div>
-            <h3 class="font-bold text-red-900 dark:text-red-100">Error</h3>
-            <p class="text-red-700 dark:text-red-300">{{ error() }}</p>
-          </div>
+  <div class="container max-w-4xl mx-auto px-4 pb-8">
+    <app-card class="p-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+      <div class="flex items-center gap-3">
+        <app-icon name="triangle-alert" [size]="24" class="text-red-600" />
+        <div>
+          <h3 class="font-bold text-red-900 dark:text-red-100">Error</h3>
+          <p class="text-red-700 dark:text-red-300">{{ error() }}</p>
         </div>
-      </app-card>
-    </div>
+      </div>
+    </app-card>
+  </div>
   }
 
   <!-- Content -->
   @if (profile() && !isLoading()) {
-    <div class="container max-w-4xl mx-auto px-4 pb-8">
-      @if (isEditing()) {
-        <!-- Edit Mode -->
-        <div class="space-y-6">
-          <app-card class="p-6">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <app-icon name="user" [size]="24" class="text-purple-600" />
-              <span>Edit Basic Information</span>
-            </h2>
-            
-            <form class="space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-muted-foreground mb-2">First Name *</label>
-                  <app-input 
-                    [(ngModel)]="editForm.firstName" 
-                    name="firstName"
-                    placeholder="Enter first name"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-muted-foreground mb-2">Last Name *</label>
-                  <app-input 
-                    [(ngModel)]="editForm.lastName" 
-                    name="lastName"
-                    placeholder="Enter last name"
-                    required
-                  />
-                </div>
-              </div>
+  <div class="container max-w-4xl mx-auto px-4 pb-8">
+    @if (isEditing()) {
+    <!-- Edit Mode -->
+    <div class="space-y-6">
+      <app-card class="p-6">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <app-icon name="user" [size]="24" class="text-purple-600" />
+          <span>Edit Basic Information</span>
+        </h2>
 
-              <div>
-                <label class="block text-sm font-medium text-muted-foreground mb-2">Display Name</label>
-                <app-input 
-                  [(ngModel)]="editForm.displayName" 
-                  name="displayName"
-                  placeholder="Enter display name (optional)"
-                />
-                <p class="text-xs text-muted-foreground mt-1">This name will be shown to other users</p>
-              </div>
+        <form class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-2">First Name *</label>
+              <app-input [(ngModel)]="editForm.firstName" name="firstName" placeholder="Enter first name" required />
+            </div>
 
-              <div>
-                <label class="block text-sm font-medium text-muted-foreground mb-2">Bio</label>
-                <textarea 
-                  [(ngModel)]="editForm.bio" 
-                  name="bio"
-                  placeholder="Tell others about yourself..."
-                  rows="4"
-                  class="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-pink-600"
-                ></textarea>
-              </div>
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-2">Last Name *</label>
+              <app-input [(ngModel)]="editForm.lastName" name="lastName" placeholder="Enter last name" required />
+            </div>
+          </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-muted-foreground mb-2">Year of Study</label>
-                  <app-input 
-                    [(ngModel)]="editForm.yearOfStudy" 
-                    name="yearOfStudy"
-                    type="number"
-                    placeholder="e.g., 1, 2, 3..."
-                  />
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-muted-foreground mb-2">Student ID</label>
-                  <app-input 
-                    [(ngModel)]="editForm.studentId" 
-                    name="studentId"
-                    placeholder="Enter student ID"
-                  />
-                </div>
-              </div>
+          <div>
+            <label class="block text-sm font-medium text-muted-foreground mb-2">Display Name</label>
+            <app-input [(ngModel)]="editForm.displayName" name="displayName"
+              placeholder="Enter display name (optional)" />
+            <p class="text-xs text-muted-foreground mt-1">This name will be shown to other users</p>
+          </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-muted-foreground mb-2">Spol *</label>
-                  <select 
-                    [(ngModel)]="editForm.gender" 
-                    name="gender"
-                    class="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-pink-600"
-                    required
-                  >
-                    <option value="">Odaberi spol</option>
-                    <option value="male">Muškarac</option>
-                    <option value="female">Žena</option>
-                    <option value="non_binary">Nebinarno</option>
-                    <option value="other">Ostalo</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-muted-foreground mb-2">Zainteresiran/a za</label>
-                  <select 
-                    [(ngModel)]="editForm.interestedInGender" 
-                    name="interestedInGender"
-                    class="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-pink-600"
-                  >
-                    <option value="">Odaberi</option>
-                    <option value="male">Muškarci</option>
-                    <option value="female">Žene</option>
-                    <option value="non_binary">Nebinarne osobe</option>
-                    <option value="everyone">Svi</option>
-                  </select>
-                </div>
-              </div>
+          <div>
+            <label class="block text-sm font-medium text-muted-foreground mb-2">Bio</label>
+            <textarea [(ngModel)]="editForm.bio" name="bio" placeholder="Tell others about yourself..." rows="4"
+              class="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-pink-600"></textarea>
+          </div>
 
-              <div class="pt-4">
-                <label class="block text-sm font-medium text-muted-foreground mb-2">Interesi</label>
-                <app-tag-input
-                  [(selectedTags)]="editForm.interests"
-                  [maxTags]="10"
-                  placeholder="Dodaj interese..."
-                />
-              </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-2">Year of Study</label>
+              <app-input [(ngModel)]="editForm.yearOfStudy" name="yearOfStudy" type="number"
+                placeholder="e.g., 1, 2, 3..." />
+            </div>
 
-              <div class="flex gap-3 pt-4">
-                <app-button 
-                  variant="outline" 
-                  class="flex-1" 
-                  (click)="cancelEdit()"
-                  type="button"
-                >
-                  Cancel
-                </app-button>
-                
-                <button
-                  (click)="saveProfile()"
-                  type="button"
-                  class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-medium transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div class="flex items-center justify-center gap-2">
-                    <app-icon name="save" [size]="20" class="text-white" />
-                    <span>Save Changes</span>
-                  </div>
-                </button>
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-2">Student ID</label>
+              <app-input [(ngModel)]="editForm.studentId" name="studentId" placeholder="Enter student ID" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-2">Gender *</label>
+              <select [(ngModel)]="editForm.gender" name="gender"
+                class="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-pink-600"
+                required>
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="non_binary">Non-binary</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-muted-foreground mb-2">Interested in</label>
+              <select [(ngModel)]="editForm.interestedInGender" name="interestedInGender"
+                class="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-pink-600">
+                <option value="">Select</option>
+                <option value="male">Men</option>
+                <option value="female">Women</option>
+                <option value="non_binary">Non-binary people</option>
+                <option value="everyone">Everyone</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <label class="block text-sm font-medium text-muted-foreground mb-2">Interests</label>
+            <app-tag-input [(selectedTags)]="editForm.interests" [maxTags]="10" placeholder="Add interests..." />
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <app-button variant="outline" class="flex-1" (click)="cancelEdit()" type="button">
+              Cancel
+            </app-button>
+
+            <button (click)="saveProfile()" type="button"
+              class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-medium transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+              <div class="flex items-center justify-center gap-2">
+                <app-icon name="save" [size]="20" class="text-white" />
+                <span>Save Changes</span>
               </div>
-            </form>
-          </app-card>
-        </div>
-      } @else {
-        <!-- View Mode -->
-        <div class="space-y-6">
+            </button>
+          </div>
+        </form>
+      </app-card>
+    </div>
+    } @else {
+    <!-- View Mode -->
+    <div class="space-y-6">
       <!-- Basic Info Section -->
       <app-card class="p-6">
         <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
           <app-icon name="user" [size]="24" class="text-purple-600" />
           <span>Basic Information</span>
         </h2>
-        
+
         <div class="space-y-4">
           <div class="flex items-center gap-3">
             <!-- Profile Photo with Edit -->
             <div class="relative group">
               @if (getPrimaryPhoto()) {
-                <img 
-                  [src]="getPrimaryPhoto()" 
-                  alt="Profile photo"
-                  class="w-20 h-20 rounded-full object-cover border-4 border-pink-200 dark:border-purple-800 shadow-lg"
-                />
+              <img [src]="getPrimaryPhoto()" alt="Profile photo"
+                class="w-20 h-20 rounded-full object-cover border-4 border-pink-200 dark:border-purple-800 shadow-lg" />
               } @else {
-                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-pink-200 dark:border-purple-800 shadow-lg">
-                  {{ profile()?.firstName?.charAt(0) }}{{ profile()?.lastName?.charAt(0) }}
-                </div>
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-pink-200 dark:border-purple-800 shadow-lg">
+                {{ profile()?.firstName?.charAt(0) }}{{ profile()?.lastName?.charAt(0) }}
+              </div>
               }
               <!-- Edit Button Overlay -->
-              <button
-                (click)="changePrimaryPhoto()"
+              <button (click)="changePrimaryPhoto()"
                 class="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                title="Promijeni profilnu sliku"
-              >
+                title="Change profile picture">
                 <app-icon name="image" [size]="24" class="text-white" />
               </button>
             </div>
@@ -236,7 +190,7 @@
               <div class="flex items-center gap-2">
                 <h3 class="text-2xl font-bold">{{ profile()?.displayName || profile()?.firstName }}</h3>
                 @if (profile()?.isVerified) {
-                  <app-icon name="circle-check" [size]="20" class="text-blue-600" />
+                <app-icon name="circle-check" [size]="20" class="text-blue-600" />
                 }
               </div>
               <p class="text-muted-foreground">{{ profile()?.firstName }} {{ profile()?.lastName }}</p>
@@ -248,54 +202,54 @@
               <label class="text-sm font-medium text-muted-foreground">Email</label>
               <p class="text-foreground">{{ profile()?.email }}</p>
             </div>
-            
+
             @if (profile()?.yearOfStudy) {
-              <div>
-                <label class="text-sm font-medium text-muted-foreground">Godina studija</label>
-                <p class="text-foreground">{{ profile()?.yearOfStudy }}.</p>
-              </div>
+            <div>
+              <label class="text-sm font-medium text-muted-foreground">Year of Study</label>
+              <p class="text-foreground">{{ profile()?.yearOfStudy }}</p>
+            </div>
             }
           </div>
 
           @if (profile()?.studentId) {
-            <div>
-              <label class="text-sm font-medium text-muted-foreground">Student ID</label>
-              <p class="text-foreground">{{ profile()?.studentId }}</p>
-            </div>
+          <div>
+            <label class="text-sm font-medium text-muted-foreground">Student ID</label>
+            <p class="text-foreground">{{ profile()?.studentId }}</p>
+          </div>
           }
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @if (profile()?.gender) {
-              <div>
-                <label class="text-sm font-medium text-muted-foreground">Spol</label>
-                <p class="text-foreground">
-                  @if (profile()?.gender === 'male') { Muškarac }
-                  @else if (profile()?.gender === 'female') { Žena }
-                  @else if (profile()?.gender === 'non_binary') { Nebinarno }
-                  @else { Ostalo }
-                </p>
-              </div>
+            <div>
+              <label class="text-sm font-medium text-muted-foreground">Gender</label>
+              <p class="text-foreground">
+                @if (profile()?.gender === 'male') { Male }
+                @else if (profile()?.gender === 'female') { Female }
+                @else if (profile()?.gender === 'non_binary') { Non-binary }
+                @else { Other }
+              </p>
+            </div>
             }
-            
+
             @if (profile()?.interestedInGender) {
-              <div>
-                <label class="text-sm font-medium text-muted-foreground">Zainteresiran/a za</label>
-                <p class="text-foreground">
-                  @if (profile()?.interestedInGender === 'male') { Muškarce }
-                  @else if (profile()?.interestedInGender === 'female') { Žene }
-                  @else if (profile()?.interestedInGender === 'non_binary') { Nebinarne osobe }
-                  @else if (profile()?.interestedInGender === 'everyone') { Sve }
-                  @else { Sve }
-                </p>
-              </div>
+            <div>
+              <label class="text-sm font-medium text-muted-foreground">Interested in</label>
+              <p class="text-foreground">
+                @if (profile()?.interestedInGender === 'male') { Men }
+                @else if (profile()?.interestedInGender === 'female') { Women }
+                @else if (profile()?.interestedInGender === 'non_binary') { Non-binary people }
+                @else if (profile()?.interestedInGender === 'everyone') { Everyone }
+                @else { Everyone }
+              </p>
+            </div>
             }
           </div>
 
           @if (profile()?.bio) {
-            <div>
-              <label class="text-sm font-medium text-muted-foreground">Bio</label>
-              <p class="text-foreground mt-1">{{ profile()?.bio }}</p>
-            </div>
+          <div>
+            <label class="text-sm font-medium text-muted-foreground">Bio</label>
+            <p class="text-foreground mt-1">{{ profile()?.bio }}</p>
+          </div>
           }
         </div>
       </app-card>
@@ -305,53 +259,43 @@
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-bold flex items-center gap-2">
             <app-icon name="star" [size]="24" class="text-blue-600" />
-            <span>Interesi</span>
+            <span>Interests</span>
           </h2>
           @if (!isEditingInterests()) {
-            <button
-              (click)="startEditingInterests()"
-              class="p-2 hover:bg-muted rounded-lg transition-colors"
-              title="Dodaj/uredi interese"
-            >
-              <app-icon name="plus" [size]="20" class="text-pink-600" />
-            </button>
+          <button (click)="startEditingInterests()" class="p-2 hover:bg-muted rounded-lg transition-colors"
+            title="Add/edit interests">
+            <app-icon name="plus" [size]="20" class="text-pink-600" />
+          </button>
           }
         </div>
-        
+
         @if (isEditingInterests()) {
-          <div class="space-y-3">
-            <app-tag-input
-              [(selectedTags)]="editForm.interests"
-              [maxTags]="10"
-              placeholder="Dodaj interese..."
-            />
-            <div class="flex gap-2">
-              <button
-                (click)="saveInterests()"
-                class="flex-1 px-3 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg text-sm font-medium"
-              >
-                Spremi
-              </button>
-              <button
-                (click)="cancelEditInterests()"
-                class="flex-1 px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg text-sm font-medium"
-              >
-                Odustani
-              </button>
-            </div>
+        <div class="space-y-3">
+          <app-tag-input [(selectedTags)]="editForm.interests" [maxTags]="10" placeholder="Add interests..." />
+          <div class="flex gap-2">
+            <button (click)="saveInterests()"
+              class="flex-1 px-3 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg text-sm font-medium">
+              Save
+            </button>
+            <button (click)="cancelEditInterests()"
+              class="flex-1 px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg text-sm font-medium">
+              Cancel
+            </button>
           </div>
+        </div>
         } @else {
-          @if (profile()?.interests && profile()!.interests.length > 0) {
-            <div class="flex flex-wrap gap-2">
-              @for (interest of profile()!.interests; track interest) {
-                <span class="inline-flex items-center px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium border border-purple-200 dark:border-purple-800">
-                  {{ interest }}
-                </span>
-              }
-            </div>
-          } @else {
-            <p class="text-sm text-muted-foreground italic">Nema dodanih interesa. Klikni + za dodavanje.</p>
+        @if (profile()?.interests && profile()!.interests.length > 0) {
+        <div class="flex flex-wrap gap-2">
+          @for (interest of profile()!.interests; track interest) {
+          <span
+            class="inline-flex items-center px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium border border-purple-200 dark:border-purple-800">
+            {{ interest }}
+          </span>
           }
+        </div>
+        } @else {
+        <p class="text-sm text-muted-foreground italic">No interests added. Click + to add.</p>
+        }
         }
       </app-card>
 
@@ -360,144 +304,132 @@
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-bold flex items-center gap-2">
             <app-icon name="image" [size]="24" class="text-pink-600" />
-            <span>Fotografije</span>
+            <span>Photos</span>
             <span class="text-sm text-muted-foreground font-normal">({{ photos().length }}/6)</span>
           </h2>
         </div>
 
         <!-- Photo Error -->
         @if (photoError()) {
-          <div class="mb-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-700 dark:text-red-300 px-4 py-3 rounded">
-            <div class="flex items-center gap-2">
-              <app-icon name="triangle-alert" [size]="20" class="text-red-500" />
-              <p class="text-sm">{{ photoError() }}</p>
-            </div>
+        <div
+          class="mb-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-700 dark:text-red-300 px-4 py-3 rounded">
+          <div class="flex items-center gap-2">
+            <app-icon name="triangle-alert" [size]="20" class="text-red-500" />
+            <p class="text-sm">{{ photoError() }}</p>
           </div>
+        </div>
         }
-        
+
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
           @for (photo of photos(); track photo.id) {
-            <div class="relative group aspect-square rounded-lg overflow-hidden bg-muted border-2 border-border hover:border-pink-400 dark:hover:border-purple-400 transition-all">
-              <img 
-                [src]="photo.base64Data" 
-                alt="Photo {{ $index + 1 }}"
-                class="w-full h-full object-cover"
-              />
-              
-              <!-- Primary Badge -->
-              @if (photo.isPrimary) {
-                <div class="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-lg flex items-center gap-1">
-                  <app-icon name="star" [size]="12" />
-                  <span>Profilna</span>
-                </div>
-              }
-              
-              <!-- Actions Overlay -->
-              <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                @if (!photo.isPrimary) {
-                  <button
-                    type="button"
-                    (click)="setPrimaryPhoto(photo.id)"
-                    class="p-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-lg transition-colors"
-                    title="Postavi kao profilnu"
-                  >
-                    <app-icon name="star" [size]="16" />
-                  </button>
-                }
-                <button
-                  type="button"
-                  (click)="deletePhoto(photo.id)"
-                  class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors"
-                  title="Obriši sliku"
-                >
-                  <app-icon name="x" [size]="16" />
-                </button>
-              </div>
+          <div
+            class="relative group aspect-square rounded-lg overflow-hidden bg-muted border-2 border-border hover:border-pink-400 dark:hover:border-purple-400 transition-all">
+            <img [src]="photo.base64Data" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover" />
+
+            <!-- Primary Badge -->
+            @if (photo.isPrimary) {
+            <div
+              class="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-lg flex items-center gap-1">
+              <app-icon name="star" [size]="12" />
+              <span>Profile</span>
             </div>
-          }
-          
-          <!-- Add Photo Button -->
-          @if (photos().length < 6) {
-            <label class="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-pink-600 transition-colors flex items-center justify-center cursor-pointer group">
-              <input 
-                type="file" 
-                accept="image/*" 
-                (change)="addPhoto($event)"
-                class="hidden"
-                [disabled]="isUploadingPhoto()"
-              />
-              <div class="text-center">
-                @if (isUploadingPhoto()) {
-                  <app-icon name="loader-circle" [size]="32" class="text-pink-600 animate-spin mx-auto mb-2" />
-                  <span class="text-sm text-pink-600">Dodavanje...</span>
-                } @else {
-                  <app-icon name="plus" [size]="32" class="text-muted-foreground group-hover:text-pink-600 mx-auto mb-2" />
-                  <span class="text-sm text-muted-foreground group-hover:text-pink-600">Dodaj sliku</span>
-                }
-              </div>
-            </label>
-          }
-        </div>
-        
-        @if (photos().length === 0) {
-          <div class="text-center py-8">
-            <app-icon name="image" [size]="48" class="text-muted-foreground mx-auto mb-2" />
-            <p class="text-muted-foreground">Još nemaš dodanih slika</p>
-            <p class="text-sm text-muted-foreground mt-1">Dodaj prvu sliku klikom na gumb iznad</p>
+            }
+
+            <!-- Actions Overlay -->
+            <div
+              class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              @if (!photo.isPrimary) {
+              <button type="button" (click)="setPrimaryPhoto(photo.id)"
+                class="p-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-lg transition-colors"
+                title="Set as profile picture">
+                <app-icon name="star" [size]="16" />
+              </button>
+              }
+              <button type="button" (click)="deletePhoto(photo.id)"
+                class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors"
+                title="Delete photo">
+                <app-icon name="x" [size]="16" />
+              </button>
+            </div>
           </div>
+          }
+
+          <!-- Add Photo Button -->
+          @if (photos().length < 6) { <label
+            class="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-pink-600 transition-colors flex items-center justify-center cursor-pointer group">
+            <input type="file" accept="image/*" (change)="addPhoto($event)" class="hidden"
+              [disabled]="isUploadingPhoto()" />
+            <div class="text-center">
+              @if (isUploadingPhoto()) {
+              <app-icon name="loader-circle" [size]="32" class="text-pink-600 animate-spin mx-auto mb-2" />
+              <span class="text-sm text-pink-600">Adding...</span>
+              } @else {
+              <app-icon name="plus" [size]="32" class="text-muted-foreground group-hover:text-pink-600 mx-auto mb-2" />
+              <span class="text-sm text-muted-foreground group-hover:text-pink-600">Add photo</span>
+              }
+            </div>
+            </label>
+            }
+        </div>
+
+        @if (photos().length === 0) {
+        <div class="text-center py-8">
+          <app-icon name="image" [size]="48" class="text-muted-foreground mx-auto mb-2" />
+          <p class="text-muted-foreground">You have no photos added yet</p>
+          <p class="text-sm text-muted-foreground mt-1">Add your first photo by clicking the button above</p>
+        </div>
         }
       </app-card>
 
       <!-- Dating Profile Section -->
       @if (profile()?.datingProfile) {
-        <app-card class="p-6">
-          <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-            <app-icon name="heart" [size]="24" class="text-pink-600" />
-            <span>Dating Profile</span>
-          </h2>
-          
-          <div class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="text-sm font-medium text-muted-foreground">Looking For</label>
-                <p class="text-foreground capitalize">{{ profile()?.datingProfile?.lookingFor?.replace('_', ' ') }}</p>
-              </div>
-              
-              @if (profile()?.datingProfile?.showGender) {
-                <div>
-                  <label class="text-sm font-medium text-muted-foreground">Gender</label>
-                  <p class="text-foreground capitalize">{{ profile()?.datingProfile?.gender }}</p>
-                </div>
-              }
+      <app-card class="p-6">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <app-icon name="heart" [size]="24" class="text-pink-600" />
+          <span>Dating Profile</span>
+        </h2>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-medium text-muted-foreground">Looking For</label>
+              <p class="text-foreground capitalize">{{ profile()?.datingProfile?.lookingFor?.replace('_', ' ') }}</p>
             </div>
 
-            <!-- Prompts -->
-            @if (profile()?.datingProfile?.prompts && profile()!.datingProfile!.prompts!.length > 0) {
-              <div class="space-y-4">
-                @for (prompt of profile()?.datingProfile?.prompts; track prompt.question) {
-                  <div class="bg-muted/50 rounded-lg p-4">
-                    <h4 class="font-semibold text-sm text-muted-foreground mb-2">{{ prompt.question }}</h4>
-                    <p class="text-foreground">{{ prompt.answer }}</p>
-                  </div>
-                }
-              </div>
+            @if (profile()?.datingProfile?.showGender) {
+            <div>
+              <label class="text-sm font-medium text-muted-foreground">Gender</label>
+              <p class="text-foreground capitalize">{{ profile()?.datingProfile?.gender }}</p>
+            </div>
             }
           </div>
-        </app-card>
+
+          <!-- Prompts -->
+          @if (profile()?.datingProfile?.prompts && profile()!.datingProfile!.prompts!.length > 0) {
+          <div class="space-y-4">
+            @for (prompt of profile()?.datingProfile?.prompts; track prompt.question) {
+            <div class="bg-muted/50 rounded-lg p-4">
+              <h4 class="font-semibold text-sm text-muted-foreground mb-2">{{ prompt.question }}</h4>
+              <p class="text-foreground">{{ prompt.answer }}</p>
+            </div>
+            }
+          </div>
+          }
+        </div>
+      </app-card>
       }
 
-          <!-- Action Buttons -->
-          <div class="flex justify-center">
-            <app-button variant="outline" (click)="editProfile()">
-              <div class="flex items-center justify-center gap-2">
-                <app-icon name="edit" [size]="20" />
-                <span>Uredi profil</span>
-              </div>
-            </app-button>
+      <!-- Action Buttons -->
+      <div class="flex justify-center">
+        <app-button variant="outline" (click)="editProfile()">
+          <div class="flex items-center justify-center gap-2">
+            <app-icon name="edit" [size]="20" />
+            <span>Edit Profile</span>
           </div>
-        </div>
-      }
+        </app-button>
+      </div>
     </div>
+    }
+  </div>
   }
 </div>
-
