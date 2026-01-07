@@ -8,6 +8,8 @@ import { NgStyle, DecimalPipe } from '@angular/common';
 import { SwipeService, ProfileRecommendation, SwipeResponse } from '@shared/services/swipe.service';
 import { ProfileService } from '@shared/services/profile.service';
 import { ConversationService } from '@shared/services/conversation.service';
+import { ReportDialogComponent } from '../../shared/components/report-dialog/report-dialog.component';
+import { ReportService, ReportReason } from '@shared/services/report.service';
 
 // Extended profile for UI state (adds currentPhotoIndex for photo navigation)
 interface SwipeProfile extends ProfileRecommendation {
@@ -23,6 +25,7 @@ interface SwipeProfile extends ProfileRecommendation {
     AvatarComponent,
     NgStyle,
     DecimalPipe,
+    ReportDialogComponent
   ],
   templateUrl: './swipe.page.html',
   styleUrl: './swipe.page.css',
@@ -33,6 +36,7 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
   private swipeService = inject(SwipeService);
   private profileService = inject(ProfileService);
   private conversationService = inject(ConversationService);
+  private reportService = inject(ReportService);
   private router = inject(Router);
 
   // State
@@ -48,11 +52,14 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
   dragX = signal(0);
   dragY = signal(0);
   rotation = signal(0);
-  
+
   // Match modal state
   showMatchModal = signal(false);
   lastMatchedProfile = signal<SwipeProfile | null>(null);
   lastMatchConversationId = signal<number | null>(null);
+
+  // Report state
+  showReportDialog = signal(false);
 
   private startX = 0;
   private startY = 0;
@@ -127,7 +134,7 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
       },
       error: (err) => {
         console.error('Failed to load recommendations:', err);
-        this.error.set('Nije moguće učitati profile. Pokušajte ponovno.');
+        this.error.set('Failed to load profiles. Please try again.');
         this.isLoading.set(false);
       }
     });
@@ -392,6 +399,36 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
 
   goToConversations() {
     this.router.navigate(['/conversations']);
+  }
+
+  openReportDialog() {
+    this.showReportDialog.set(true);
+  }
+
+  closeReportDialog() {
+    this.showReportDialog.set(false);
+  }
+
+  handleReportSubmit(data: { reason: ReportReason; description: string }) {
+    const profile = this.currentProfile;
+    if (!profile) return;
+
+    this.reportService.reportUser({
+      reportedId: profile.profileId,
+      reason: data.reason,
+      description: data.description
+    }).subscribe({
+      next: () => {
+        console.log('User reported successfully');
+        this.closeReportDialog();
+        // Since backend marks it as passed, we should just move to next profile locally
+        this.nextProfile();
+      },
+      error: (err) => {
+        console.error('Failed to report user:', err);
+        this.closeReportDialog();
+      }
+    });
   }
 }
 

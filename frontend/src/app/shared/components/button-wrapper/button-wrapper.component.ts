@@ -28,6 +28,7 @@ export class ButtonComponent {
   click = output<MouseEvent>();
 
   handleClick(event: MouseEvent) {
+    event.stopPropagation();
     if (!this.disabled()) {
       this.click.emit(event);
     }
