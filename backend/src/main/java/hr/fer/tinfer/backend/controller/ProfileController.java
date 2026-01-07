@@ -26,7 +26,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/profiles")
 @RequiredArgsConstructor
-@Tag(name = "Profile", description = "Upravljanje korisničkim profilima")
+@Tag(name = "Profile", description = "Manage user profiles")
 @SecurityRequirement(name = "Bearer Authentication")
 public class ProfileController {
 
@@ -35,7 +35,7 @@ public class ProfileController {
     private final UserActivityLogService activityLogService;
 
     @GetMapping("/me")
-    @Operation(summary = "Dohvati profil trenutno prijavljenog korisnika")
+    @Operation(summary = "Get the profile of the currently logged-in user")
     public ResponseEntity<ProfileResponse> getCurrentUserProfile(Authentication authentication) {
         UUID userId = (UUID) authentication.getPrincipal();
         return profileService.getCurrentUserProfile(userId)
@@ -44,7 +44,7 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Dohvati profil po ID-u")
+    @Operation(summary = "Get profile by ID")
     public ResponseEntity<ProfileResponse> getProfileById(@PathVariable UUID id) {
         return profileService.getProfileById(id)
                 .map(ResponseEntity::ok)
@@ -52,7 +52,7 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}/details")
-    @Operation(summary = "Detaljan pregled profila s fotkama i interesima")
+    @Operation(summary = "Detailed profile view with photos and interests")
     public ResponseEntity<ProfileDetailsResponse> getProfileDetails(
             @PathVariable UUID id,
             Authentication authentication) {
@@ -65,7 +65,7 @@ public class ProfileController {
     }
 
     @GetMapping("/email/{email}")
-    @Operation(summary = "Dohvati profil po email-u")
+    @Operation(summary = "Get profile by email")
     public ResponseEntity<ProfileResponse> getProfileByEmail(@PathVariable String email) {
         return profileService.getProfileByEmail(email)
                 .map(ResponseEntity::ok)
@@ -73,14 +73,14 @@ public class ProfileController {
     }
 
     @GetMapping
-    @Operation(summary = "Dohvati sve profile")
+    @Operation(summary = "Get all profiles")
     public ResponseEntity<List<ProfileResponse>> getAllProfiles() {
         List<ProfileResponse> profiles = profileService.getAllProfiles();
         return ResponseEntity.ok(profiles);
     }
 
     @PostMapping
-    @Operation(summary = "Kreiraj novi profil")
+    @Operation(summary = "Create new profile")
     public ResponseEntity<ProfileResponse> createProfile(
             @Valid @RequestBody CreateProfileRequest request,
             Authentication authentication) {
@@ -97,7 +97,7 @@ public class ProfileController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Ažuriraj profil")
+    @Operation(summary = "Update profile")
     public ResponseEntity<ProfileResponse> updateProfile(
             @PathVariable UUID id,
             @Valid @RequestBody CreateProfileRequest request,
@@ -118,7 +118,7 @@ public class ProfileController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Obriši profil")
+    @Operation(summary = "Delete profile")
     public ResponseEntity<Void> deleteProfile(
             @PathVariable UUID id,
             Authentication authentication) {
@@ -138,7 +138,7 @@ public class ProfileController {
     }
 
     @GetMapping("/me/photos")
-    @Operation(summary = "Dohvati fotke trenutnog korisnika")
+    @Operation(summary = "Get photos of the current user")
     public ResponseEntity<List<PhotoResponse>> getMyPhotos(Authentication authentication) {
         UUID userId = (UUID) authentication.getPrincipal();
         try {
@@ -149,7 +149,7 @@ public class ProfileController {
     }
 
     @PostMapping("/me/photos")
-    @Operation(summary = "Dodaj novu fotku profilu")
+    @Operation(summary = "Add a new photo to the profile")
     public ResponseEntity<PhotoResponse> addPhoto(
             @Valid @RequestBody PhotoCreateRequest request,
             Authentication authentication) {
@@ -164,7 +164,7 @@ public class ProfileController {
     }
 
     @PutMapping("/me/photos/{photoId}")
-    @Operation(summary = "Ažuriraj postojeću fotku")
+    @Operation(summary = "Update an existing photo")
     public ResponseEntity<PhotoResponse> updatePhoto(
             @PathVariable Long photoId,
             @Valid @RequestBody PhotoUpdateRequest request,
@@ -182,7 +182,7 @@ public class ProfileController {
     }
 
     @DeleteMapping("/me/photos/{photoId}")
-    @Operation(summary = "Obriši fotku")
+    @Operation(summary = "Delete photo")
     public ResponseEntity<Void> deletePhoto(
             @PathVariable Long photoId,
             Authentication authentication) {
@@ -200,7 +200,7 @@ public class ProfileController {
     }
 
     @GetMapping("/me/audit")
-    @Operation(summary = "Dohvati audit trail aktivnosti korisnika")
+    @Operation(summary = "Get user activity audit trail")
     public ResponseEntity<List<UserActivityLogResponse>> getMyAuditTrail(Authentication authentication) {
         UUID userId = (UUID) authentication.getPrincipal();
         return ResponseEntity.ok(activityLogService.getActivityForUser(userId));

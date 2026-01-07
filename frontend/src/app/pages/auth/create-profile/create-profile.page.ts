@@ -78,7 +78,7 @@ export class CreateProfilePage {
       this.yearOfStudy.set(null);
       this.yearOfStudyError.set('');
     } else if (isNaN(num) || num < 1 || num > 5) {
-      this.yearOfStudyError.set('Godina mora biti između 1 i 5');
+      this.yearOfStudyError.set('Year must be between 1 and 5');
     } else {
       this.yearOfStudy.set(num);
       this.yearOfStudyError.set('');
@@ -97,38 +97,38 @@ export class CreateProfilePage {
   onInterestedInGenderChange(value: string) {
     this.interestedInGender.set(value);
   }
-onInterestsChange(tags: string[]) {
+  onInterestsChange(tags: string[]) {
     this.interests.set(tags);
   }
 
-  
+
   async onPhotoSelect(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    
+
     if (!file) return;
 
     // Validate image
     const validation = this.photoService.validateImage(file);
     if (!validation.valid) {
-      this.generalError.set(validation.error || 'Nevažeća slika');
+      this.generalError.set(validation.error || 'Invalid image');
       return;
     }
 
     // Check max 6 photos
     if (this.photos().length >= 6) {
-      this.generalError.set('Možeš dodati maksimalno 6 slika');
+      this.generalError.set('You can add a maximum of 6 photos');
       return;
     }
 
     try {
       // Convert to Base64
       const base64Data = await this.photoService.fileToBase64(file);
-      
+
       // Create preview URL
       const preview = URL.createObjectURL(file);
       const newPhotos = [...this.photos()];
-      
+
       newPhotos.push({
         base64Data,
         preview,
@@ -139,7 +139,7 @@ onInterestsChange(tags: string[]) {
       this.photos.set(newPhotos);
       this.generalError.set('');
     } catch (error) {
-      this.generalError.set('Greška pri učitavanju slike');
+      this.generalError.set('Error loading image');
     }
 
     input.value = ''; // Reset input
@@ -147,12 +147,12 @@ onInterestsChange(tags: string[]) {
 
   removePhoto(index: number) {
     const newPhotos = this.photos().filter((_, i) => i !== index);
-    
+
     // If we removed the primary photo, make the first one primary
     if (newPhotos.length > 0 && !newPhotos.some(p => p.isPrimary)) {
       newPhotos[0].isPrimary = true;
     }
-    
+
     this.photos.set(newPhotos);
   }
 
@@ -161,7 +161,7 @@ onInterestsChange(tags: string[]) {
       ...photo,
       isPrimary: i === index,
     }));
-    
+
     this.photos.set(newPhotos);
   }
 
@@ -171,17 +171,17 @@ onInterestsChange(tags: string[]) {
     this.generalError.set('');
 
     if (!this.firstName().trim()) {
-      this.firstNameError.set('Ime je obavezno');
+      this.firstNameError.set('First name is required');
       hasError = true;
     }
 
     if (!this.lastName().trim()) {
-      this.lastNameError.set('Prezime je obavezno');
+      this.lastNameError.set('Last name is required');
       hasError = true;
     }
 
     if (!this.gender()) {
-      this.genderError.set('Spol je obavezan');
+      this.genderError.set('Gender is required');
       hasError = true;
     }
 
@@ -193,7 +193,7 @@ onInterestsChange(tags: string[]) {
       // Get current user email
       const user = await this.authService.getCurrentUser();
       if (!user?.email) {
-        throw new Error('Korisnik nije prijavljen');
+        throw new Error('User not logged in');
       }
 
       // Create profile data
@@ -235,7 +235,7 @@ onInterestsChange(tags: string[]) {
       this.router.navigate(['/swipe']);
     } catch (error: any) {
       console.error('Profile creation error:', error);
-      this.generalError.set(error?.error?.message || 'Greška pri kreiranju profila. Pokušaj ponovno.');
+      this.generalError.set(error?.error?.message || 'Error creating profile. Please try again.');
     } finally {
       this.isLoading.set(false);
     }
@@ -246,10 +246,10 @@ onInterestsChange(tags: string[]) {
    */
   private async uploadPhotos() {
     const photos = this.photos();
-    
+
     for (let i = 0; i < photos.length; i++) {
       const photo = photos[i];
-      
+
       try {
         await this.photoService.addPhoto({
           base64Data: photo.base64Data,

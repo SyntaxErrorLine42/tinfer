@@ -100,7 +100,7 @@ export class ProfilePage implements OnInit {
       // Add photo
       const newPhoto = await this.photoService.addPhoto({ base64Data: base64, isPrimary: true });
       console.log('Primary photo uploaded:', newPhoto);
-      
+
       // Reload photos
       this.loadPhotos();
       this.isUploadingPhoto.set(false);
@@ -157,7 +157,7 @@ export class ProfilePage implements OnInit {
 
   loadPhotos() {
     this.photoError.set(null);
-    
+
     this.photoService.getMyPhotos().subscribe({
       next: (photos) => {
         this.photos.set(photos);
@@ -220,7 +220,7 @@ export class ProfilePage implements OnInit {
     this.profileService.updateProfile(currentProfile.id, updateData).subscribe({
       next: (updatedProfile) => {
         console.log('Profile updated successfully:', updatedProfile);
-        
+
         // Update interests separately
         this.interestService.setInterests(this.editForm.interests).subscribe({
           next: () => {
@@ -282,20 +282,20 @@ export class ProfilePage implements OnInit {
   async addPhoto(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    
+
     if (!file) return;
 
     // Validate image
     const validation = this.photoService.validateImage(file);
     if (!validation.valid) {
-      this.photoError.set(validation.error || 'Nevažeća slika');
+      this.photoError.set(validation.error || 'Invalid image');
       input.value = '';
       return;
     }
 
     // Check max 6 photos
     if (this.photos().length >= 6) {
-      this.photoError.set('Možeš dodati maksimalno 6 slika');
+      this.photoError.set('You can add a maximum of 6 photos');
       input.value = '';
       return;
     }
@@ -306,10 +306,10 @@ export class ProfilePage implements OnInit {
     try {
       // Convert to Base64
       const base64Data = await this.photoService.fileToBase64(file);
-      
+
       // Determine if this should be primary (first photo)
       const isPrimary = this.photos().length === 0;
-      
+
       // Upload to backend
       await this.photoService.addPhoto({
         base64Data,
@@ -321,7 +321,7 @@ export class ProfilePage implements OnInit {
       this.loadPhotos();
     } catch (error) {
       console.error('Failed to upload photo:', error);
-      this.photoError.set('Greška pri dodavanju slike');
+      this.photoError.set('Error adding photo');
     } finally {
       this.isUploadingPhoto.set(false);
       input.value = '';
@@ -329,7 +329,7 @@ export class ProfilePage implements OnInit {
   }
 
   async deletePhoto(photoId: number) {
-    if (!confirm('Sigurno želiš obrisati ovu sliku?')) {
+    if (!confirm('Are you sure you want to delete this photo?')) {
       return;
     }
 
@@ -340,7 +340,7 @@ export class ProfilePage implements OnInit {
       this.loadPhotos();
     } catch (error) {
       console.error('Failed to delete photo:', error);
-      this.photoError.set('Greška pri brisanju slike');
+      this.photoError.set('Error deleting photo');
     }
   }
 
@@ -352,11 +352,11 @@ export class ProfilePage implements OnInit {
       await this.photoService.updatePhoto(photoId, {
         isPrimary: true,
       });
-      
+
       this.loadPhotos();
     } catch (error) {
       console.error('Failed to set primary photo:', error);
-      this.photoError.set('Greška pri postavljanju profilne slike');
+      this.photoError.set('Error setting profile picture');
     }
   }
 

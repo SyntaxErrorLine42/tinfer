@@ -27,14 +27,14 @@ export class PhotoService {
   private http = inject(HttpClient);
 
   /**
-   * Dohvati sve slike trenutnog korisnika
+   * Get all photos for the current user
    */
   getMyPhotos(): Observable<PhotoResponse[]> {
     return this.http.get<PhotoResponse[]>('/api/profiles/me/photos');
   }
 
   /**
-   * Dodaj novu sliku
+   * Add a new photo
    */
   async addPhoto(request: PhotoCreateRequest): Promise<PhotoResponse> {
     return firstValueFrom(
@@ -43,7 +43,7 @@ export class PhotoService {
   }
 
   /**
-   * Ažuriraj postojeću sliku
+   * Update an existing photo
    */
   async updatePhoto(photoId: number, request: PhotoUpdateRequest): Promise<PhotoResponse> {
     return firstValueFrom(
@@ -52,7 +52,7 @@ export class PhotoService {
   }
 
   /**
-   * Obriši sliku
+   * Delete a photo
    */
   async deletePhoto(photoId: number): Promise<void> {
     return firstValueFrom(
@@ -61,7 +61,7 @@ export class PhotoService {
   }
 
   /**
-   * Konvertiraj File u Base64 string
+   * Convert File to Base64 string
    */
   async fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -73,7 +73,7 @@ export class PhotoService {
   }
 
   /**
-   * Validacija slike
+   * Validate image
    */
   validateImage(file: File): { valid: boolean; error?: string } {
     const maxSize = 5 * 1024 * 1024; // 5MB
@@ -82,14 +82,14 @@ export class PhotoService {
     if (!allowedTypes.includes(file.type)) {
       return {
         valid: false,
-        error: 'Tip slike mora biti JPEG, PNG ili WebP',
+        error: 'Image type must be JPEG, PNG or WebP',
       };
     }
 
     if (file.size > maxSize) {
       return {
         valid: false,
-        error: 'Slika ne smije biti veća od 5MB',
+        error: 'Image size must not exceed 5MB',
       };
     }
 

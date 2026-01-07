@@ -1,8 +1,7 @@
 package hr.fer.tinfer.backend.controller;
 
-import hr.fer.tinfer.backend.dto.SwipeRequest;
-import hr.fer.tinfer.backend.dto.SwipeResponse;
-import hr.fer.tinfer.backend.service.SwipeService;
+import hr.fer.tinfer.backend.dto.ReportRequest;
+import hr.fer.tinfer.backend.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,22 +17,22 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/swipes")
+@RequestMapping("/api/reports")
 @RequiredArgsConstructor
-@Tag(name = "Swipes", description = "Swipe actions and matches")
+@Tag(name = "Reports", description = "Reporting users")
 @SecurityRequirement(name = "Bearer Authentication")
-public class SwipeController {
+public class ReportController {
 
-    private final SwipeService swipeService;
+    private final ReportService reportService;
 
     @PostMapping
-    @Operation(summary = "Send a swipe action for a given profile")
-    public ResponseEntity<SwipeResponse> swipe(
-            @Valid @RequestBody SwipeRequest request,
+    @Operation(summary = "Report a user")
+    public ResponseEntity<Void> reportUser(
+            @Valid @RequestBody ReportRequest request,
             Authentication authentication) {
 
-        UUID swiperId = (UUID) authentication.getPrincipal();
-        SwipeResponse response = swipeService.swipe(swiperId, request.getSwipedUserId(), request.getAction());
-        return ResponseEntity.ok(response);
+        UUID reporterId = (UUID) authentication.getPrincipal();
+        reportService.reportUser(reporterId, request);
+        return ResponseEntity.ok().build();
     }
 }
