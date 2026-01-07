@@ -146,7 +146,7 @@ public class ProfileService {
     public void deleteProfile(UUID id, UUID currentUserId) {
         log.info("Deleting profile ID: {} by user ID: {}", id, currentUserId);
 
-        // Provjeri da korisnik briše svoj profil
+        // Check if the user is deleting their own profile
         if (!currentUserId.equals(id)) {
             log.warn("User {} attempted to delete profile {}", currentUserId, id);
             throw new SecurityException("You can only delete your own profile");

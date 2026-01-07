@@ -10,26 +10,26 @@ import lombok.Data;
 public class CreateProfileRequest {
 
     @Email
-    @NotBlank(message = "Email je obavezan")
+    @NotBlank(message = "Email is required")
     private String email;
 
-    @NotBlank(message = "Ime je obavezno")
+    @NotBlank(message = "First name is required")
     private String firstName;
 
-    @NotBlank(message = "Prezime je obavezno")
+    @NotBlank(message = "Last name is required")
     private String lastName;
 
     private String displayName;
 
     private String bio;
 
-    @Min(value = 1, message = "Godina studija mora biti između 1 i 5")
-    @Max(value = 5, message = "Godina studija mora biti između 1 i 5")
+    @Min(value = 1, message = "Year of study must be between 1 and 5")
+    @Max(value = 5, message = "Year of study must be between 1 and 5")
     private Integer yearOfStudy;
 
     private String studentId;
 
-    @NotBlank(message = "Spol je obavezan")
+    @NotBlank(message = "Gender is required")
     private String gender; // male, female, non_binary, other
 
     private String interestedInGender; // male, female, non_binary, everyone

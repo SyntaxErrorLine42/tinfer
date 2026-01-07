@@ -20,14 +20,14 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/swipes")
 @RequiredArgsConstructor
-@Tag(name = "Swipes", description = "Swipe akcije i podudaranja")
+@Tag(name = "Swipes", description = "Swipe actions and matches")
 @SecurityRequirement(name = "Bearer Authentication")
 public class SwipeController {
 
     private final SwipeService swipeService;
 
     @PostMapping
-    @Operation(summary = "Pošalji swipe akciju za zadani profil")
+    @Operation(summary = "Send a swipe action for a given profile")
     public ResponseEntity<SwipeResponse> swipe(
             @Valid @RequestBody SwipeRequest request,
             Authentication authentication) {

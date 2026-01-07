@@ -18,14 +18,14 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/matches")
 @RequiredArgsConstructor
-@Tag(name = "Matches", description = "Pregled podudaranja i razgovora")
+@Tag(name = "Matches", description = "Overview of matches and conversations")
 @SecurityRequirement(name = "Bearer Authentication")
 public class MatchController {
 
     private final MatchService matchService;
 
     @GetMapping
-    @Operation(summary = "Dohvati sve match-eve za trenutnog korisnika")
+    @Operation(summary = "Get all matches for the current user")
     public ResponseEntity<List<MatchSummary>> getMatches(Authentication authentication) {
         UUID userId = (UUID) authentication.getPrincipal();
         List<MatchSummary> matches = matchService.getMatches(userId);
