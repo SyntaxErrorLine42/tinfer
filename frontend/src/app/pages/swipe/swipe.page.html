@@ -192,8 +192,8 @@
     <!-- Background Cards (for depth effect) -->
     @if (currentIndex() < profiles().length - 1) { <div class="absolute inset-0 -z-10 scale-95 opacity-50">
       <app-card class="h-full overflow-hidden">
-        @if (profiles()[currentIndex() + 1].primaryPhotoBase64) {
-        <img [src]="profiles()[currentIndex() + 1].primaryPhotoBase64" [alt]="profiles()[currentIndex() + 1].firstName"
+        @if (profiles()[currentIndex() + 1].primaryPhotoUrl) {
+        <img [src]="profiles()[currentIndex() + 1].primaryPhotoUrl" [alt]="profiles()[currentIndex() + 1].firstName"
           class="w-full h-full object-cover" />
         } @else {
         <div
@@ -288,7 +288,7 @@
 
       <!-- Avatars -->
       <div class="flex justify-center items-center gap-4 mb-8">
-        <app-avatar [src]="lastMatchedProfile()!.primaryPhotoBase64 || ''" size="xl"
+        <app-avatar [src]="lastMatchedProfile()!.primaryPhotoUrl || ''" size="xl"
           class="animate-in slide-in-from-left duration-500" />
         <div
           class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center animate-pulse">

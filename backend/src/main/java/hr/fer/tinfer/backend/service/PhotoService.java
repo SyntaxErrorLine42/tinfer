@@ -27,6 +27,7 @@ public class PhotoService {
     private final ProfileRepository profileRepository;
     private final PhotoRepository photoRepository;
     private final UserActivityLogService activityLogService;
+    private final SupabaseStorageService storageService;
 
     @Transactional(readOnly = true)
     public List<PhotoResponse> getPhotos(UUID userId) {
@@ -45,9 +46,12 @@ public class PhotoService {
             unsetExistingPrimary(profile);
         }
 
+        // Upload to Supabase Storage and get URL
+        String imageUrl = storageService.uploadImage(request.getBase64Data(), userId);
+
         Photo photo = new Photo();
         photo.setUser(profile);
-        photo.setBase64Data(request.getBase64Data());
+        photo.setStorageUrl(imageUrl);
         photo.setDisplayOrder(request.getDisplayOrder());
         photo.setIsPrimary(Boolean.TRUE.equals(request.getIsPrimary()));
 
@@ -66,7 +70,13 @@ public class PhotoService {
         Photo photo = fetchPhoto(photoId, userId);
 
         if (request.getBase64Data() != null) {
-            photo.setBase64Data(request.getBase64Data());
+            // Delete old image from storage if it's a URL
+            if (photo.isStorageUrl()) {
+                storageService.deleteImage(photo.getStorageUrl());
+            }
+            // Upload new image
+            String newUrl = storageService.uploadImage(request.getBase64Data(), userId);
+            photo.setStorageUrl(newUrl);
         }
         if (request.getDisplayOrder() != null) {
             photo.setDisplayOrder(request.getDisplayOrder());
@@ -91,6 +101,12 @@ public class PhotoService {
     @Transactional
     public void deletePhoto(UUID userId, Long photoId) {
         Photo photo = fetchPhoto(photoId, userId);
+
+        // Delete from Supabase Storage if it's a URL
+        if (photo.isStorageUrl()) {
+            storageService.deleteImage(photo.getStorageUrl());
+        }
+
         photoRepository.delete(photo);
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("photoId", photo.getId());
@@ -127,7 +143,7 @@ public class PhotoService {
     private PhotoResponse toResponse(Photo photo) {
         return PhotoResponse.builder()
                 .id(photo.getId())
-                .base64Data(photo.getBase64Data())
+                .imageUrl(photo.getStorageUrl())
                 .displayOrder(photo.getDisplayOrder())
                 .isPrimary(photo.getIsPrimary())
                 .uploadedAt(photo.getUploadedAt())

@@ -151,8 +151,8 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
           next: (photos) => {
             const primaryPhoto = photos.find(p => p.isPrimary) || photos[0];
             if (primaryPhoto) {
-              // PhotoResponse has base64Data field based on photo.service.ts
-              this.currentUserPhoto.set((primaryPhoto as any).base64Data || primaryPhoto.url);
+              // PhotoResponse now has imageUrl field
+              this.currentUserPhoto.set(primaryPhoto.imageUrl);
             }
           },
           error: () => {
@@ -341,7 +341,7 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
 
   nextPhoto() {
     const profile = this.currentProfile;
-    if (profile && profile.photoGalleryBase64 && profile.currentPhotoIndex < profile.photoGalleryBase64.length - 1) {
+    if (profile && profile.photoGalleryUrls && profile.currentPhotoIndex < profile.photoGalleryUrls.length - 1) {
       profile.currentPhotoIndex++;
     }
   }
@@ -357,21 +357,21 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
    * Get current photo URL for display
    */
   getCurrentPhoto(profile: SwipeProfile): string | null {
-    if (profile.photoGalleryBase64 && profile.photoGalleryBase64.length > 0) {
-      return profile.photoGalleryBase64[profile.currentPhotoIndex] || profile.primaryPhotoBase64;
+    if (profile.photoGalleryUrls && profile.photoGalleryUrls.length > 0) {
+      return profile.photoGalleryUrls[profile.currentPhotoIndex] || profile.primaryPhotoUrl;
     }
-    return profile.primaryPhotoBase64;
+    return profile.primaryPhotoUrl;
   }
 
   /**
    * Get all photos for a profile
    */
   getPhotos(profile: SwipeProfile): string[] {
-    if (profile.photoGalleryBase64 && profile.photoGalleryBase64.length > 0) {
-      return profile.photoGalleryBase64;
+    if (profile.photoGalleryUrls && profile.photoGalleryUrls.length > 0) {
+      return profile.photoGalleryUrls;
     }
-    if (profile.primaryPhotoBase64) {
-      return [profile.primaryPhotoBase64];
+    if (profile.primaryPhotoUrl) {
+      return [profile.primaryPhotoUrl];
     }
     return [];
   }

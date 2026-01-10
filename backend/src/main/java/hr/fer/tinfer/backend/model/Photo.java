@@ -30,10 +30,14 @@ public class Photo {
     @JoinColumn(name = "user_id", nullable = false)
     private Profile user;
 
+    /**
+     * URL to the image stored in Supabase Storage.
+     * For backwards compatibility, this field can also contain base64 data
+     * (detected by checking if it starts with "data:" or "http").
+     */
     @NotBlank
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String base64Data; // Base64 encoded image (e.g., "data:image/jpeg;base64,/9j/4AAQ...")
+    @Column(name = "base64data", nullable = false, columnDefinition = "TEXT")
+    private String storageUrl;
 
     @Column(name = "display_order")
     private Integer displayOrder = 0;
@@ -44,4 +48,25 @@ public class Photo {
     @CreationTimestamp
     @Column(name = "uploaded_at", updatable = false)
     private LocalDateTime uploadedAt;
+
+    /**
+     * Check if this photo uses the new storage URL format or legacy base64.
+     */
+    public boolean isStorageUrl() {
+        return storageUrl != null && storageUrl.startsWith("http");
+    }
+
+    /**
+     * For backwards compatibility - getter that works with old field name.
+     */
+    public String getBase64Data() {
+        return storageUrl;
+    }
+
+    /**
+     * For backwards compatibility - setter that works with old field name.
+     */
+    public void setBase64Data(String data) {
+        this.storageUrl = data;
+    }
 }

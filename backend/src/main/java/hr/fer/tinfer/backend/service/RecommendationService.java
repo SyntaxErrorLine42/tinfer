@@ -43,28 +43,32 @@ public class RecommendationService {
     }
 
     public List<ProfileRecommendation> getRecommendations(UUID userId, int limit) {
-        Profile currentUser = profileRepository.findById(userId)
+        // Load current user with photos in single query
+        Profile currentUser = profileRepository.findByIdWithPhotos(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Profile not found for user " + userId));
 
-        Set<UUID> alreadySwiped = datingSwipeRepository.findBySwiper(currentUser)
-                .stream()
-                .map(swipe -> swipe.getSwiped().getId())
-                .collect(Collectors.toSet());
+        // Get only IDs of already swiped profiles (efficient single query)
+        Set<UUID> alreadySwiped = datingSwipeRepository.findSwipedIdsBySwiperId(userId);
 
-        Set<UUID> matchedUsers = matchRepository.findAllByUserId(userId)
-                .stream()
-                .map(match -> match.getUser1().getId().equals(userId) ? match.getUser2().getId()
-                        : match.getUser1().getId())
-                .collect(Collectors.toSet());
+        // Get matched user IDs (efficient single query returning only IDs)
+        Set<UUID> matchedUsers = matchRepository.findMatchedUserIds(userId);
+
+        // Combine all excluded IDs
+        Set<UUID> excludeIds = new java.util.HashSet<>(alreadySwiped);
+        excludeIds.addAll(matchedUsers);
+        excludeIds.add(userId);
 
         int effectiveLimit = Math.max(1, limit);
 
-        return profileRepository.findAll()
-                .stream()
-                .filter(candidate -> !candidate.getId().equals(userId))
-                .filter(this::isActive)
-                .filter(candidate -> !alreadySwiped.contains(candidate.getId()))
-                .filter(candidate -> !matchedUsers.contains(candidate.getId()))
+        // Load candidates with photos pre-fetched (avoids N+1)
+        List<Profile> candidates;
+        if (excludeIds.isEmpty()) {
+            candidates = profileRepository.findActiveProfilesWithPhotosExcludingUser(userId);
+        } else {
+            candidates = profileRepository.findActiveProfilesWithPhotosExcluding(excludeIds);
+        }
+
+        return candidates.stream()
                 .filter(candidate -> matchesGenderPreference(currentUser, candidate))
                 .map(candidate -> buildRecommendation(currentUser, candidate))
                 .sorted(Comparator.comparingDouble(ProfileRecommendation::getCompatibilityScore).reversed())
@@ -102,8 +106,8 @@ public class RecommendationService {
                 .sharedInterests(sharedInterests)
                 .candidateInterests(candidateInterests)
                 .departments(extractDepartmentCodes(candidate.getDepartments()))
-                .primaryPhotoBase64(resolvePrimaryPhoto(candidate))
-                .photoGalleryBase64(extractPhotoGallery(candidate))
+                .primaryPhotoUrl(resolvePrimaryPhotoUrl(candidate))
+                .photoGalleryUrls(extractPhotoGalleryUrls(candidate))
                 .compatibilityScore(compatibilityScore)
                 .highlight(highlight)
                 .build();
@@ -206,25 +210,25 @@ public class RecommendationService {
         return Math.round(Math.min(1.0, Math.max(0.0, score)) * 100.0) / 100.0;
     }
 
-    private String resolvePrimaryPhoto(Profile candidate) {
+    private String resolvePrimaryPhotoUrl(Profile candidate) {
         return candidate.getPhotos()
                 .stream()
                 .sorted(Comparator
                         .comparing((Photo photo) -> Boolean.TRUE.equals(photo.getIsPrimary())).reversed()
                         .thenComparing(Photo::getDisplayOrder, Comparator.nullsLast(Integer::compareTo))
                         .thenComparing(Photo::getId, Comparator.nullsLast(Long::compareTo)))
-                .map(Photo::getBase64Data)
+                .map(Photo::getStorageUrl)
                 .findFirst()
                 .orElse(null);
     }
 
-    private List<String> extractPhotoGallery(Profile candidate) {
+    private List<String> extractPhotoGalleryUrls(Profile candidate) {
         return candidate.getPhotos()
                 .stream()
                 .sorted(Comparator
                         .comparing(Photo::getDisplayOrder, Comparator.nullsLast(Integer::compareTo))
                         .thenComparing(Photo::getId, Comparator.nullsLast(Long::compareTo)))
-                .map(Photo::getBase64Data)
+                .map(Photo::getStorageUrl)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

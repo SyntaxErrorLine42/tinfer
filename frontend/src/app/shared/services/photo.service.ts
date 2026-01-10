@@ -4,7 +4,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 
 export interface PhotoResponse {
   id: number;
-  base64Data: string;
+  imageUrl: string;  // URL to photo in Supabase Storage
   displayOrder: number | null;
   isPrimary: boolean;
   uploadedAt: string;

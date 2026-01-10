@@ -28,8 +28,8 @@ public class ProfileRecommendation {
     private Set<String> candidateInterests;
     private Set<String> departments;
 
-    private String primaryPhotoBase64; // Base64 encoded image
-    private List<String> photoGalleryBase64; // List of Base64 encoded images
+    private String primaryPhotoUrl; // URL to photo in Supabase Storage
+    private List<String> photoGalleryUrls; // List of photo URLs
 
     private double compatibilityScore;
     private String highlight;

@@ -11,8 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,39 +30,67 @@ public class ConversationService {
     private final MessageRepository messageRepository;
 
     public List<ConversationSummaryResponse> getConversationsForUser(UUID userId) {
-        List<Conversation> conversations = conversationRepository.findActiveConversationsByUserId(userId);
+        // Single query to get all conversations with participants and photos
+        // pre-fetched
+        List<Conversation> conversations = conversationRepository
+                .findActiveConversationsWithParticipantsAndPhotos(userId);
 
+        if (conversations.isEmpty()) {
+            return List.of();
+        }
+
+        // Get all conversation IDs
+        List<Long> conversationIds = conversations.stream()
+                .map(Conversation::getId)
+                .collect(Collectors.toList());
+
+        // Batch fetch last messages for all conversations (single query)
+        Map<Long, String> lastMessages = new HashMap<>();
+        messageRepository.findLastMessagesForConversations(conversationIds).forEach(row -> {
+            Long convId = (Long) row[0];
+            String content = (String) row[1];
+            lastMessages.put(convId, truncate(content, 120));
+        });
+
+        // Batch fetch unread counts for all conversations (single query)
+        Map<Long, Long> unreadCounts = new HashMap<>();
+        messageRepository.countUnreadMessagesForConversations(conversationIds, userId).forEach(row -> {
+            Long convId = (Long) row[0];
+            Long count = (Long) row[1];
+            unreadCounts.put(convId, count);
+        });
+
+        // Build responses (no additional queries needed)
         return conversations.stream()
-                .map(conversation -> toSummary(conversation, userId))
+                .map(conversation -> toSummary(conversation, userId, lastMessages, unreadCounts))
                 .sorted(Comparator.comparing(ConversationSummaryResponse::getLastMessageAt,
                         Comparator.nullsLast(Comparator.reverseOrder())))
                 .collect(Collectors.toList());
     }
 
-    private ConversationSummaryResponse toSummary(Conversation conversation, UUID currentUserId) {
+    private ConversationSummaryResponse toSummary(
+            Conversation conversation,
+            UUID currentUserId,
+            Map<Long, String> lastMessages,
+            Map<Long, Long> unreadCounts) {
+
         Profile partner = conversation.getParticipants().stream()
                 .map(participant -> participant.getUser())
                 .filter(profile -> !profile.getId().equals(currentUserId))
                 .findFirst()
                 .orElse(null);
 
-        String partnerPhoto = resolvePrimaryPhoto(partner);
+        String partnerPhoto = resolvePrimaryPhotoUrl(partner);
         String partnerName = partner != null ? displayName(partner) : "Unknown";
-
-        String lastMessageSnippet = messageRepository.findTopByConversation_IdOrderBySentAtDesc(conversation.getId())
-                .map(message -> truncate(message.getContent(), 120))
-                .orElse(null);
-
-        long unread = messageRepository.countUnreadMessages(conversation.getId(), currentUserId);
 
         return ConversationSummaryResponse.builder()
                 .conversationId(conversation.getId())
                 .partnerId(partner != null ? partner.getId() : null)
                 .partnerDisplayName(partnerName)
-                .partnerPrimaryPhotoBase64(partnerPhoto)
-                .lastMessageSnippet(lastMessageSnippet)
+                .partnerPhotoUrl(partnerPhoto)
+                .lastMessageSnippet(lastMessages.getOrDefault(conversation.getId(), null))
                 .lastMessageAt(conversation.getLastMessageAt())
-                .unreadCount(unread)
+                .unreadCount(unreadCounts.getOrDefault(conversation.getId(), 0L))
                 .build();
     }
 
@@ -73,7 +104,10 @@ public class ConversationService {
         return profile.getFirstName();
     }
 
-    private String resolvePrimaryPhoto(Profile profile) {
+    /**
+     * Get the URL of the primary photo for a profile.
+     */
+    private String resolvePrimaryPhotoUrl(Profile profile) {
         if (profile == null || profile.getPhotos() == null) {
             return null;
         }
@@ -83,7 +117,7 @@ public class ConversationService {
                         .thenComparing(Photo::getDisplayOrder, Comparator.nullsLast(Integer::compareTo))
                         .thenComparing(Photo::getId, Comparator.nullsLast(Long::compareTo)))
                 .findFirst();
-        return primary.map(Photo::getBase64Data).orElse(null);
+        return primary.map(Photo::getStorageUrl).orElse(null);
     }
 
     private String truncate(String value, int maxLength) {

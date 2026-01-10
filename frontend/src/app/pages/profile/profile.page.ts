@@ -60,7 +60,7 @@ export class ProfilePage implements OnInit {
     console.log('All photos:', allPhotos);
     const primaryPhoto = allPhotos.find(p => p.isPrimary);
     console.log('Primary photo:', primaryPhoto);
-    const result = primaryPhoto?.base64Data || null;
+    const result = primaryPhoto?.imageUrl || null;
     console.log('Returning primary photo URL:', result ? 'exists' : 'null');
     return result;
   }

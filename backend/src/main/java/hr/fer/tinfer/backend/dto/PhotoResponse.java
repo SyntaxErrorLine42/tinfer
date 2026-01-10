@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PhotoResponse {
     private Long id;
-    private String base64Data; // Base64 encoded image
+    private String imageUrl; // URL to the image in Supabase Storage
     private Integer displayOrder;
     private Boolean isPrimary;
     private LocalDateTime uploadedAt;

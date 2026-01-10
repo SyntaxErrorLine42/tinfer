@@ -7,7 +7,7 @@ export interface ConversationSummary {
   conversationId: number;
   partnerId: string;
   partnerDisplayName: string;
-  partnerPrimaryPhotoBase64: string | null;
+  partnerPhotoUrl: string | null;  // URL to photo in Supabase Storage
   lastMessageSnippet: string | null;
   lastMessageAt: string | null;
   unreadCount: number;

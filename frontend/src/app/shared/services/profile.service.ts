@@ -21,7 +21,7 @@ export interface ProfileResponse {
 
 export interface PhotoResponse {
   id: number;
-  url: string;
+  imageUrl: string;  // URL to photo in Supabase Storage
   displayOrder: number;
   isPrimary: boolean;
   uploadedAt: string;

@@ -15,8 +15,8 @@ export interface ProfileRecommendation {
   sharedInterests: string[];  // Backend sends Set<String> as JSON array
   candidateInterests: string[];  // Backend sends Set<String> as JSON array
   departments: string[];  // Backend sends Set<String> as JSON array
-  primaryPhotoBase64: string | null;
-  photoGalleryBase64: string[];
+  primaryPhotoUrl: string | null;  // URL to photo in Supabase Storage
+  photoGalleryUrls: string[];  // URLs to photos in Supabase Storage
   compatibilityScore: number;
   highlight: string;
 }

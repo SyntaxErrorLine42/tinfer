@@ -324,7 +324,7 @@
           @for (photo of photos(); track photo.id) {
           <div
             class="relative group aspect-square rounded-lg overflow-hidden bg-muted border-2 border-border hover:border-pink-400 dark:hover:border-purple-400 transition-all">
-            <img [src]="photo.base64Data" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover" />
+            <img [src]="photo.imageUrl" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover" />
 
             <!-- Primary Badge -->
             @if (photo.isPrimary) {
