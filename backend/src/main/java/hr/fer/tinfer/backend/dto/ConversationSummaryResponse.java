@@ -12,7 +12,7 @@ public class ConversationSummaryResponse {
     Long conversationId;
     UUID partnerId;
     String partnerDisplayName;
-    String partnerPrimaryPhotoBase64; // Base64 encoded image
+    String partnerPhotoUrl; // URL to partner's photo in Supabase Storage
     String lastMessageSnippet;
     LocalDateTime lastMessageAt;
     long unreadCount;

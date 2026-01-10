@@ -4,7 +4,6 @@ import { ButtonComponent } from '../../shared/components/button-wrapper/button-w
 import { CardComponent } from '../../shared/components/card/card.component';
 import { IconComponent } from '../../shared/components/icon-wrapper/icon-wrapper.component';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
-import { BadgeComponent } from '../../shared/components/badge/badge.component';
 import { ConversationService, ConversationSummary } from '@shared/services/conversation.service';
 
 @Component({
@@ -14,7 +13,6 @@ import { ConversationService, ConversationSummary } from '@shared/services/conve
     CardComponent,
     IconComponent,
     AvatarComponent,
-    BadgeComponent,
   ],
   templateUrl: './conversations.page.html',
   styleUrl: './conversations.page.css',

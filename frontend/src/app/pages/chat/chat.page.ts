@@ -2,7 +2,6 @@ import { Component, signal, inject, OnInit, OnDestroy, ViewChild, ElementRef, Af
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../shared/components/button-wrapper/button-wrapper.component';
-import { CardComponent } from '../../shared/components/card/card.component';
 import { IconComponent } from '../../shared/components/icon-wrapper/icon-wrapper.component';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { ConversationService, ConversationSummary, Message } from '@shared/services/conversation.service';
@@ -13,7 +12,6 @@ import { AuthService } from '@shared/services/auth.service';
   imports: [
     FormsModule,
     ButtonComponent,
-    CardComponent,
     IconComponent,
     AvatarComponent,
   ],

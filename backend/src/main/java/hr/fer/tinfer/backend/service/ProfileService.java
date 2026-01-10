@@ -210,7 +210,7 @@ public class ProfileService {
                 .sorted(photoComparator())
                 .map(photo -> PhotoResponse.builder()
                         .id(photo.getId())
-                        .base64Data(photo.getBase64Data())
+                        .imageUrl(photo.getStorageUrl())
                         .displayOrder(photo.getDisplayOrder())
                         .isPrimary(photo.getIsPrimary())
                         .uploadedAt(photo.getUploadedAt())
