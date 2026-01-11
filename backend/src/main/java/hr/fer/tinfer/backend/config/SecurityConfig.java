@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(
+                                "/actuator/**", // We need this for the health check, without it the backend can't be deployed
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -49,7 +50,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Angular dev server
+
+        // Allow both local development and production frontend URLs
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:4200", // Local development
+                "https://tinfer-frontend.onrender.com", // Production - UPDATE WITH YOUR ACTUAL URL
+                "https://tinfer.onrender.com" // Alternative production URL if using custom domain
+        ));
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
