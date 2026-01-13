@@ -1,0 +1,56 @@
+# Render deployment configuration for Tinfer app
+# This file defines both backend and frontend services
+
+services:
+  # Backend Spring Boot API
+  - type: web
+    name: tinfer-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    region: frankfurt  # Choose closest region: oregon, frankfurt, singapore
+    plan: free  # Change to 'starter' for production with more resources
+    branch: main
+    # healthCheckPath: /actuator/health
+    envVars:
+      # Database configuration - Using Supabase PostgreSQL
+      # Get these from: Supabase Dashboard → Project Settings → Database
+      - key: DATABASE_URL
+        sync: false  # jdbc:postgresql://db.YOUR_PROJECT.supabase.co:5432/postgres
+      - key: DATABASE_USERNAME
+        sync: false  # postgres
+      - key: DATABASE_PASSWORD
+        sync: false  # Your Supabase database password
+      
+      # Supabase configuration
+      - key: SUPABASE_URL
+        sync: false  # https://YOUR_PROJECT.supabase.co
+      - key: SUPABASE_JWT_SECRET
+        sync: false  # From Supabase Settings → API → JWT Secret
+      - key: SUPABASE_ANON_KEY
+        sync: false  # From Supabase Settings → API → anon public key
+      
+      # Email configuration (Gmail SMTP)
+      - key: SMTP_MAIL
+        sync: false  # your-email@gmail.com
+      - key: SMTP_PASSWORD
+        sync: false  # Gmail App Password (16 characters)
+      
+      # Spring Boot profile
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      
+      # JVM options
+      - key: JAVA_OPTS
+        value: "-Xmx512m -Xms256m"
+
+  # Frontend Angular App
+  - type: web
+    name: tinfer-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    region: frankfurt  # Should match backend region
+    plan: free  # Change to 'starter' for production
+    branch: main
+    # healthCheckPath: /health
