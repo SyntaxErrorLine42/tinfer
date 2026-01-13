@@ -49,7 +49,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Angular dev server
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:4200", // Angular dev server
+                "https://tinfer.onrender.com", // Production frontend
+                "https://tinfer-frontend.onrender.com" // Alternative production URL
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
