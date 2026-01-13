@@ -50,14 +50,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // Allow both local development and production frontend URLs
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:4200", // Local development
-                "https://tinfer-frontend.onrender.com", // Production - UPDATE WITH YOUR ACTUAL URL
-                "https://tinfer.onrender.com" // Alternative production URL if using custom domain
+                "http://localhost:4200", // Angular dev server
+                "https://tinfer.onrender.com", // Production frontend
+                "https://tinfer-frontend.onrender.com" // Alternative production URL
         ));
-
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

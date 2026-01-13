@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 
 // Matches backend ProfileRecommendation DTO
 export interface ProfileRecommendation {
@@ -43,14 +43,52 @@ export interface SwipeResponse {
 export class SwipeService {
   private http = inject(HttpClient);
 
+  // Simple in-memory cache
+  private cachedRecommendations: ProfileRecommendation[] = [];
+  private cacheTimestamp: number = 0;
+  private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
   /**
-   * Get recommended profiles for swiping
+   * Get recommended profiles for swiping (with caching)
    * @param limit Number of profiles to fetch (default 25, max 100)
+   * @param forceRefresh Force fetch from server, ignoring cache
    */
-  getRecommendations(limit: number = 25): Observable<ProfileRecommendation[]> {
+  getRecommendations(limit: number = 25, forceRefresh: boolean = false): Observable<ProfileRecommendation[]> {
+    const now = Date.now();
+    const cacheValid = this.cachedRecommendations.length > 0 && 
+                       (now - this.cacheTimestamp) < this.CACHE_TTL_MS;
+
+    // Return cached data if valid and not forcing refresh
+    if (cacheValid && !forceRefresh) {
+      return of(this.cachedRecommendations);
+    }
+
+    // Fetch from server and update cache
     return this.http.get<ProfileRecommendation[]>('/api/recommendations', {
       params: { limit: limit.toString() }
-    });
+    }).pipe(
+      tap(recommendations => {
+        this.cachedRecommendations = recommendations;
+        this.cacheTimestamp = Date.now();
+      })
+    );
+  }
+
+  /**
+   * Remove a profile from cache (called after swipe)
+   */
+  removeFromCache(profileId: string): void {
+    this.cachedRecommendations = this.cachedRecommendations.filter(
+      p => p.profileId !== profileId
+    );
+  }
+
+  /**
+   * Clear the cache (useful when user wants fresh recommendations)
+   */
+  clearCache(): void {
+    this.cachedRecommendations = [];
+    this.cacheTimestamp = 0;
   }
 
   /**
@@ -58,7 +96,12 @@ export class SwipeService {
    */
   swipe(swipedUserId: string, action: SwipeAction): Observable<SwipeResponse> {
     const request: SwipeRequest = { swipedUserId, action };
-    return this.http.post<SwipeResponse>('/api/swipes', request);
+    return this.http.post<SwipeResponse>('/api/swipes', request).pipe(
+      tap(() => {
+        // Remove swiped profile from cache
+        this.removeFromCache(swipedUserId);
+      })
+    );
   }
 
   /**
