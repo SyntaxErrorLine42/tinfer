@@ -1,4 +1,4 @@
-import { Component, signal, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnInit, OnDestroy, inject, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonComponent } from '../../shared/components/button-wrapper/button-wrapper.component';
 import { CardComponent } from '../../shared/components/card/card.component';
@@ -10,6 +10,7 @@ import { ProfileService } from '@shared/services/profile.service';
 import { ConversationService } from '@shared/services/conversation.service';
 import { ReportDialogComponent } from '../../shared/components/report-dialog/report-dialog.component';
 import { ReportService, ReportReason } from '@shared/services/report.service';
+import { NotificationService, MatchNotification } from '@shared/services/notification.service';
 
 // Extended profile for UI state (adds currentPhotoIndex for photo navigation)
 interface SwipeProfile extends ProfileRecommendation {
@@ -37,6 +38,7 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
   private profileService = inject(ProfileService);
   private conversationService = inject(ConversationService);
   private reportService = inject(ReportService);
+  private notificationService = inject(NotificationService);
   private router = inject(Router);
 
   // State
@@ -68,10 +70,23 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
   private boundMouseMove: ((e: MouseEvent) => void) | null = null;
   private boundMouseUp: (() => void) | null = null;
 
+  constructor() {
+    // Listen for real-time match notifications from SSE
+    effect(() => {
+      const notification = this.notificationService.latestMatch();
+      if (notification) {
+        this.handleIncomingMatchNotification(notification);
+        this.notificationService.clearLatestMatch();
+      }
+    });
+  }
+
   ngOnInit() {
     this.loadRecommendations();
     this.loadCurrentUserPhoto();
     this.loadUnreadCount();
+    // Connect to SSE for real-time match notifications
+    this.notificationService.connect();
   }
 
   ngAfterViewInit() {
@@ -274,6 +289,35 @@ export class SwipePage implements OnInit, AfterViewInit, AfterViewChecked, OnDes
       this.lastMatchConversationId.set(response.conversationId);
       setTimeout(() => this.showMatchModal.set(true), 400);
     }
+  }
+
+  /**
+   * Handle incoming match notification from SSE (when OTHER user completes the match)
+   */
+  private handleIncomingMatchNotification(notification: MatchNotification) {
+    // Create a minimal profile object for the match modal
+    const matchedProfile: SwipeProfile = {
+      profileId: notification.matchedUserId,
+      firstName: notification.matchedUserName,
+      lastName: '',
+      displayName: notification.matchedUserName,
+      bio: null,
+      yearOfStudy: null,
+      gender: null,
+      verified: false,
+      sharedInterests: [],
+      candidateInterests: [],
+      departments: [],
+      primaryPhotoUrl: notification.matchedUserPhotoUrl,
+      photoGalleryUrls: notification.matchedUserPhotoUrl ? [notification.matchedUserPhotoUrl] : [],
+      compatibilityScore: 0,
+      highlight: '',
+      currentPhotoIndex: 0
+    };
+
+    this.lastMatchedProfile.set(matchedProfile);
+    this.lastMatchConversationId.set(notification.conversationId);
+    this.showMatchModal.set(true);
   }
 
   like() {
