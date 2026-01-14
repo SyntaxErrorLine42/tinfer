@@ -1,14 +1,17 @@
 package hr.fer.tinfer.backend.service;
 
+import hr.fer.tinfer.backend.dto.MatchNotification;
 import hr.fer.tinfer.backend.dto.SwipeResponse;
 import hr.fer.tinfer.backend.model.Conversation;
 import hr.fer.tinfer.backend.model.ConversationParticipant;
 import hr.fer.tinfer.backend.model.Match;
+import hr.fer.tinfer.backend.model.Photo;
 import hr.fer.tinfer.backend.model.Profile;
 import hr.fer.tinfer.backend.model.DatingSwipe;
 import hr.fer.tinfer.backend.repository.ConversationRepository;
 import hr.fer.tinfer.backend.repository.DatingSwipeRepository;
 import hr.fer.tinfer.backend.repository.MatchRepository;
+import hr.fer.tinfer.backend.repository.PhotoRepository;
 import hr.fer.tinfer.backend.repository.ProfileRepository;
 import hr.fer.tinfer.backend.types.SwipeAction;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,8 @@ public class SwipeService {
     private final DatingSwipeRepository datingSwipeRepository;
     private final MatchRepository matchRepository;
     private final ConversationRepository conversationRepository;
+    private final PhotoRepository photoRepository;
+    private final MatchNotificationService matchNotificationService;
 
     public SwipeResponse swipe(UUID swiperId, UUID swipedId, SwipeAction action) {
         if (action == null) {
@@ -85,10 +90,33 @@ public class SwipeService {
 
                 Long conversationId = match.getConversation() != null ? match.getConversation().getId() : null;
                 responseBuilder.conversationId(conversationId);
+
+                // Send real-time notification to the OTHER user (the one who liked first)
+                // The swiper (current user) already gets the match info in the response
+                sendMatchNotification(swiped, swiper, match.getId(), conversationId);
             }
         }
 
         return responseBuilder.build();
+    }
+
+    /**
+     * Send SSE notification to a user about a new match.
+     */
+    private void sendMatchNotification(Profile recipient, Profile matchedWith, Long matchId, Long conversationId) {
+        String photoUrl = photoRepository.findByUserAndIsPrimaryTrue(matchedWith)
+                .map(Photo::getStorageUrl)
+                .orElse(null);
+
+        MatchNotification notification = MatchNotification.builder()
+                .matchId(matchId)
+                .conversationId(conversationId)
+                .matchedUserId(matchedWith.getId())
+                .matchedUserName(matchedWith.getFirstName())
+                .matchedUserPhotoUrl(photoUrl)
+                .build();
+
+        matchNotificationService.notifyMatch(recipient.getId(), notification);
     }
 
     private Match createMatch(Profile userA, Profile userB) {

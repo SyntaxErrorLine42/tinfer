@@ -27,6 +27,15 @@ public class SupabaseJwtFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
+        // Also check for token in query param (for SSE/EventSource which can't set
+        // headers)
+        if (authHeader == null) {
+            String tokenParam = request.getParameter("token");
+            if (tokenParam != null && !tokenParam.isEmpty()) {
+                authHeader = "Bearer " + tokenParam;
+            }
+        }
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             supabaseJwtService.authenticate(authHeader).ifPresentOrElse(auth -> {
                 SecurityContextHolder.getContext().setAuthentication(auth);
