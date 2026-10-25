@@ -1,5 +1,7 @@
 # 🌐 Tinfer  
-Project developed as part of the "Software Development Project" course.
+Team project developed as part of the "Software Development Project" course.
+
+<img width="1570" height="1012" alt="image" src="https://github.com/user-attachments/assets/b6eedab5-1d11-425b-8f70-6118be67fb39" />
 
 ---
 
